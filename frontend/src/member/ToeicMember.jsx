@@ -3,7 +3,7 @@ import { Mic, ArrowLeft, ArrowRight } from 'lucide-react';
 import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
-
+import { useNavigate } from "react-router-dom";
 
 // ====== DATA & UI TỪ ORIGINAL CODE ======
 const speakingTests = [
@@ -136,7 +136,6 @@ const speakingTests = [
     ]
   }
 ];
-
 
 const writingTests = [
   {
@@ -440,7 +439,9 @@ searchButton: {
     textAlign: 'center',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    border: '2px solid #e5e7eb',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb',
     position: 'relative'
   },
   skillCardDisabled: {
@@ -644,7 +645,9 @@ searchButton: {
     transition: 'all 0.2s ease',
     backgroundColor: '#f3f4f6',
     color: '#6b7280',
-    border: '1px solid #e5e7eb'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb'
   },
   questionNumberActive: {
     backgroundColor: '#dbeafe',
@@ -837,6 +840,7 @@ const ToeicMember = () => {
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const navigate = useNavigate();
 
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
@@ -938,7 +942,7 @@ const ToeicMember = () => {
   };
 
   const handleLogout = () => {
-    alert('Đăng xuất thành công!');
+    navigate("/");
   };
 
   const getCurrentQuestion = () => {

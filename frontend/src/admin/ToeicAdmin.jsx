@@ -5,6 +5,8 @@ import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
 import UploadModal from './UploadModal';
 import Users from './Users';
+import { useNavigate } from "react-router-dom";
+
 
 // ====== DATA & UI TỪ ORIGINAL CODE ======
 const speakingTests = [
@@ -458,7 +460,9 @@ const styles = {
     textAlign: 'center',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    border: '2px solid #e5e7eb',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb',
     position: 'relative'
   },
   skillCardDisabled: {
@@ -662,7 +666,9 @@ const styles = {
     transition: 'all 0.2s ease',
     backgroundColor: '#f3f4f6',
     color: '#6b7280',
-    border: '1px solid #e5e7eb'
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#e5e7eb'
   },
   questionNumberActive: {
     backgroundColor: '#dbeafe',
@@ -1004,6 +1010,7 @@ const ToeicAdmin = () => {
   const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const navigate = useNavigate();
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -1101,7 +1108,7 @@ const ToeicAdmin = () => {
   };
 
   const handleLogout = () => {
-    alert('Đăng xuất thành công!');
+    navigate("/");
   };
 
   const getCurrentQuestion = () => {

@@ -2,7 +2,6 @@ import React from 'react';
 import { Search, Star, Eye, Clock, ChevronDown } from 'lucide-react';
 
 
-
 const Dashboard = ({
   styles,
   skills,

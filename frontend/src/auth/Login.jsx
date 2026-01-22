@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./login.module.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 
 const PasswordInput = ({ value, onChange, placeholder, show, toggleShow }) => (
   <div className={styles.passwordContainer}>
@@ -17,20 +19,19 @@ const PasswordInput = ({ value, onChange, placeholder, show, toggleShow }) => (
   </div>
 );
 
-const AuthForm = ({ onLogin }) => {
+const AuthForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [role, setRole] = useState("MEMBER");
-
   const [forgotMode, setForgotMode] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
-
   const [showPasswordSignUp, setShowPasswordSignUp] = useState(false);
   const [showPasswordSignIn, setShowPasswordSignIn] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const signUpButton = document.getElementById("signUp");
@@ -53,12 +54,17 @@ const AuthForm = ({ onLogin }) => {
       alert("Mật khẩu phải có ít nhất 8 ký tự!");
       return;
     }
-    alert("Đăng ký thành công (frontend mock)!");
+    alert("Đăng ký thành công !");
   };
 
   const handleSignIn = (e) => {
     e.preventDefault();
-    if (onLogin) onLogin(role);
+
+    if (role === "ADMIN") {
+      navigate("/admin");
+    } else {
+      navigate("/member");
+    }
   };
 
   const handleForgotPassword = (e) => {
