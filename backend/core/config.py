@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # ==============================
+    # AI / GROQ
+    # ==============================
+    GROQ_API_KEY: str  # 👈 THÊM DÒNG NÀY
+
+    # ==============================
     # CORS
     # ==============================
     CORS_ORIGINS: List[str] = [

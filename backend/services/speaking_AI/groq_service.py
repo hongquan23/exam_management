@@ -1,7 +1,8 @@
 from groq import Groq
 import os
+from core.config import settings
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 MODEL = "llama-3.1-8b-instant"
 
