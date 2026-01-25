@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models.done_test import DoneTest
+from backend.models.user_attempt import DoneTest
 
 def create(db: Session, user_id: int, test_id: int, correct: int, wrong: int):
     result = DoneTest(

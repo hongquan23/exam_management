@@ -13,3 +13,4 @@ class WritingQuestion(Base):
     section_id = Column(Integer, ForeignKey("section.id"))
 
     section = relationship("Section", back_populates="writing_questions")
+    user_attempt = relationship("UserAttempt", back_populates="writing_question")

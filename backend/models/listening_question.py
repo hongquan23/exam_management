@@ -20,3 +20,4 @@ class ListeningQuestion(Base):
     section_id = Column(Integer, ForeignKey("section.id"))
 
     section = relationship("Section", back_populates="listening_questions")
+    user_attempt = relationship("UserAttempt", back_populates="listening_question")

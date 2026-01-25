@@ -18,3 +18,4 @@ class ReadingQuestion(Base):
     section_id = Column(Integer, ForeignKey("section.id"))
 
     section = relationship("Section", back_populates="reading_questions")
+    user_attempt = relationship("UserAttempt", back_populates="reading_question")

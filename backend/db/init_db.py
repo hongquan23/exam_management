@@ -6,13 +6,13 @@ from db.base import Base
 # Import ALL models để Base biết
 from models import (
     User,
-    Test,
+    UserAttempt,
     Section,
     ListeningQuestion,
     ReadingQuestion,
     WritingQuestion,
     SpeakingQuestion,
-    DoneTest
+    
 )
 
 def init_db():
