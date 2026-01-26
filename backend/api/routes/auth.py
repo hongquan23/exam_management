@@ -5,7 +5,7 @@ from api.deps import get_db
 from schemas.user import UserCreate, UserLogin, Token
 from services import auth_service
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter()
 
 
 @router.post("/register")

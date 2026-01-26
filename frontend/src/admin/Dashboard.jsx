@@ -52,14 +52,14 @@ const Dashboard = ({
             </button>
 
             <div style={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
-            <div style={styles.avatar}>MB</div>
+            <div style={styles.avatar}>AD</div>
             <ChevronDown size={20} color="#2563eb" />
 
             {showUserMenu && (
                 <div style={styles.dropdown}>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>Member User</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>member@toeic.com</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>Admin</div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>admin@toeic.com</div>
                 </div>
 
                 <div 

@@ -10,7 +10,6 @@ from api.routes import (
     reading,
     writing,
     speaking,
-    results,
 )
 
 api_router = APIRouter()
@@ -23,4 +22,3 @@ api_router.include_router(listening.router, prefix="/listening", tags=["Listenin
 api_router.include_router(reading.router, prefix="/reading", tags=["Reading"])
 api_router.include_router(writing.router, prefix="/writing", tags=["Writing"])
 api_router.include_router(speaking.router, prefix="/speaking", tags=["Speaking"])
-api_router.include_router(results.router, prefix="/results", tags=["Results"])

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./login.module.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
+import { login, register } from "../api"; 
 
 const PasswordInput = ({ value, onChange, placeholder, show, toggleShow }) => (
   <div className={styles.passwordContainer}>
@@ -24,14 +24,16 @@ const AuthForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("MEMBER");
+
   const [forgotMode, setForgotMode] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
+
   const [showPasswordSignUp, setShowPasswordSignUp] = useState(false);
   const [showPasswordSignIn, setShowPasswordSignIn] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const signUpButton = document.getElementById("signUp");
@@ -39,41 +41,93 @@ const AuthForm = () => {
     const container = document.getElementById("loginContainer");
 
     if (signUpButton && signInButton && container) {
-      signUpButton.addEventListener("click", () => {
+      signUpButton.onclick = () =>
         container.classList.add(styles.rightPanelActive);
-      });
-      signInButton.addEventListener("click", () => {
+      signInButton.onclick = () =>
         container.classList.remove(styles.rightPanelActive);
-      });
     }
   }, []);
 
-  const handleSignUp = (e) => {
+  // =========================
+  // 🔹 SIGN UP (CHỈ MEMBER)
+  // =========================
+  const handleSignUp = async (e) => {
     e.preventDefault();
+
     if (password.length < 8) {
       alert("Mật khẩu phải có ít nhất 8 ký tự!");
       return;
     }
-    alert("Đăng ký thành công !");
-  };
 
-  const handleSignIn = (e) => {
-    e.preventDefault();
+    try {
+      await register({
+        name,
+        email,
+        password,
+        role: "MEMBER",
+      });
 
-    if (role === "ADMIN") {
-      navigate("/admin");
-    } else {
-      navigate("/member");
+      alert("Đăng ký thành công! Vui lòng đăng nhập.");
+
+      // 🔹 reset form signup
+      setName("");
+      setPassword("");
+      setShowPasswordSignUp(false);
+
+      // 🔹 chuyển về SIGN IN
+      const container = document.getElementById("loginContainer");
+      container.classList.remove(styles.rightPanelActive);
+
+      // 🔹 đảm bảo quay về mode login
+      setForgotMode(false);
+      setRole("MEMBER");
+      setShowPasswordSignIn(false);
+
+      // 👉 email giữ nguyên để user khỏi nhập lại
+    } catch (err) {
+      alert(err.response?.data?.detail || "Đăng ký thất bại");
     }
   };
 
+  // =========================
+  // 🔹 SIGN IN
+  // =========================
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await login({
+        email,
+        password,
+      });
+
+      const { access_token } = res.data;
+
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("role", role);
+
+      if (role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/member");
+      }
+    } catch (err) {
+      alert("Email hoặc mật khẩu không đúng");
+    }
+  };
+
+  // =========================
+  // 🔹 FORGOT PASSWORD (MOCK)
+  // =========================
   const handleForgotPassword = (e) => {
     e.preventDefault();
+
     if (newPassword.length < 8) {
       alert("Mật khẩu mới phải có ít nhất 8 ký tự!");
       return;
     }
-    alert("Khôi phục mật khẩu thành công (frontend mock)!");
+
+    alert("Khôi phục mật khẩu (frontend demo)");
     setForgotMode(false);
     setResetEmail("");
     setNewPassword("");
@@ -82,11 +136,12 @@ const AuthForm = () => {
   return (
     <div className={styles.loginWrapper}>
       <div className={styles.loginContainer} id="loginContainer">
-        
-        {/* Sign Up */}
+
+        {/* ================= SIGN UP ================= */}
         <div className={`${styles.formContainer} ${styles.signUpContainer}`}>
           <form onSubmit={handleSignUp}>
             <h1>Create Account</h1>
+
             <input
               type="text"
               placeholder="Name"
@@ -108,19 +163,21 @@ const AuthForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password (min 8 chars)"
               show={showPasswordSignUp}
-              toggleShow={() => setShowPasswordSignUp(!showPasswordSignUp)}
+              toggleShow={() =>
+                setShowPasswordSignUp(!showPasswordSignUp)
+              }
             />
 
-            <select value={role} onChange={(e) => setRole(e.target.value)} required>
+            {/* 🔒 Chỉ MEMBER */}
+            <select value="MEMBER" disabled>
               <option value="MEMBER">MEMBER</option>
-              <option value="ADMIN">ADMIN</option>
             </select>
 
             <button type="submit">Sign Up</button>
           </form>
         </div>
 
-        {/* Sign In */}
+        {/* ================= SIGN IN ================= */}
         <div className={`${styles.formContainer} ${styles.signInContainer}`}>
           {!forgotMode ? (
             <form onSubmit={handleSignIn}>
@@ -139,17 +196,19 @@ const AuthForm = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 show={showPasswordSignIn}
-                toggleShow={() => setShowPasswordSignIn(!showPasswordSignIn)}
+                toggleShow={() =>
+                  setShowPasswordSignIn(!showPasswordSignIn)
+                }
               />
 
-              <select value={role} onChange={(e) => setRole(e.target.value)} required>
+              <select value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="MEMBER">MEMBER</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
 
               <button type="submit">Sign In</button>
 
-              <p style={{ marginTop: "10px" }}>
+              <p style={{ marginTop: 10 }}>
                 <button
                   type="button"
                   onClick={() => setForgotMode(true)}
@@ -168,7 +227,6 @@ const AuthForm = () => {
           ) : (
             <form onSubmit={handleForgotPassword}>
               <h1>Reset Password</h1>
-              <p>Nhập email và mật khẩu mới</p>
 
               <input
                 type="email"
@@ -181,44 +239,39 @@ const AuthForm = () => {
               <PasswordInput
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="New Password (min 8 chars)"
+                placeholder="New Password"
                 show={showNewPassword}
                 toggleShow={() => setShowNewPassword(!showNewPassword)}
               />
 
               <button type="submit">Update Password</button>
 
-              <p style={{ marginTop: "10px" }}>
-                <button
-                  type="button"
-                  onClick={() => setForgotMode(false)}
-                  style={{
-                    border: "none",
-                    background: "none",
-                    color: "blue",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  Back to Sign In
-                </button>
-              </p>
+              <button
+                type="button"
+                onClick={() => setForgotMode(false)}
+                style={{
+                  border: "none",
+                  background: "none",
+                  color: "blue",
+                  marginTop: 10,
+                }}
+              >
+                Back to Sign In
+              </button>
             </form>
           )}
         </div>
 
-        {/* Overlay */}
+        {/* ================= OVERLAY ================= */}
         <div className={styles.overlayContainer}>
           <div className={styles.overlay}>
             <div className={`${styles.overlayPanel} ${styles.overlayLeft}`}>
               <h1>Welcome Back!</h1>
-              <p>Please login with your personal info</p>
               <button className="ghost" id="signIn">Sign In</button>
             </div>
 
             <div className={`${styles.overlayPanel} ${styles.overlayRight}`}>
               <h1>Hello, Friend!</h1>
-              <p>Enter your details and start your journey with us</p>
               <button className="ghost" id="signUp">Sign Up</button>
             </div>
           </div>
