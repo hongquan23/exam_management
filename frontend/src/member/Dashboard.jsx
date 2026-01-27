@@ -80,7 +80,7 @@ const Dashboard = ({
 
             <input
               type="text"
-              placeholder="Nhập từ khóa bạn muốn tìm kiếm: tên sách, dạng câu hỏi ..."
+              placeholder="Nhập từ khóa bạn muốn tìm kiếm:..."
               style={styles.searchBar}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
