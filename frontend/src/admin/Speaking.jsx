@@ -1,7 +1,6 @@
 import React from 'react';
 import { Star, Clock, Eye } from 'lucide-react';
-
-
+import { useNavigate } from "react-router-dom";
 
 const SpeakingTests = ({
   styles,
@@ -11,10 +10,11 @@ const SpeakingTests = ({
   setActiveView,
   handleTestClick
 }) => {
+  const navigate = useNavigate();
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <div style={styles.headerLeft} onClick={() => setActiveView('dashboard')}>
+        <div style={styles.headerLeft} onClick={() => navigate('/admin/dashboard')}>
           <div style={styles.logo}>📚</div>
           <h1 style={styles.headerTitle}>Thư viện đề thi</h1>
         </div>
@@ -29,7 +29,7 @@ const SpeakingTests = ({
         <div style={{ marginBottom: '32px' }}>
           <button 
             style={{ ...styles.button, ...styles.buttonSecondary }}
-            onClick={() => setActiveView('dashboard')}
+            onClick={() => navigate('/admin/dashboard')}
           >
             ← Quay lại
           </button>

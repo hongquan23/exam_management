@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
 import { Mic, ArrowLeft, ArrowRight } from 'lucide-react';
 import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
-import { useNavigate } from "react-router-dom";
 import styles from './styles';
 
 const speakingTests = [
@@ -283,6 +283,7 @@ const ToeicMember = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
@@ -293,6 +294,21 @@ const ToeicMember = () => {
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
+useEffect(() => {
+  const path = location.pathname;
+
+  if (path === "/member") {
+    setActiveView("dashboard");
+    navigate("/member/dashboard", { replace: true });
+    return;
+  }
+
+  if (path.endsWith("/dashboard")) setActiveView("dashboard");
+  else if (path.endsWith("/speaking")) setActiveView("speaking");
+  else if (path.endsWith("/writing")) setActiveView("writing");
+  else if (path.endsWith("/exam")) setActiveView("exam");
+}, [location.pathname]);
+
 
   useEffect(() => {
     if (activeView === 'exam' && selectedTest) {
@@ -369,8 +385,15 @@ const ToeicMember = () => {
       return;
     }
     setSelectedSkill(skill.id);
-    if (skill.id === "speaking") setActiveView("speaking");
-    if (skill.id === "writing") setActiveView("writing");
+    if (skill.id === "speaking") {
+      setActiveView("speaking");
+      navigate("/member/speaking");
+    }
+
+    if (skill.id === "writing") {
+      setActiveView("writing");
+      navigate("/member/writing");
+    }
   };
 
   const handleTestClick = (test) => {
@@ -380,7 +403,8 @@ const ToeicMember = () => {
     setAnswers({});
     setAudioURL(null);
     setIsRecording(false);
-    setActiveView('exam');
+    setActiveView("exam");
+    navigate("/member/exam");
   };
 
   const handleLogout = () => {
@@ -900,7 +924,10 @@ const renderExam = () => {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button 
               style={{ ...styles.button, ...styles.buttonSecondary }}
-              onClick={() => setActiveView('dashboard')}
+               onClick={() => {
+                  setActiveView("dashboard");
+                  navigate("/member/dashboard");
+                }}
             >
               Thoát
             </button>

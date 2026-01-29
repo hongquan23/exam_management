@@ -1,7 +1,9 @@
 import React from 'react';
 import { Eye, Trash2 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const Users = ({ styles, mockUsers, handleTabChange, handleDeleteUser }) => {
+  const navigate = useNavigate();
   return (
     <>
       {/* ===== HEADER ===== */}
@@ -19,7 +21,7 @@ const Users = ({ styles, mockUsers, handleTabChange, handleDeleteUser }) => {
             ...styles.buttonSecondary,
             padding: '10px 16px'
           }}
-          onClick={() => handleTabChange('dashboard')}
+          onClick={() => navigate('/admin/dashboard')}
         >
           ← Quay lại
         </button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, Star, Eye, Clock, ChevronDown, Pencil, Trash2 } from 'lucide-react';
 import Users from './Users';
-
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = ({
   activeView, 
@@ -23,7 +23,7 @@ const Dashboard = ({
   setActiveView,
   mockUsers 
 }) => {
-
+  const navigate = useNavigate();
   const handleSearch = () => {
     console.log("Search:", searchQuery);
   };
@@ -39,7 +39,7 @@ const Dashboard = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonSecondary }}
-              onClick={() => setActiveView('users')}
+              onClick={() => navigate("/admin/users")}
             >
               Quản lý người dùng
             </button>
