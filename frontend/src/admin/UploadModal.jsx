@@ -106,15 +106,15 @@ const UploadModal = ({ styles, setShowUploadModal }) => {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Part</label>
+            <label style={styles.label}>Question</label>
             <select
-              name="part"
+              name="Question"
               value={form.part}
               onChange={handleChange}
               style={styles.inputField}
             >
-              {[1,2,3,4,5,6,7,8].map(p => (
-                <option key={p} value={p}>Part {p}</option>
+              {[1,2,3,4,5,6,7,8,9,10].map(p => (
+                <option key={p} value={p}>Question {p}</option>
               ))}
             </select>
           </div>
