@@ -10,7 +10,7 @@ class ListeningQuestionOut(BaseModel):
     option_b: str
     option_c: str
     option_d: str
-    section_id: int
+    
 
 class ListeningQuestionCreate(BaseModel):
     passage: str | None
@@ -21,7 +21,7 @@ class ListeningQuestionCreate(BaseModel):
     option_b: str
     option_c: str
     option_d: str
-    section_id: int
+    
 
     
 

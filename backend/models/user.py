@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, String, Time
 from db.base import Base
 from sqlalchemy.orm import relationship
 
@@ -7,9 +6,10 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
-    email = Column(String(255), unique=True, index=True)
-    password_hash = Column(String(255))
-    role = Column(String(50))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    name = Column(String)
+    email = Column(String, unique=True, index=True)
+    password_hash = Column(String)
+    role = Column(String)
+    created_at = Column(Time)
+
     user_attempts = relationship("UserAttempt", back_populates="user")

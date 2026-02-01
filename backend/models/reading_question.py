@@ -15,7 +15,6 @@ class ReadingQuestion(Base):
     option_d = Column(Text)
 
     correct_answer = Column(String(1))
-    section_id = Column(Integer, ForeignKey("section.id"))
-
-    section = relationship("Section", back_populates="reading_questions")
-    user_attempt = relationship("UserAttempt", back_populates="reading_question")
+    
+    question_base = relationship("QuestionBase", back_populates="reading_question", uselist=False)
+  

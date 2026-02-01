@@ -6,14 +6,16 @@ class WritingQuestionOut(BaseModel):
     passage: str | None
     question: str
     sample_answer: str | None
-    section_id: int
+    image_describe: str | None
+    
 
 class WritingQuestionCreate(BaseModel):
     image_url: str | None
     passage: str | None
     question: str
     sample_answer: str | None
-    section_id: int
+    image_describe: str | None
+    
 
     
 

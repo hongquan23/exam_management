@@ -2,9 +2,9 @@ from services.speaking_AI.groq_service import send_message
 
 def score_toeic_sp_q1_2(reference_text: str, transcript: str) -> str:
     prompt = f"""
-You are a TOEIC Speaking examiner with a supportive and fair grading style.
+You are a TOEIC Speaking examiner.
 
-TASK: Question 1–2 (Read a text aloud)
+TASK: TOEIC Speaking – Question 1–2 (Read a text aloud)
 
 REFERENCE TEXT:
 "{reference_text}"
@@ -12,22 +12,51 @@ REFERENCE TEXT:
 CANDIDATE TRANSCRIPT:
 "{transcript}"
 
-Evaluate the candidate based on TOEIC Speaking criteria.
-Be lenient and reasonable. Focus on overall communication rather than penalizing minor or natural mistakes.
-Do not be overly strict with small pronunciation or grammar errors if the meaning is still clear.
+Your job is to evaluate the candidate using TOEIC Speaking-style feedback.
+Be supportive, fair, and constructive in comments.
+However, the Accuracy score MUST be calculated in a strictly objective, word-by-word manner.
 
-Return the evaluation in the following format:
+--------------------
+ACCURACY SCORING RULES (STRICT – NO FLEXIBILITY):
 
-Accuracy score (0-100):
-Fluency score (0-100):
-Pronunciation score (0-100):
+1. Split both texts into words using whitespace as the delimiter.
+2. Compare words sequentially by position.
+3. A word is counted as correct ONLY IF it is exactly the same as the corresponding word
+   in the reference text.
+   - Case-sensitive
+   - Punctuation-sensitive
+   - No spelling correction
+   - No synonym or semantic matching
+4. Missing words, extra words, or incorrect words are counted as incorrect.
+5. Accuracy formula:
+   Accuracy (%) = (Number of correct words / Total number of words in the reference text) × 100
+6. Do NOT infer meaning.
+7. Do NOT be lenient for the Accuracy score.
+8. After calculating the Accuracy score, round it to the nearest whole number.
+
+--------------------
+OTHER SCORES (HOLISTIC TOEIC-STYLE):
+
+- Fluency score (0–100): Consider smoothness, pacing, pauses, and rhythm.
+- Pronunciation score (0–100): Consider clarity, stress, intonation, and intelligibility.
+  Minor or natural pronunciation errors are acceptable if understanding is not affected.
+
+--------------------
+OUTPUT FORMAT (FOLLOW EXACTLY):
+
+Accuracy score (0–100): <number>
+
+Fluency score (0–100): <number>
+
+Pronunciation score (0–100): <number>
 
 Overall comment:
-- Briefly summarize the candidate’s performance in a positive and constructive tone.
+- Brief, positive, and constructive summary of the performance.
 
 Mistakes and suggestions for improvement:
-- List main mistakes that affect understanding (if any).
-- Give clear, practical suggestions to help the candidate improve.
+- List key mistakes that affect understanding (if any).
+- Give clear, practical, TOEIC-relevant suggestions for improvement.
+
 """
 
 

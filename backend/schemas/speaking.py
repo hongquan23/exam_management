@@ -8,7 +8,7 @@ class SpeakingQuestionOut(BaseModel):
     image_describe: str | None
     question: str
     sample_answer: str | None
-    section_id: int
+    
 
 class SpeakingQuestionCreate(BaseModel):
     direction: str | None
@@ -17,7 +17,7 @@ class SpeakingQuestionCreate(BaseModel):
     image_describe: str | None
     question: str
     sample_answer: str | None
-    section_id: int
+    
 
     
 

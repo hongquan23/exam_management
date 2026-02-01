@@ -25,8 +25,11 @@ UPLOAD_DIR = "images/speaking/"
 def create_speaking_question(
     section_id: int = Form(...),
     direction: str = Form(...),
+    information: str = Form(None),
     question: str = Form(...),
     image: UploadFile | None = File(None),
+    image_describe: str = Form(None),
+    sample_answer: str = Form(None),
     db: Session = Depends(get_db)
 ):
     image_path = None
@@ -42,13 +45,15 @@ def create_speaking_question(
         image_path = file_path  # 👈 đường dẫn lưu DB
 
     data = {
-        "section_id": section_id,
         "question": question,
         "image_url": image_path,
-        "direction": direction
+        "direction": direction,
+        "information": information,
+        "image_describe": image_describe,
+        "sample_answer": sample_answer
     }
 
-    return speaking_crud.create(db, data)
+    return speaking_crud.create(db, data, section_id)
 
 @router.get("/section/{section_id}", response_model=list[SpeakingQuestionOut])
 def get_questions(section_id: int, db: Session = Depends(get_db)):

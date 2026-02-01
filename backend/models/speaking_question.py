@@ -13,7 +13,8 @@ class SpeakingQuestion(Base):
     image_describe = Column(Text)
     question = Column(Text)
     sample_answer = Column(Text)
-    section_id = Column(Integer, ForeignKey("section.id"))
 
-    section = relationship("Section", back_populates="speaking_questions")
-    user_attempt = relationship("UserAttempt", back_populates="speaking_question")
+    question_base = relationship("QuestionBase", back_populates="speaking_question", uselist=False)
+
+    
+    

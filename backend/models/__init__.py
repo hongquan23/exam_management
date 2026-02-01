@@ -7,4 +7,5 @@ from .listening_question import ListeningQuestion
 from .reading_question import ReadingQuestion
 from .writing_question import WritingQuestion
 from .speaking_question import SpeakingQuestion
+from .question_base import QuestionBase
 

@@ -1,18 +1,56 @@
 
 import json
+import os
+import tempfile
 from services.speaking_AI.toeic_scorer import score_toeic_w_q1_5, score_toeic_w_q6_7, score_toeic_w_q8
-from fastapi import APIRouter, Depends, Form
-from sqlalchemy.orm import Session
 
+from fastapi import APIRouter, Depends,Form, File, UploadFile
+from sqlalchemy.orm import Session
+import uuid
 from api.deps import get_db
 from schemas.writing import WritingQuestionCreate, WritingQuestionOut
 from crud import writing as writing_crud
 
 router = APIRouter()
+UPLOAD_DIR = "images/writing/"
 
 @router.post("/", response_model=WritingQuestionOut)
-def create_question(q: WritingQuestionCreate, db: Session = Depends(get_db)):
-    return writing_crud.create(db, q)
+def create_writing_question(
+    section_id: int = Form(...),
+    question: str = Form(...),
+    image: UploadFile | None = File(None),
+    image_describe: str = Form(None),
+    sample_answer: str = Form(None),
+    db: Session = Depends(get_db)
+):
+    image_path = None
+
+    # 1. Upload image (giống speaking)
+    if image:
+        ext = image.filename.split(".")[-1]
+        filename = f"{uuid.uuid4()}.{ext}"
+        file_path = os.path.join(UPLOAD_DIR, filename)
+
+        with open(file_path, "wb") as f:
+            f.write(image.file.read())
+
+        image_path = file_path
+
+    # 2. Data cho WritingQuestion
+    data = {
+        "question": question,
+        "image_url": image_path,
+        "image_describe": image_describe,
+        "sample_answer": sample_answer
+    }
+
+    # 3. Gọi CRUD
+    return writing_crud.create(
+        db=db,
+        data=data,
+        section_id=section_id
+    )
+
 
 @router.get("/section/{section_id}", response_model=list[WritingQuestionOut])
 def get_questions(section_id: int, db: Session = Depends(get_db)):

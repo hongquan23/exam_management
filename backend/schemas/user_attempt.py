@@ -8,7 +8,7 @@ class UserAttemptBase(BaseModel):
     section_id: int
     question_id: int
     user_ans: Optional[str] = None
-    AI_ans: Optional[str] = None
+    ai_ans: Optional[str] = None
 
 
 class UserAttemptCreate(UserAttemptBase):
@@ -17,12 +17,12 @@ class UserAttemptCreate(UserAttemptBase):
 
 class UserAttemptUpdate(BaseModel):
     user_ans: Optional[str] = None
-    AI_ans: Optional[str] = None
+    ai_ans: Optional[str] = None
 
 
 class UserAttemptOut(UserAttemptBase):
     id: int
-    created_at: datetime
+   
 
     class Config:
         orm_mode = True

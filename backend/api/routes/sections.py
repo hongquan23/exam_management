@@ -7,15 +7,13 @@ from crud import section as section_crud
 
 router = APIRouter()
 
-@router.post("/test/{test_id}", response_model=SectionOut)
+@router.post("/create", response_model=SectionOut)
 def create_section(
-    test_id: int,
     section_in: SectionCreate,
     db: Session = Depends(get_db)
 ):
-    return section_crud.create(db, test_id, section_in)
+    return section_crud.create(db, section_in)
 
-
-@router.get("/test/{test_id}", response_model=list[SectionOut])
-def get_sections_by_test(test_id: int, db: Session = Depends(get_db)):
-    return section_crud.get_by_test(db, test_id)
+@router.get("/", response_model=list[SectionOut])
+def get_sections(db: Session = Depends(get_db)):
+    return section_crud.get_all(db)

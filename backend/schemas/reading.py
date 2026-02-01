@@ -8,7 +8,7 @@ class ReadingQuestionOut(BaseModel):
     option_b: str
     option_c: str
     option_d: str
-    section_id: int
+ 
 
 class ReadingQuestionCreate(BaseModel):
     passage: str
@@ -17,7 +17,7 @@ class ReadingQuestionCreate(BaseModel):
     option_b: str
     option_c: str
     option_d: str
-    section_id: int
+  
 
 
     class Config:

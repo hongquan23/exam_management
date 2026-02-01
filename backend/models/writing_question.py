@@ -10,7 +10,7 @@ class WritingQuestion(Base):
     passage = Column(Text)
     question = Column(Text)
     sample_answer = Column(Text)
-    section_id = Column(Integer, ForeignKey("section.id"))
-
-    section = relationship("Section", back_populates="writing_questions")
-    user_attempt = relationship("UserAttempt", back_populates="writing_question")
+    image_describe = Column(Text)
+   
+    question_base = relationship("QuestionBase", back_populates="writing_question", uselist=False)
+ 
