@@ -13,6 +13,7 @@ class SpeakingQuestion(Base):
     image_describe = Column(Text)
     question = Column(Text)
     sample_answer = Column(Text)
+    part = Column(Integer)
 
     question_base = relationship("QuestionBase", back_populates="speaking_question", uselist=False)
 

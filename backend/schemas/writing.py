@@ -7,6 +7,7 @@ class WritingQuestionOut(BaseModel):
     question: str
     sample_answer: str | None
     image_describe: str | None
+    part: int   
     
 
 class WritingQuestionCreate(BaseModel):
@@ -15,6 +16,7 @@ class WritingQuestionCreate(BaseModel):
     question: str
     sample_answer: str | None
     image_describe: str | None
+    part: int
     
 
     

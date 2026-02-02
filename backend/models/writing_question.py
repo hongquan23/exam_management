@@ -11,6 +11,7 @@ class WritingQuestion(Base):
     question = Column(Text)
     sample_answer = Column(Text)
     image_describe = Column(Text)
+    part = Column(Integer)
    
     question_base = relationship("QuestionBase", back_populates="writing_question", uselist=False)
  

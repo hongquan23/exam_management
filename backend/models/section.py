@@ -8,7 +8,6 @@ class Section(Base):
     id = Column(Integer, primary_key=True, index=True)
     test_id = Column(Integer)
     skill = Column(String)
-    part = Column(Integer)
     time_limit = Column(Integer)
     name = Column(String)
 

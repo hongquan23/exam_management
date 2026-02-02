@@ -8,6 +8,7 @@ class SpeakingQuestionOut(BaseModel):
     image_describe: str | None
     question: str
     sample_answer: str | None
+    part: int
     
 
 class SpeakingQuestionCreate(BaseModel):
@@ -17,6 +18,7 @@ class SpeakingQuestionCreate(BaseModel):
     image_describe: str | None
     question: str
     sample_answer: str | None
+    part: int
     
 
     

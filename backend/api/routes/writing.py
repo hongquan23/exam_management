@@ -18,6 +18,7 @@ UPLOAD_DIR = "images/writing/"
 def create_writing_question(
     section_id: int = Form(...),
     question: str = Form(...),
+    part: int = Form(...),
     image: UploadFile | None = File(None),
     image_describe: str = Form(None),
     sample_answer: str = Form(None),
@@ -39,6 +40,7 @@ def create_writing_question(
     # 2. Data cho WritingQuestion
     data = {
         "question": question,
+        "part": part,
         "image_url": image_path,
         "image_describe": image_describe,
         "sample_answer": sample_answer

@@ -24,6 +24,7 @@ UPLOAD_DIR = "images/speaking/"
 def create_speaking_question(
     section_id: int = Form(...),
     direction: str = Form(...),
+    part: int = Form(...),
     information: str = Form(None),
     question: str = Form(...),
     image: UploadFile | None = File(None),
@@ -47,6 +48,7 @@ def create_speaking_question(
         "question": question,
         "image_url": image_path,
         "direction": direction,
+        "part": part,
         "information": information,
         "image_describe": image_describe,
         "sample_answer": sample_answer
