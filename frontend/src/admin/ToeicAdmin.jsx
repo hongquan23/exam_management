@@ -7,6 +7,8 @@ import UploadModal from './UploadModal';
 import Users from './Users';
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from './styles';
+import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection } from "../api";
+
 
 // ====== DATA & UI TỪ ORIGINAL CODE ======
 const speakingTests = [
@@ -283,7 +285,6 @@ const skills = [
   { id: 'writing', name: 'Writing', icon: '✍️', color: '#8b5cf6', count: 12, disabled: false },
   { id: 'speaking', name: 'Speaking', icon: '🎤', color: '#f97316', count: 15, disabled: false }
 ];
-const allTests = [...speakingTests, ...writingTests];
 
 const ToeicAdmin = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -304,6 +305,9 @@ const ToeicAdmin = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [speakingTestsData, setSpeakingTestsData] = useState([]);
+  const [writingTestsData, setWritingTestsData] = useState([]);
+  const allTests = [...speakingTestsData, ...writingTestsData];
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -324,6 +328,98 @@ useEffect(() => {
   else if (path.endsWith("/exam")) setActiveView("exam");
   else if (path.endsWith("/users")) setActiveView("users");
 }, [location.pathname]);
+useEffect(() => {
+  const fetchTests = async () => {
+    try {
+      // ===== SPEAKING =====
+      const speakingRes = await getSpeakingTests();
+      const speakingWithQuestions = await Promise.all(
+        (speakingRes.data || []).map(async (section) => {
+          try {
+            const qRes = await getSpeakingBySection(section.id);
+            
+            // ✅ Map questions sang UI format
+            const mappedQuestions = (qRes.data || []).map(q => 
+              mapAPIQuestionToUIFormat(q, 'Speaking', section.part || 1)
+            );
+
+            return {
+              ...section,
+              skill: 'Speaking',
+              type: 'TOEIC Bridge',
+              title: section.name,
+              duration: section.time_limit || 15,
+              questions: mappedQuestions,
+              // Tạo sections để tương thích với UI
+              sections: [{
+                id: section.id,
+                name: section.name,
+                title: section.name,
+                questions: mappedQuestions
+              }]
+            };
+          } catch (e) {
+            console.error('Lỗi load speaking section:', e);
+            return { 
+              ...section, 
+              questions: [],
+              sections: []
+            };
+          }
+        })
+      );
+
+      // ===== WRITING =====
+      const writingRes = await getWritingTests();
+      const writingWithQuestions = await Promise.all(
+        (writingRes.data || []).map(async (section) => {
+          try {
+            const qRes = await getWritingBySection(section.id);
+            
+            // ✅ Map questions sang UI format
+            const mappedQuestions = (qRes.data || []).map(q => 
+              mapAPIQuestionToUIFormat(q, 'Writing', section.part || 1)
+            );
+
+            return {
+              ...section,
+              skill: 'Writing',
+              type: 'TOEIC Bridge',
+              title: section.name,
+              duration: section.time_limit || 37,
+              questions: mappedQuestions,
+              // Tạo sections để tương thích với UI
+              sections: [{
+                id: section.id,
+                name: section.name,
+                title: section.name,
+                questions: mappedQuestions
+              }]
+            };
+          } catch (e) {
+            console.error('Lỗi load writing section:', e);
+            return { 
+              ...section, 
+              questions: [],
+              sections: []
+            };
+          }
+        })
+      );
+
+      console.log('✅ Speaking tests loaded:', speakingWithQuestions);
+      console.log('✅ Writing tests loaded:', writingWithQuestions);
+
+      setSpeakingTestsData(speakingWithQuestions);
+      setWritingTestsData(writingWithQuestions);
+    } catch (err) {
+      console.error("Lỗi load test:", err);
+      alert('Không thể tải dữ liệu. Vui lòng thử lại!');
+    }
+  };
+
+  fetchTests();
+}, []);
 
   useEffect(() => {
     if (activeView === 'exam' && selectedTest) {
@@ -387,36 +483,157 @@ useEffect(() => {
       alert('Không thể truy cập micro!');
     }
   };
+// Thêm vào đầu component, sau các import
+const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
+  const baseQuestion = {
+    id: apiQuestion.id,
+    part: part
+    // Map dựa vào skill và part
+  };
 
+  if (skill === 'Speaking') {
+    // Xác định type dựa vào part
+    let questionType = '';
+    let prepTime = 30;
+    let responseTime = 30;
+
+    switch(part) {
+      case 1:
+        questionType = 'Read a Short Text Aloud';
+        prepTime = 25;
+        responseTime = 30;
+        break;
+      case 2:
+        questionType = 'Describe a Photograph';
+        prepTime = 30;
+        responseTime = 30;
+        break;
+      case 3:
+        questionType = 'Respond to questions';
+        prepTime = 15;
+        responseTime = 30;
+        break;
+      case 4:
+        questionType = 'Respond using information';
+        prepTime = 30;
+        responseTime = 30;
+        break;
+      case 5:
+        questionType = 'Propose a solution';
+        prepTime = 60;
+        responseTime = 60;
+        break;
+      case 6:
+        questionType = 'Express an opinion';
+        prepTime = 60;
+        responseTime = 60;
+        break;
+      default:
+        questionType = 'Speaking Question';
+    }
+
+    return {
+      ...baseQuestion,
+      part: part,
+      type: questionType,
+      prepTime,
+      responseTime,
+      text: apiQuestion.question || '',
+      direction: apiQuestion.direction || '',
+      instruction: apiQuestion.direction || apiQuestion.question || '',
+      image: apiQuestion.image || '',
+      information: apiQuestion.information || '',
+      sample_answer: apiQuestion.sample_answer || ''
+    };
+  }
+
+  if (skill === 'Writing') {
+    let questionType = '';
+    let timeLimit = 120;
+
+    switch(part) {
+      case 1:
+        questionType = 'Write a Sentence';
+        timeLimit = 90;
+        break;
+      case 2:
+        questionType = 'Respond to a written request';
+        timeLimit = 600;
+        break;
+      case 3:
+        questionType = 'Write an opinion essay';
+        timeLimit = 600;
+        break;
+      default:
+        questionType = 'Writing Question';
+    }
+
+    return {
+      ...baseQuestion,
+      part: part,
+      type: questionType,
+      timeLimit,
+      question: apiQuestion.question || '',
+      instruction: apiQuestion.question || '',
+      image: apiQuestion.image || '',
+      image_describe: apiQuestion.image_describe || '',
+      sample_answer: apiQuestion.sample_answer || ''
+    };
+  }
+
+  return baseQuestion;
+};
   const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
     }
   };
 
-  const handleSkillClick = (skill) => {
-    if (skill.disabled) {
-      alert(`Kỹ năng ${skill.name} đang được phát triển!`);
-      return;
-    }
-    setSelectedSkill(skill.id);
-   if (skill.id === "speaking") {
-     setActiveView("speaking");
-     navigate("/admin/speaking");
+ const handleSkillClick = async (skill) => {
+  if (skill.disabled) {
+    alert(`Kỹ năng ${skill.name} đang được phát triển!`);
+    return;
+  }
+  
+  try {
+    setSelectedSkill(skill.name);
+    
+    if (skill.id === "speaking") {
+      const res = await getSpeakingTests();
+      setSpeakingTestsData(res.data || []);  // Thêm fallback
+      setActiveView("speaking");
+      navigate("/admin/speaking");
     }
 
     if (skill.id === "writing") {
+      const res = await getWritingTests();
+      setWritingTestsData(res.data || []);  // Thêm fallback
       setActiveView("writing");
       navigate("/admin/writing");
     }
-  };
+  } catch (err) {
+    console.error('Lỗi load skill:', err);
+    alert('Không thể tải dữ liệu. Vui lòng thử lại!');
+  }
+};
   const handleUsersClick = () => {
   setActiveView("users");
   navigate("/admin/users");
   };
 
   const handleTestClick = (test) => {
-    setSelectedTest(test);
+    const formattedTest = {
+    ...test,
+    sections: test.sections || [
+      {
+        id: 'default',
+        name: test.title,
+        questions: test.questions || []
+      }
+    ],
+    questions: test.questions || []
+    };
+    setSelectedTest(formattedTest);
     setCurrentSection(0);
     setCurrentQuestionInSection(0);
     setAnswers({});
@@ -432,30 +649,27 @@ useEffect(() => {
 
   const getCurrentQuestion = () => {
     if (!selectedTest) return null;
-    const section = selectedTest.sections[currentSection];
-    return section?.questions[currentQuestionInSection];
+    return selectedTest.questions[currentQuestionInSection];
   };
 
   const handleNextQuestion = () => {
-    const section = selectedTest.sections[currentSection];
-    if (currentQuestionInSection < section.questions.length - 1) {
+    if (!selectedTest?.questions) return;
+
+    if (currentQuestionInSection < selectedTest.questions.length - 1) {
       setCurrentQuestionInSection(currentQuestionInSection + 1);
-    } else if (currentSection < selectedTest.sections.length - 1) {
-      setCurrentSection(currentSection + 1);
-      setCurrentQuestionInSection(0);
     }
+
     setAudioURL(null);
     setIsRecording(false);
   };
 
   const handlePrevQuestion = () => {
+    if (!selectedTest?.questions) return;
+
     if (currentQuestionInSection > 0) {
       setCurrentQuestionInSection(currentQuestionInSection - 1);
-    } else if (currentSection > 0) {
-      setCurrentSection(currentSection - 1);
-      const prevSection = selectedTest.sections[currentSection - 1];
-      setCurrentQuestionInSection(prevSection.questions.length - 1);
     }
+
     setAudioURL(null);
     setIsRecording(false);
   };
@@ -524,9 +738,9 @@ useEffect(() => {
             </div>
 
             <div style={styles.questionText}>{question.instruction}</div>
-
-            <img src={question.image} alt="Question" style={styles.examImage} />
-
+             {question.image && question.image.trim() !== '' && (
+              <img src={question.image} alt="Question" style={styles.examImage} />
+            )}
             {renderRecordControls(question.responseTime)}
           </div>
         );
@@ -709,11 +923,11 @@ useEffect(() => {
             </div>
 
             <div style={styles.questionText}>{question.instruction}</div>
-
-            <img src={question.image} alt="Question" style={styles.examImage} />
-
+              {question.image && question.image.trim() !== '' && (
+                <img src={question.image} alt="Question" style={styles.examImage} />
+              )}
             <div style={styles.imageCaption}>
-              {question.words.join(' / ')}
+              {(question.words || []).join(' / ')}
             </div>
 
             <textarea
@@ -860,24 +1074,25 @@ useEffect(() => {
           </div>
 
           <div style={styles.examNav}>
-            {selectedTest.sections.map((section, idx) => (
-              <div
-                key={section.id}
-                style={{
-                  ...styles.navTab,
-                  ...(currentSection === idx ? styles.navTabActive : {})
-                }}
-                onClick={() => {
-                  setCurrentSection(idx);
-                  setCurrentQuestionInSection(0);
-                  setAudioURL(null);
-                  setIsRecording(false);
-                }}
-              >
-                {section.name}
-              </div>
-            ))}
-          </div>
+          {/* SỬA PHẦN NÀY - thêm kiểm tra sections */}
+          {(selectedTest.sections || []).map((section, idx) => (
+            <div
+              key={section.id || idx}  // Thêm key
+              style={{
+                ...styles.navTab,
+                ...(currentSection === idx ? styles.navTabActive : {})
+              }}
+              onClick={() => {
+                setCurrentSection(idx);
+                setCurrentQuestionInSection(0);
+                setAudioURL(null);
+                setIsRecording(false);
+              }}
+            >
+              {section.name || selectedTest.title}  {/* Sửa từ selectedTest.name */}
+            </div>
+          ))}
+        </div>
 
           <div style={styles.examContent}>
             <div style={styles.examLeft}>
@@ -895,10 +1110,7 @@ useEffect(() => {
                 <button
                   style={{ ...styles.button, ...styles.buttonPrimary }}
                   onClick={handleNextQuestion}
-                  disabled={
-                    currentSection === selectedTest.sections.length - 1 &&
-                    currentQuestionInSection === selectedTest.sections[currentSection].questions.length - 1
-                  }
+                 disabled={currentQuestionInSection === selectedTest.questions.length - 1}
                 >
                   Câu sau
                   <ArrowRight size={16} />
@@ -912,33 +1124,64 @@ useEffect(() => {
                 <div style={styles.timerValue}>{timeRemaining ? formatTime(timeRemaining) : '--:--'}</div>
               </div>
 
-              <div style={styles.questionsBox}>
-                {selectedTest.sections.map((section, sIdx) => (
-                  <div key={section.id} style={{ marginBottom: '16px' }}>
-                    <div style={styles.questionsTitle}>{section.name}</div>
-                    <div style={styles.questionGrid}>
-                      {section.questions.map((q, qIdx) => (
-                        <div
-                          key={q.id}
-                          style={{
-                            ...styles.questionNumber,
-                            ...(currentSection === sIdx && currentQuestionInSection === qIdx ? styles.questionNumberActive : {})
-                          }}
-                          onClick={() => {
-                            setCurrentSection(sIdx);
-                            setCurrentQuestionInSection(qIdx);
-                            setAudioURL(null);
-                            setIsRecording(false);
-                          }}
-                        >
-                          {q.id}
-                        </div>
-                      ))}
-                    </div>
+{/* ✅ CODE MỚI - nhóm theo Part */}
+      <div style={styles.questionsBox}>
+        <div style={styles.questionsTitle}>Danh sách câu hỏi</div>
+        
+        {(() => {
+          const questions = selectedTest.questions || [];
+          
+          // Nhóm câu hỏi theo part
+          const groupedByPart = questions.reduce((acc, q, index) => {
+            const part = q.part || 1;
+            if (!acc[part]) {
+              acc[part] = [];
+            }
+            acc[part].push({ ...q, originalIndex: index });
+            return acc;
+          }, {});
+
+          return Object.entries(groupedByPart).map(([part, partQuestions]) => (
+            <div key={part} style={{ marginBottom: '16px' }}>
+              {/* Tiêu đề Part */}
+              <div style={{ 
+                fontSize: '13px', 
+                fontWeight: '600', 
+                color: '#374151',
+                marginBottom: '8px',
+                paddingLeft: '4px'
+              }}>
+                {partQuestions.length === 1 
+                  ? `Question ${partQuestions[0].originalIndex + 1}`
+                  : `Questions ${partQuestions[0].originalIndex + 1}-${partQuestions[partQuestions.length - 1].originalIndex + 1}`
+                }
+              </div>
+
+              {/* Grid câu hỏi của Part này */}
+              <div style={styles.questionGrid}>
+                {partQuestions.map((q) => (
+                  <div
+                    key={q.id}
+                    style={{
+                      ...styles.questionNumber,
+                      ...(currentQuestionInSection === q.originalIndex 
+                        ? styles.questionNumberActive 
+                        : {})
+                    }}
+                    onClick={() => {
+                      setCurrentQuestionInSection(q.originalIndex);
+                      setAudioURL(null);
+                      setIsRecording(false);
+                    }}
+                  >
+                    {q.originalIndex + 1}
                   </div>
                 ))}
               </div>
-
+            </div>
+          ));
+        })()}
+      </div>
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary, width: '100%', justifyContent: 'center' }}
               >
@@ -981,40 +1224,61 @@ useEffect(() => {
 
         {showUploadModal && (
           <UploadModal
-            styles={styles}
-            setShowUploadModal={setShowUploadModal}
-          />
+          styles={styles}
+          setShowUploadModal={setShowUploadModal}
+          selectedSkill={selectedSkill}
+          onUploaded={async () => {
+            const speakingRes = await getSpeakingTests();
+            const speakingWithQuestions = await Promise.all(
+              speakingRes.data.map(async (section) => {
+                const qRes = await getSpeakingBySection(section.id);
+                return { ...section, questions: qRes.data };
+              })
+            );
+
+            const writingRes = await getWritingTests();
+            const writingWithQuestions = await Promise.all(
+              writingRes.data.map(async (section) => {
+                const qRes = await getWritingBySection(section.id);
+                return { ...section, questions: qRes.data };
+              })
+            );
+
+            setSpeakingTestsData(speakingWithQuestions);
+            setWritingTestsData(writingWithQuestions);
+          }}
+        />
         )}
       </>
     );
   }
 
 
-  if (activeView === 'speaking') {
-    return (
-      <SpeakingTests
-        styles={styles}
-        hoveredCard={hoveredCard}
-        setHoveredCard={setHoveredCard}
-        speakingTests={speakingTests}
-        setActiveView={setActiveView}
-        handleTestClick={handleTestClick}
-      />
-    );
-  }
+if (activeView === 'speaking') {
+  return (
+    <SpeakingTests
+      styles={styles}
+      hoveredCard={hoveredCard}
+      setHoveredCard={setHoveredCard}
+      speakingTests={speakingTestsData}
+      setActiveView={setActiveView}
+      handleTestClick={handleTestClick}
+    />
+  );
+}
 
-  if (activeView === 'writing') {
-    return (
-      <WritingTests
-        styles={styles}
-        hoveredCard={hoveredCard}
-        setHoveredCard={setHoveredCard}
-        writingTests={writingTests}
-        setActiveView={setActiveView}
-        handleTestClick={handleTestClick}
-      />
-    );
-  }
+if (activeView === 'writing') {
+  return (
+    <WritingTests
+      styles={styles}
+      hoveredCard={hoveredCard}
+      setHoveredCard={setHoveredCard}
+      writingTests={writingTestsData}
+      setActiveView={setActiveView}
+      handleTestClick={handleTestClick}
+    />
+  );
+}
 
   if (activeView === 'exam') {
     return renderExam();

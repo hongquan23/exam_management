@@ -12,7 +12,6 @@ from fastapi import HTTPException
 import subprocess
 
 
-
 from api.deps import get_db
 from schemas.speaking import SpeakingQuestionCreate, SpeakingQuestionOut
 from crud import speaking as speaking_crud

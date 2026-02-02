@@ -14,3 +14,6 @@ def create(db: Session,  section_in: SectionBase):
     db.commit()
     db.refresh(section)
     return section
+
+def get_by_skill(db: Session, skill: str):
+    return db.query(Section).filter(Section.skill == skill).all()

@@ -15,5 +15,7 @@ def create_section(
     return section_crud.create(db, section_in)
 
 @router.get("/", response_model=list[SectionOut])
-def get_sections(db: Session = Depends(get_db)):
+def get_sections(skill: str | None = None, db: Session = Depends(get_db)):
+    if skill:
+        return section_crud.get_by_skill(db, skill)
     return section_crud.get_all(db)

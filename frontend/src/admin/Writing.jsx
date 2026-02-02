@@ -6,11 +6,12 @@ const WritingTests = ({
   styles,
   hoveredCard,
   setHoveredCard,
-  writingTests,
+  writingTests = [],
   setActiveView,
   handleTestClick
 }) => {
   const navigate = useNavigate();
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
@@ -53,28 +54,39 @@ const WritingTests = ({
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div style={styles.testTitle}>{test.title}</div>
+                {/* 👉 Title */}
+                <div style={styles.testTitle}>
+                  {test.title || test.name || "Untitled Test"}
+                </div>
                 
+                {/* 👉 Meta */}
                 <div style={styles.testMeta}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Clock size={12} />
-                    {test.duration}p
+                    {test.duration || test.time_limit || 0}p
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Eye size={12} />
-                    {test.views > 1000 ? `${(test.views/1000).toFixed(1)}k` : test.views}
+                    {test.views 
+                      ? (test.views > 1000 ? `${(test.views/1000).toFixed(1)}k` : test.views) 
+                      : 0}
                   </span>
                 </div>
 
+                {/* 👉 Question count */}
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-                  {test.questions} câu
+                  {(test.questions?.length 
+                    ?? test.question_count 
+                    ?? 0)} câu
                 </div>
 
+                {/* 👉 Tags */}
                 <div style={styles.testTags}>
                   <span style={{ ...styles.tag, ...styles.tagBlue }}>#TOEIC Bridge</span>
                   <span style={{ ...styles.tag, ...styles.tagPurple }}>#Writing</span>
                 </div>
 
+                {/* 👉 Action */}
                 <button 
                   style={{ ...styles.button, ...styles.buttonPrimary, width: '100%', justifyContent: 'center' }}
                   onClick={() => handleTestClick(test)}
@@ -83,10 +95,14 @@ const WritingTests = ({
                 </button>
 
                 <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '8px', textAlign: 'center' }}>
-                  {test.comments} bình luận ▼
+                  {(test.comments || 0)} bình luận ▼
                 </div>
               </div>
             ))}
+
+            {writingTests.length === 0 && (
+              <p style={{ color: "#6b7280" }}>Chưa có đề Writing nào.</p>
+            )}
           </div>
         </div>
       </main>

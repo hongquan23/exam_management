@@ -14,3 +14,4 @@ class Section(Base):
 
     questions = relationship("QuestionBase", back_populates="section")
     user_attempts = relationship("UserAttempt", back_populates="section")
+
