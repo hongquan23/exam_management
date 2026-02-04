@@ -316,14 +316,18 @@ searchButton: {
     display: 'flex',
     gap: '24px',
     padding: '32px',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    alignItems: 'flex-start'
   },
   examLeft: {
     flex: 1,
     backgroundColor: 'white',
     borderRadius: '16px',
     padding: '32px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    height: 'auto',
+    minHeight: 'fit-content',
+    overflow: 'visible'
   },
   examRight: {
     width: '300px',

@@ -20,17 +20,19 @@ const TOEIC_PARTS = {
 
 const getVisibleFields = (skill, part) => {
   if (skill === 'Writing') {
-    if (part === 1) return ['question', 'image', 'sample_answer'];
+    if (part === 1) return ['question', 'image', 'image_describe', 'sample_answer'];
+    if (part === 2) return ['question', 'sample_answer'];
+    if (part === 3) return ['question', 'sample_answer'];
     return ['question', 'sample_answer'];
   }
 
   if (skill === 'Speaking') {
     switch (part) {
-      case 1: return ['direction', 'question'];
-      case 2: return ['direction', 'image', 'sample_answer'];
-      case 3: return ['direction', 'question', 'sample_answer'];
-      case 4: return ['direction', 'information', 'image'];
-      case 5: return ['direction', 'question', 'information'];
+      case 1: return ['direction', 'question', 'sample_answer'];
+      case 2: return ['direction', 'image', 'image_describe', 'sample_answer'];
+      case 3: return ['direction', 'question', 'information', 'sample_answer'];
+      case 4: return ['direction', 'question', 'information', 'image', 'sample_answer'];
+      case 5: return ['direction', 'question', 'information', 'sample_answer'];
       case 6: return ['direction', 'question', 'sample_answer'];
       default: return [];
     }
@@ -47,20 +49,22 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     direction: '',
     question: '',
     information: '',
+    image_describe: '',
     sample_answer: ''
   });
 
   const [imageFile, setImageFile] = useState(null);
   const imageInputRef = useRef(null);
 
-  // ✅ Chỉ dùng 1 section cho 1 đề TOEIC
-  const [currentSectionId, setCurrentSectionId] = useState(null);
+  const [sectionsByPart, setSectionsByPart] = useState({});
+  const sectionsByPartRef = useRef({});
 
   useEffect(() => {
     if (selectedSkill) {
       setForm(prev => ({ ...prev, skill: selectedSkill, part: 1 }));
       setImageFile(null);
-      setCurrentSectionId(null); // reset khi đổi skill / tạo đề mới
+      sectionsByPartRef.current = {};
+      setSectionsByPart({});
     }
   }, [selectedSkill]);
 
@@ -74,28 +78,42 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     else alert('Vui lòng chọn file ảnh (JPG/PNG)');
   };
 
-  const getOrCreateSection = async () => {
-    if (currentSectionId) {
-      return currentSectionId;
+  const getOrCreateSectionForPart = async (part) => {
+    const partNum = Number(part);
+    
+    // Kiểm tra ref trước (sync, không chờ state update)
+    if (sectionsByPartRef.current[partNum]) {
+      console.log(`✅ Sử dụng section đã có cho Part ${partNum}:`, sectionsByPartRef.current[partNum]);
+      return sectionsByPartRef.current[partNum];
     }
 
     const sectionPayload = {
       skill: form.skill.toLowerCase(),
       time_limit: Number(form.duration),
-      name: form.title,
-      part: Number(form.part)
+      name: `${form.title} - Part ${partNum}`,
+      part: partNum
     };
+
+    console.log('📤 Tạo section mới:', sectionPayload);
 
     const sectionRes = await createSection(sectionPayload);
     const sectionId = sectionRes.data.id;
 
-    setCurrentSectionId(sectionId);
+    console.log(`✅ Section mới được tạo - Part ${partNum}, ID: ${sectionId}`);
+
+    // Lưu vào cả ref (sync) và state (cho UI re-render)
+    sectionsByPartRef.current[partNum] = sectionId;
+    setSectionsByPart(prev => ({
+      ...prev,
+      [partNum]: sectionId
+    }));
 
     return sectionId;
   };
 
   const uploadQuestion = async () => {
-    const sectionId = await getOrCreateSection();
+    const currentPart = Number(form.part);
+    const sectionId = await getOrCreateSectionForPart(currentPart);
 
     const fd = new FormData();
     fd.append('section_id', sectionId);
@@ -104,12 +122,10 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     fd.append('direction', form.direction || '');
     fd.append('information', form.information || '');
     fd.append('sample_answer', form.sample_answer || '');
-    fd.append('image_describe', '');
-
-    // ⚠️ nếu backend có field part thì nên gửi thêm
-    fd.append('part', form.part);
+    fd.append('image_describe', form.image_describe || '');
 
     if (imageFile) fd.append('image', imageFile);
+    console.log('📤 Upload question - Part:', currentPart, 'Section:', sectionId);
 
     if (form.skill === 'Speaking') {
       await createSpeakingQuestion(fd);
@@ -127,13 +143,14 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     try {
       await uploadQuestion();
 
-      alert('Đã lưu câu hỏi! Nhập câu tiếp theo 👇');
+      alert('Đã lưu câu hỏi! Nhập câu tiếp theo');
 
       setForm(prev => ({
         ...prev,
         direction: '',
         question: '',
         information: '',
+        image_describe: '',
         sample_answer: ''
       }));
       setImageFile(null);
@@ -145,16 +162,31 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     }
   };
 
-  const handleFinishPart = () => {
-    alert('Hoàn tất Part này!');
-    setForm(prev => ({
-      ...prev,
-      direction: '',
-      question: '',
-      information: '',
-      sample_answer: ''
-    }));
-    setImageFile(null);
+  const handleFinishPart = async () => {
+    if (!form.title || !form.duration) {
+      alert('Vui lòng nhập Tên đề và Thời gian!');
+      return;
+    }
+
+    try {
+      await uploadQuestion();  // ✅ LƯU CÂU CUỐI
+      alert(`Đã hoàn tất Part ${form.part}!`);
+
+      setForm(prev => ({
+        ...prev,
+        direction: '',
+        question: '',
+        information: '',
+        image_describe: '',
+        sample_answer: ''
+      }));
+      setImageFile(null);
+
+      onUploaded?.(); // refresh danh sách đề
+    } catch (err) {
+      console.error('Finish part error:', err);
+      alert('Lưu part thất bại!');
+    }
   };
 
   const visibleFields = getVisibleFields(form.skill, Number(form.part));
@@ -188,7 +220,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Thời gian (phút)</label>
+          <label style={styles.label}>Time (minutes)</label>
           <input type="number" name="duration" value={form.duration} onChange={handleChange} style={styles.inputField} />
         </div>
 
@@ -222,7 +254,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
 
         {visibleFields.includes('image') && (
           <div style={styles.formGroup}>
-            <label style={styles.label}>Upload ảnh</label>
+            <label style={styles.label}>Upload image</label>
             <div style={styles.uploadArea} onClick={() => imageInputRef.current.click()}>
               <Image size={24} />
               <p>{imageFile ? imageFile.name : 'Click để chọn ảnh'}</p>
@@ -230,11 +262,38 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
             <input type="file" accept="image/*" ref={imageInputRef} style={{ display: 'none' }} onChange={handleImageSelect} />
           </div>
         )}
-
+        {visibleFields.includes('image_describe') && (
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Mô tả ảnh</label>
+            <textarea name="image_describe" value={form.image_describe || ''} onChange={handleChange} style={styles.inputField} placeholder="Mô tả nội dung ảnh..." />
+          </div>
+        )}
+        {/* Hiển thị sections đã tạo */}
+        {Object.keys(sectionsByPart).length > 0 && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: '#e0f2fe',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            fontSize: '13px',
+            border: '1px solid #0ea5e9'
+          }}>
+            <strong>📋 Sections đã tạo cho đề "{form.title}":</strong>
+            <ul style={{ marginTop: '8px', paddingLeft: '20px', marginBottom: 0 }}>
+              {Object.entries(sectionsByPart)
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([part, sectionId]) => (
+                  <li key={part} style={{ color: '#0369a1' }}>
+                    Part {part} (Section ID: {sectionId})
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
         <div style={styles.modalButtons}>
           <button style={{ ...styles.button, ...styles.buttonSecondary }} onClick={handleFinishPart}>
-            Hoàn tất Part
-          </button>
+          Hoàn tất Part {form.part}
+        </button>
           <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveAndContinue}>
             Lưu & Thêm câu tiếp
           </button>

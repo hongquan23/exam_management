@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
 from api.api_router import api_router
-
+from fastapi.staticfiles import StaticFiles
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -24,3 +24,4 @@ def create_app() -> FastAPI:
 
     return app
 app = create_app()
+app.mount("/images", StaticFiles(directory="images"), name="images")

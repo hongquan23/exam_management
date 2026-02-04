@@ -140,7 +140,7 @@ const Dashboard = ({
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div style={styles.testTitle}>{test.title}</div>
+                <div style={styles.testTitle}>{test.title || test.name || "Untitled Test"}</div>
                 
                 <div style={styles.testMeta}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -154,7 +154,7 @@ const Dashboard = ({
                 </div>
 
                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-                  {test.questions} câu
+                  {(test.questions?.length ?? test.question_count ?? 0)} câu
                 </div>
 
                 <div style={styles.testTags}>
