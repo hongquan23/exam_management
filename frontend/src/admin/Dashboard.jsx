@@ -1,224 +1,289 @@
 import React from 'react';
-import { Search, Star, Eye, Clock, ChevronDown, Pencil, Trash2 } from 'lucide-react';
+import { 
+  Search, Star, Eye, Clock, ChevronDown, BookOpen, 
+  BarChart3, Plus, Pencil, Trash2, Users as UsersIcon, 
+  Facebook, Youtube, Mail, Phone, Settings, Bell, LayoutDashboard, ShieldCheck
+} from 'lucide-react';
 import Users from './Users';
-import { useNavigate } from "react-router-dom";
 
-const Dashboard = ({
-  activeView, 
-  styles,
-  skills,
-  searchQuery,
-  setSearchQuery,
-  showUserMenu,
-  setShowUserMenu,
-  handleSkillClick,
-  handleLogout,
-  hoveredSkill,
-  setHoveredSkill,
-  hoveredCard,
-  setHoveredCard,
-  allTests,
-  handleTestClick,
-  setShowUploadModal,
-  setActiveView,
-  mockUsers 
+const AdminDashboard = ({
+  activeView, styles, skills, searchQuery, setSearchQuery, showUserMenu,
+  setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
+  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,
+  setShowUploadModal, setActiveView, mockUsers
 }) => {
-  const navigate = useNavigate();
+  
   const handleSearch = () => {
-    console.log("Search:", searchQuery);
+    console.log("Admin tìm kiếm:", searchQuery);
   };
 
   return (
     <div style={styles.container}>
-        <header style={styles.header}>
-        <div style={styles.headerLeft}>
-            <div style={styles.logo}>📚</div>
-            <h1 style={styles.headerTitle}>Thư viện đề thi</h1>
+      {/* HEADER - ADMIN STYLE */}
+      <header style={styles.header}>
+        <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveView('dashboard')}>
+          <div style={{...styles.logo, backgroundColor: '#4f46e5'}}>
+            <ShieldCheck size={22} color="white" />
+          </div>
+          <div>
+            <h1 style={styles.headerTitle}>LearnWithMe</h1>
+            <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">Admin Panel</span>
+          </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button
-              style={{ ...styles.button, ...styles.buttonSecondary }}
-              onClick={() => navigate("/admin/users")}
+        
+        <div className="flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600 mr-4">
+            <span 
+              onClick={() => setActiveView('dashboard')}
+              className={`cursor-pointer transition-colors ${activeView !== 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'}`}
             >
-              Quản lý người dùng
-            </button>
+              Tổng quan
+            </span>
+            <span 
+              onClick={() => setActiveView('users')}
+              className={`cursor-pointer transition-colors ${activeView === 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'}`}
+            >
+              Người dùng
+            </span>
+            <span className="hover:text-indigo-600 cursor-pointer transition-colors">Báo cáo</span>
+          </nav>
 
-            <button
-            style={{ ...styles.button, ...styles.buttonPrimary }}
+          <button 
             onClick={() => setShowUploadModal(true)}
-            >
-            + Upload đề thi
-            </button>
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full font-bold text-xs hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
+          >
+            <Plus size={14} /> ĐĂNG ĐỀ THI
+          </button>
 
-            <div style={styles.userProfile} onClick={() => setShowUserMenu(!showUserMenu)}>
-            <div style={styles.avatar}>AD</div>
-            <ChevronDown size={20} color="#2563eb" />
+          <div className="relative">
+            <div 
+              className="flex items-center gap-2 cursor-pointer p-1 pr-3 bg-slate-50 rounded-full hover:bg-slate-100 transition-all"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">AD</div>
+              <ChevronDown size={14} className="text-slate-400" />
+            </div>
 
             {showUserMenu && (
-                <div style={styles.dropdown}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>Admin</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>admin@toeic.com</div>
+              <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                <div className="px-5 py-4 bg-slate-50/50 border-b border-slate-100">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">AD</div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-800 text-sm">Administrator</span>
+                      <span className="text-[11px] text-indigo-600 font-medium">Hệ thống Quản trị</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div 
-                    style={styles.dropdownItem}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                    Thông tin tài khoản
-                </div>
-
-                <div 
-                    style={styles.dropdownItem}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                    Lịch sử làm bài
-                </div>
-
-                <div style={styles.dropdownDivider}></div>
-
-                <div 
-                    style={{ ...styles.dropdownItem, color: '#dc2626' }}
-                    onClick={handleLogout}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#fee2e2'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                    Đăng xuất
-                </div>
-                </div>
-            )}
-            </div>
-        </div>
-        </header>
-        <main style={styles.content}>
-
-          {/* ===== TRANG QUẢN LÝ NGƯỜI DÙNG ===== */}
-          {activeView === 'users' && (
-            <Users
-              styles={styles}
-              mockUsers={mockUsers}
-              handleTabChange={setActiveView}
-            />
-          )}
-
-          {/* ===== TRANG DASHBOARD CHÍNH ===== */}
-          {activeView !== 'users' && (
-            <>
-              <div style={styles.searchContainer}>
-                <div style={styles.searchWrapper}>
-                  <Search size={20} style={styles.searchIcon} />
-
-                  <input
-                    type="text"
-                    placeholder="Nhập từ khóa bạn muốn tìm kiếm:..."
-                    style={styles.searchBar}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  />
-
-                  <button style={styles.searchButton} onClick={handleSearch}>
-                    Tìm kiếm
+                <div className="p-2 space-y-1">
+                  <button className="w-full text-left px-3 py-2.5 text-sm text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all flex items-center gap-3">
+                    <Settings size={16} /> Cài đặt hệ thống
+                  </button>
+                  <button className="w-full text-left px-3 py-2.5 text-sm text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all flex items-center gap-3">
+                    <Bell size={16} /> Thông báo
+                  </button>
+                  <div className="h-[1px] bg-slate-100 my-1 mx-2" />
+                  <button onClick={handleLogout} className="w-full text-left px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-xl font-semibold flex items-center gap-3 transition-colors">
+                    <span className="text-xs">🚪</span> Đăng xuất
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      </header>
 
-              <div style={styles.skillsSection}>
-                <h2 style={styles.sectionTitle}>4 Kỹ Năng TOEIC</h2>
-                <div style={styles.skillsGrid}>
-                  {skills.map((skill) => (
-                    <div
-                      key={skill.id}
-                      style={{
-                        ...styles.skillCard,
-                        ...(skill.disabled ? styles.skillCardDisabled : {}),
-                        ...(hoveredSkill === skill.id && !skill.disabled ? styles.skillCardHover : {})
-                      }}
-                      onMouseEnter={() => !skill.disabled && setHoveredSkill(skill.id)}
-                      onMouseLeave={() => setHoveredSkill(null)}
-                      onClick={() => handleSkillClick(skill)}
-                    >
-                      {skill.disabled && <div style={styles.badge}>COMING SOON</div>}
-                      <div style={{ ...styles.skillIcon, backgroundColor: skill.color }}>
-                        <span style={{ fontSize: '32px' }}>{skill.icon}</span>
-                      </div>
-                      <div style={styles.skillName}>{skill.name}</div>
-                      <div style={styles.skillCount}>{skill.count} đề thi</div>
+      {/* MAIN CONTENT */}
+      <main className="flex-1 overflow-y-auto px-6 py-10 md:px-20 bg-[#f8fafc]">
+        
+        {activeView === 'users' ? (
+          <Users styles={styles} mockUsers={mockUsers} handleTabChange={setActiveView} />
+        ) : (
+          <>
+            {/* HERO SECTION ADMIN */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold mb-4">
+                <BarChart3 size={12}/> HỆ THỐNG QUẢN TRỊ NỘI DUNG v2.0
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight">
+                Quản lý kho <span className="text-indigo-600">dữ liệu</span> đề thi
+              </h2>
+              <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+                Theo dõi hiệu suất bài thi, cập nhật câu hỏi và quản lý tài khoản thành viên.
+              </p>
+            </div>
+
+            {/* SEARCH BAR GIỐNG USER */}
+            <div className="max-w-3xl mx-auto mb-20">
+              <div style={styles.searchWrapper} className="focus-within:ring-4 focus-within:ring-indigo-100 transition-all border-indigo-100">
+                <Search size={20} className="ml-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Tìm mã đề, tên đề thi hoặc email thành viên..."
+                  style={styles.searchBar}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button 
+                  style={{...styles.searchButton, backgroundColor: '#4f46e5'}} 
+                  onClick={handleSearch} 
+                  className="hover:opacity-90 active:scale-95"
+                >
+                  Tìm kiếm
+                </button>
+              </div>
+            </div>
+
+            {/* SKILLS SECTION GIỐNG USER */}
+            <div className="mb-20">
+              <h3 className="text-2xl font-extrabold text-slate-800 mb-8 flex items-center gap-3">
+                <span className="w-2 h-8 bg-indigo-600 rounded-full"></span> Danh mục Kỹ năng
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {skills.map(skill => (
+                  <div
+                    key={skill.id}
+                    style={{
+                      ...styles.skillCard,
+                      boxShadow: hoveredSkill === skill.id ? '0 20px 40px rgba(79, 70, 229, 0.1)' : 'none',
+                      transform: hoveredSkill === skill.id ? 'translateY(-8px)' : 'none',
+                      borderColor: hoveredSkill === skill.id ? '#4f46e5' : '#f1f5f9'
+                    }}
+                    onMouseEnter={() => !skill.disabled && setHoveredSkill(skill.id)}
+                    onMouseLeave={() => setHoveredSkill(null)}
+                    onClick={() => handleSkillClick(skill)}
+                    className={skill.disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''}
+                  >
+                    <div style={{ ...styles.skillIcon, backgroundColor: `${skill.color}15`, color: skill.color }}>
+                      <span className="text-3xl">{skill.icon}</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="text-xl font-black text-slate-800 mb-1">{skill.name}</div>
+                    <div className="text-slate-400 font-medium">{skill.count} bộ đề hiện có</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ADMIN TEST LIST */}
+            <div className="mb-20">
+              <div className="flex justify-between items-end mb-8">
+                <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                  <Star size={24} className="text-yellow-400 fill-yellow-400" /> Đề thi vừa đăng
+                </h3>
+                <span className="text-indigo-600 font-bold text-sm cursor-pointer hover:underline">Quản lý kho đề →</span>
               </div>
 
-              <div>
-                <h2 style={styles.sectionTitle}>
-                  <Star size={24} color="#fbbf24" fill="#fbbf24" />
-                  Đề Tiêu Biểu
-                </h2>
-
-                <div style={styles.testsGrid}>
-                  {allTests.map((test) => (
-                    <div
-                      key={test.id}
-                      style={{
-                        ...styles.testCard,
-                        ...(hoveredCard === test.id ? styles.testCardHover : {})
-                      }}
-                      onMouseEnter={() => setHoveredCard(test.id)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                    >
-                      <div style={styles.testTitle}>{test.title || test.name || "Untitled Test"}</div>
-
-                      <div style={styles.testMeta}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock size={12} />
-                          {test.duration}p
-                        </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Eye size={12} />
-                          {test.views > 1000 ? `${(test.views / 1000).toFixed(1)}k` : test.views}
-                        </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {allTests.map(test => (
+                  <div
+                    key={test.id}
+                    style={{
+                      ...styles.testCard,
+                      boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(0,0,0,0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
+                      borderColor: hoveredCard === test.id ? '#4f46e5' : '#f1f5f9'
+                    }}
+                    onMouseEnter={() => setHoveredCard(test.id)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    <div className="flex justify-between mb-3">
+                      <div className="flex gap-1">
+                        <span style={{ ...styles.tag, backgroundColor: '#eff6ff', color: '#2563eb' }}>#{test.type}</span>
+                        <span style={{ ...styles.tag, backgroundColor: '#faf5ff', color: '#9333ea' }}>#{test.skill}</span>
                       </div>
-
-                      <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-                        {(test.questions?.length ?? test.question_count ?? 0)} câu
-                      </div>
-
-                      <div style={styles.testTags}>
-                        <span style={{ ...styles.tag, ...styles.tagBlue }}>#{test.type}</span>
-                        <span style={{ ...styles.tag, ...styles.tagPurple }}>#{test.skill}</span>
-                      </div>
-                      <div style={styles.adminActions}>
-                        <button
-                          style={styles.viewBtn}
-                          onClick={() => handleTestClick(test)}
-                        >
-                          Xem
-                        </button>
-
-                        <button style={styles.iconBtn}>
-                          <Pencil size={18} stroke="#10b981" strokeWidth={2} />
-                        </button>
-
-                        <button style={{ ...styles.iconBtn, ...styles.deleteBtn }}>
-                          <Trash2 size={18} stroke="#ef4444" strokeWidth={2} />
-                        </button>
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '8px', textAlign: 'center' }}>
-                        {test.comments} bình luận ▼
-                      </div>
+                      <span className="text-[10px] font-bold text-slate-400">ID: {test.id}</span>
                     </div>
-                  ))}
+                    
+                    <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight mb-4">
+                      {test.title || test.name}
+                    </h4>
+
+                    <div className="flex items-center justify-between text-slate-400 text-xs font-semibold py-2 border-y border-slate-50 mb-4">
+                      <span className="flex items-center gap-1"><Clock size={14} /> {test.duration}p</span>
+                      <span className="flex items-center gap-1"><Eye size={14} /> {test.views} lượt thi</span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button 
+                        className="flex-1 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all"
+                        onClick={() => handleTestClick(test)}
+                      >
+                        XEM ĐỀ
+                      </button>
+                      <button className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-all">
+                        <Pencil size={16} />
+                      </button>
+                      <button className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* --- FOOTER ĐỒNG BỘ --- */}
+        <footer style={styles.footer} className="mt-12">
+          <div style={styles.footerGrid} className="flex flex-col md:grid">
+            <div>
+              <span style={{...styles.footerLogo, color: '#4f46e5'}}>LearnWithMe Admin</span>
+              <p style={styles.footerText}>
+                Dành cho Quản trị viên. Hệ thống quản lý học liệu và người dùng tập trung. Hãy đảm bảo bảo mật thông tin tài khoản admin.
+              </p>
+              <div className="flex gap-4 mt-4">
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-full cursor-pointer hover:bg-indigo-500 hover:text-white transition-all">
+                  <Facebook size={18} />
+                </div>
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-full cursor-pointer hover:bg-indigo-500 hover:text-white transition-all">
+                  <Youtube size={18} />
+                </div>
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-full cursor-pointer hover:bg-indigo-500 hover:text-white transition-all">
+                  <Mail size={18} />
                 </div>
               </div>
-            </>
-          )}
-        </main>
+            </div>
 
+            <div>
+              <h4 style={styles.footerTitle}>Quản trị</h4>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Báo cáo lượt thi</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Quản lý kho đề</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Duyệt bài viết</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Logs hệ thống</span>
+            </div>
+
+            <div>
+              <h4 style={styles.footerTitle}>Công cụ Admin</h4>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Import từ Excel</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">AI Tool Generator</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Cài đặt API</span>
+              <span style={styles.footerLink} className="hover:text-indigo-600">Quản lý Banner</span>
+            </div>
+
+            <div>
+              <h4 style={styles.footerTitle}>Liên hệ kỹ thuật</h4>
+              <div className="flex items-center gap-3 text-slate-500 mb-3 text-sm font-medium">
+                <Mail size={16} className="text-indigo-500" /> tech@learnwithme.com
+              </div>
+              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-[11px] text-slate-400">
+                Phiên bản quản trị: 2.0.1 (Stable)<br/>
+                Server: Asia-Southeast-1
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 flex justify-between items-center text-[12px] text-slate-400 font-medium">
+            <p>© 2026 LearnWithMe Admin. Tất cả quyền được bảo lưu.</p>
+            <div className="flex gap-6">
+              <span>Hệ thống bảo mật bởi LearnWithMe Team</span>
+            </div>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;

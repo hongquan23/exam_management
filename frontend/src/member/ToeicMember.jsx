@@ -6,6 +6,11 @@ import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
 import styles from './styles';
 import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection } from "../api";
+import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
+
+
+
+
 
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: true },
@@ -152,6 +157,8 @@ const ToeicMember = () => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 useEffect(() => {
+
+  
   const path = location.pathname;
 
   if (path === "/member") {
@@ -166,6 +173,7 @@ useEffect(() => {
 }, [location.pathname]);
 
 useEffect(() => {
+  
   fetchTests();
 }, []);
 useEffect(() => {
@@ -415,22 +423,39 @@ const handlePrevQuestion = () => {
 
     const renderRecordControls = (responseTime, question) => (
       <>
-        <button 
-          style={{
-            ...styles.recordButton,
-            backgroundColor: isRecording ? '#dc2626' : '#ef4444'
-          }}
-          onClick={() => {
-            if (!isRecording) {
-              startRecording(responseTime);
-            } else {
-              stopRecording();
-            }
-          }}
-        >
-          <Mic size={18} />
-          {isRecording ? 'DỪNG GHI' : 'THU ÂM'}
-        </button>
+       <button 
+  style={{
+    ...styles.recordButton,
+    backgroundColor: isRecording ? '#dc2626' : '#ef4444',
+    // Hiệu ứng scale nhẹ hơn khi ghi âm cho nút nhỏ
+    transform: isRecording ? 'scale(1.02)' : 'scale(1)',
+  }}
+  onClick={() => {
+    if (!isRecording) {
+      startRecording(responseTime);
+    } else {
+      stopRecording();
+    }
+  }}
+>
+  {/* Chấm tròn nhỏ khi đang ghi âm */}
+  {isRecording && (
+    <span style={{
+      width: '6px',
+      height: '6px',
+      backgroundColor: '#fff',
+      borderRadius: '50%',
+      marginRight: '2px',
+      display: 'inline-block',
+      animation: 'blink 1s infinite'
+    }} />
+  )}
+  
+  <Mic size={14} strokeWidth={2.5} /> {/* Giảm Mic xuống size 14 */}
+  <span>
+    {isRecording ? 'DỪNG' : 'THU ÂM'}
+  </span>
+</button>
 
         {audioURL && (
           <div style={{ marginTop: '16px' }}>

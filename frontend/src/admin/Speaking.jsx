@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Eye } from 'lucide-react';
+import { Star, Clock, Eye, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 const SpeakingTests = ({
@@ -7,100 +7,126 @@ const SpeakingTests = ({
   hoveredCard,
   setHoveredCard,
   speakingTests = [],
-  setActiveView,
   handleTestClick
 }) => {
   const navigate = useNavigate();
 
   return (
     <div style={styles.container}>
+      {/* HEADER ĐÃ ĐỒNG BỘ */}
       <header style={styles.header}>
-        <div style={styles.headerLeft} onClick={() => navigate('/admin/dashboard')}>
-          <div style={styles.logo}>📚</div>
-          <h1 style={styles.headerTitle}>Thư viện đề thi</h1>
+        <div 
+          className="flex items-center gap-4 cursor-pointer" 
+          onClick={() => navigate('/admin/dashboard')}
+        >
+          <div style={{...styles.logo, backgroundColor: '#4f46e5'}}>
+            <span style={{ fontSize: '20px' }}>📚</span>
+          </div>
+          <div>
+            <h1 style={styles.headerTitle}>LearnWithMe</h1>
+            <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">Thư viện đề thi</span>
+          </div>
         </div>
-        <div style={styles.headerButtons}>
-          <div style={styles.userProfile}>
-            <div style={styles.avatar}>MB</div>
+        
+        <div style={styles.userProfile}>
+          <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+            AD
           </div>
         </div>
       </header>
 
-      <main style={styles.content}>
-        <div style={{ marginBottom: '32px' }}>
+      {/* NỘI DUNG CHÍNH */}
+      <main className="flex-1 overflow-y-auto px-6 py-10 md:px-20 bg-[#f8fafc]">
+        
+        {/* NÚT QUAY LẠI Tinh tế hơn */}
+        <div className="mb-10">
           <button 
-            style={{ ...styles.button, ...styles.buttonSecondary }}
+            className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-indigo-600 font-bold text-sm transition-colors"
             onClick={() => navigate('/admin/dashboard')}
           >
-            ← Quay lại
+            <ArrowLeft size={18} /> QUAY LẠI BẢNG ĐIỀU KHIỂN
           </button>
         </div>
 
         <div>
-          <h2 style={styles.sectionTitle}>
-            <Star size={24} color="#fbbf24" fill="#fbbf24" />
-            Speaking Tests
-          </h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+              <Star size={28} className="text-yellow-400 fill-yellow-400" /> 
+              Speaking Tests
+            </h2>
+            <div className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold">
+              {speakingTests.length} Đề thi hiện có
+            </div>
+          </div>
 
-          <div style={styles.testsGrid}>
+          {/* GRID ĐỀ THI */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {speakingTests.map(test => (
               <div
                 key={test.id}
                 style={{
                   ...styles.testCard,
-                  ...(hoveredCard === test.id ? styles.testCardHover : {})
+                  boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(79, 70, 229, 0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
+                  borderColor: hoveredCard === test.id ? '#4f46e5' : '#f1f5f9',
+                  transform: hoveredCard === test.id ? 'translateY(-5px)' : 'none',
+                  transition: 'all 0.3s ease'
                 }}
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                {/* 👉 Title */}
-                <div style={styles.testTitle}>
-                  {test.title || test.name || "Untitled Test"}
+                {/* ID & TAGS */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-wrap gap-1">
+                    <span style={{ ...styles.tag, backgroundColor: '#eff6ff', color: '#2563eb' }}>#TOEIC BRIDGE</span>
+                    <span style={{ ...styles.tag, backgroundColor: '#faf5ff', color: '#9333ea' }}>#SPEAKING</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400">ID: {test.id.toString().slice(0, 5)}</span>
                 </div>
                 
-                {/* 👉 Meta */}
-                <div style={styles.testMeta}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Clock size={12} />
-                    {test.duration || test.time_limit || 0}p
+                {/* TIÊU ĐỀ */}
+                <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight mb-4">
+                  {test.title || test.name || "Untitled Test"}
+                </h4>
+                
+                {/* THÔNG SỐ */}
+                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold py-3 border-y border-slate-50 mb-4">
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={14} className="text-indigo-400" /> 
+                    {test.duration || test.time_limit || 0} phút
                   </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Eye size={12} />
-                    {test.views 
-                      ? (test.views > 1000 ? `${(test.views/1000).toFixed(1)}k` : test.views) 
-                      : 0}
+                  <span className="flex items-center gap-1.5">
+                    <Eye size={14} className="text-indigo-400" /> 
+                    {test.views > 1000 ? `${(test.views/1000).toFixed(1)}k` : test.views || 0} lượt
                   </span>
                 </div>
 
-                {/* 👉 Question count */}
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
-                  {(test.questions?.length 
-                    ?? test.question_count 
-                    ?? 0)} câu
+                {/* SỐ CÂU HỎI */}
+                <div className="text-[11px] font-bold text-slate-500 mb-4 px-2 py-1 bg-slate-50 rounded w-fit">
+                   Nội dung: {(test.questions?.length ?? test.question_count ?? 0)} câu hỏi
                 </div>
 
-                {/* 👉 Tags */}
-                <div style={styles.testTags}>
-                  <span style={{ ...styles.tag, ...styles.tagBlue }}>#TOEIC Bridge</span>
-                  <span style={{ ...styles.tag, ...styles.tagPurple }}>#Speaking</span>
-                </div>
-
-                {/* 👉 Action */}
+                {/* NÚT HÀNH ĐỘNG */}
                 <button 
-                  style={{ ...styles.button, ...styles.buttonPrimary, width: '100%', justifyContent: 'center' }}
+                  style={{ ...styles.button, backgroundColor: '#4f46e5', color: 'white', width: '100%' }}
+                  className="hover:bg-indigo-700 active:scale-95 transition-all shadow-md shadow-indigo-100"
                   onClick={() => handleTestClick(test)}
                 >
-                  Xem
+                  CHI TIẾT ĐỀ THI
                 </button>
 
-                <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '8px', textAlign: 'center' }}>
-                  {(test.comments || 0)} bình luận ▼
+                {/* BÌNH LUẬN */}
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 mt-4 cursor-pointer hover:text-indigo-600 transition-colors">
+                  <MessageSquare size={12} />
+                  {(test.comments || 0)} bình luận
                 </div>
               </div>
             ))}
 
             {speakingTests.length === 0 && (
-              <p style={{ color: "#6b7280" }}>Chưa có đề Speaking nào.</p>
+              <div className="col-span-full py-20 text-center">
+                <div className="text-5xl mb-4">Empty 📭</div>
+                <p className="text-slate-400 font-medium">Chưa có đề Speaking nào trong kho dữ liệu.</p>
+              </div>
             )}
           </div>
         </div>

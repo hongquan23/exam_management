@@ -4,685 +4,478 @@ const styles = {
     flexDirection: 'column',
     height: '100vh',
     width: '100vw',
-    margin: 0,
-    padding: 0,
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    overflow: 'hidden',
-    backgroundColor: '#ffffff'
+    fontFamily: "'Inter', sans-serif",
+    backgroundColor: '#f8faff', // Nền xanh xám rất nhẹ
   },
   header: {
-    backgroundColor: '#dbeafe',
-    padding: '16px 32px',
-    borderBottom: '2px solid #a7f3d0',
+    backgroundColor: '#ffffff',
+    padding: '12px 40px',
+    borderBottom: '1px solid #eef2f6',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '24px',
-    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
-  },
-  headerLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    cursor: 'pointer'
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
   },
   logo: {
-    width: '48px',
-    height: '48px',
-    backgroundColor: '#10b981',
+    width: '42px',
+    height: '42px',
+    background: 'linear-gradient(135deg, #ff8a00 0%, #ff5200 100%)',
     borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontSize: '24px',
-    fontWeight: '700',
-    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)',
-    transition: 'all 0.2s ease'
+    fontSize: '22px',
+    boxShadow: '0 4px 10px rgba(255, 82, 0, 0.2)',
   },
   headerTitle: {
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#10b981',
-    whiteSpace: 'nowrap',
-    transition: 'color 0.2s ease',
-    margin: 0
+    fontSize: '22px',
+    fontWeight: '800',
+    background: 'linear-gradient(to right, #ff8a00, #ff5200)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    margin: 0,
   },
-  headerButtons: {
+  searchWrapper: {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px'
+    backgroundColor: '#ffffff',
+    borderRadius: '999px',
+    padding: '6px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)',
+    transition: 'all 0.3s ease',
   },
-  button: {
-    padding: '10px 20px',
-    border: 'none',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  buttonPrimary: {
-    backgroundColor: '#10b981',
-    color: 'white',
-    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
-  },
-  buttonSecondary: {
-    backgroundColor: 'white',
-    color: '#10b981',
-    border: '2px solid #10b981'
-  },
-  userProfile: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    position: 'relative',
-    cursor: 'pointer'
-  },
-  avatar: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#10b981',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: '600'
-  },
-  content: {
+  searchBar: {
     flex: 1,
-    padding: '32px',
-    overflowY: 'auto',
-    backgroundColor: '#f9fafb'
+    border: 'none',
+    padding: '10px 16px',
+    fontSize: '15px',
+    outline: 'none',
+    color: '#334155',
   },
-searchContainer: {
-  display: 'flex',
-  alignItems: 'center',
-  maxWidth: '900px',
-  marginBottom: '32px'
-},
-
-searchWrapper: {
-  position: 'relative',
-  flex: 1,
-  display: 'flex',
-  alignItems: 'center',
-  backgroundColor: '#ffffff',
-  border: '2px solid #10b981',
-  borderRadius: '999px',
-  overflow: 'hidden',
-  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
-},
-
-searchBar: {
-  flex: 1,
-  border: 'none',
-  padding: '14px 20px 14px 50px',
-  fontSize: '15px',
-  outline: 'none',
-  color: '#374151'
-},
-
-searchIcon: {
-  position: 'absolute',
-  left: '18px',
-  color: '#10b981'
-},
-
-searchButton: {
-  backgroundColor: '#10b981',
-  color: 'white',
-  border: 'none',
-  padding: '14px 32px',
-  fontSize: '15px',
-  fontWeight: '600',
-  cursor: 'pointer',
-  borderRadius: '0 999px 999px 0',
-  transition: 'all 0.2s ease'
-},
-
-  skillsSection: {
-    marginBottom: '48px'
+  searchButton: {
+    background: 'linear-gradient(to right, #ff8a00, #ff5200)',
+    color: 'white',
+    border: 'none',
+    padding: '10px 28px',
+    borderRadius: '999px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s',
   },
-  sectionTitle: {
-    fontSize: '20px',
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  skillsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '20px'
-  },
+  // Thẻ kỹ năng
   skillCard: {
     backgroundColor: 'white',
-    borderRadius: '16px',
-    padding: '24px',
+    borderRadius: '24px',
+    padding: '30px',
     textAlign: 'center',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    borderWidth: '2px',
-    borderStyle: 'solid',
-    borderColor: '#e5e7eb',
-    position: 'relative'
-  },
-  skillCardDisabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed'
-  },
-  skillCardHover: {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
-    borderColor: '#10b981'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    border: '1px solid #f1f5f9',
   },
   skillIcon: {
-    width: '64px',
-    height: '64px',
-    borderRadius: '16px',
-    margin: '0 auto 16px',
+    width: '70px',
+    height: '70px',
+    borderRadius: '20px',
+    margin: '0 auto 20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '32px'
+    boxShadow: '0 8px 15px rgba(0,0,0,0.05)',
   },
-  skillName: {
-    fontSize: '18px',
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: '8px'
-  },
-  skillCount: {
-    fontSize: '14px',
-    color: '#6b7280',
-    fontWeight: '500'
-  },
-  testsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '20px'
-  },
+  // Thẻ bài thi
   testCard: {
     backgroundColor: 'white',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    border: '1px solid #e5e7eb',
-    transition: 'all 0.2s ease',
-    padding: '16px'
-  },
-  testCardHover: {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
-  },
-  testTitle: {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: '12px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical',
-    minHeight: '48px'
-  },
-  testMeta: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    fontSize: '12px',
-    color: '#6b7280',
-    marginBottom: '8px'
-  },
-  testTags: {
-    display: 'flex',
-    gap: '4px',
-    marginBottom: '12px'
-  },
-  tag: {
-    padding: '4px 8px',
-    borderRadius: '6px',
-    fontSize: '11px',
-    fontWeight: '600'
-  },
-  tagBlue: {
-    backgroundColor: '#dbeafe',
-    color: '#10b981'
-  },
-  tagPurple: {
-    backgroundColor: '#f3e8ff',
-    color: '#065f46'
-  },
-  testExam: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#f9fafb',
-    zIndex: 1000,
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  examHeader: {
-    backgroundColor: 'white',
-    padding: '16px 32px',
-    borderBottom: '2px solid #e5e7eb',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  examTitle: {
-    fontSize: '20px',
-    fontWeight: '700',
-    color: '#111827',
-    margin: 0
-  },
-  examNav: {
-    backgroundColor: 'white',
-    padding: '16px 32px',
-    borderBottom: '1px solid #e5e7eb',
-    display: 'flex',
-    gap: '16px',
-    overflowX: 'auto'
-  },
-  navTab: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    transition: 'all 0.2s ease',
-    backgroundColor: '#f3f4f6',
-    color: '#6b7280'
-  },
-  navTabActive: {
-    backgroundColor: '#dbeafe',
-    color: '#10b981',
-    fontWeight: '600'
-  },
-  examContent: {
-    flex: 1,
-    display: 'flex',
-    gap: '24px',
-    padding: '32px',
-    overflowY: 'auto',
-    alignItems: 'flex-start'
-  },
-  examLeft: {
-    flex: 1,
-    backgroundColor: 'white',
-    borderRadius: '16px',
-    padding: '32px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    height: 'auto',
-    minHeight: 'fit-content',
-    overflow: 'visible'
-  },
-  examRight: {
-    width: '300px',
+    borderRadius: '20px',
+    padding: '20px',
+    border: '1px solid #f1f5f9',
+    transition: 'all 0.3s ease',
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px'
+    gap: '12px',
   },
-  timerBox: {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center'
-  },
-  timerLabel: {
-    fontSize: '14px',
-    color: '#6b7280',
-    marginBottom: '8px'
-  },
-  timerValue: {
-    fontSize: '32px',
+  tag: {
+    padding: '4px 10px',
+    borderRadius: '8px',
+    fontSize: '11px',
     fontWeight: '700',
-    color: '#10b981'
+    textTransform: 'uppercase',
   },
-  questionsBox: {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+  // Thêm vào trong styles.js
+  footer: {
+    backgroundColor: '#ffffff',
+    borderTop: '1px solid #eef2f6',
+    padding: '60px 40px 30px',
+    marginTop: 'auto',
   },
-  questionsTitle: {
+  footerGrid: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 1fr 1fr 1fr',
+    gap: '40px',
+    maxWidth: '1200px',
+    margin: '0 auto',
+  },
+  footerLogo: {
+    fontSize: '24px',
+    fontWeight: '800',
+    background: 'linear-gradient(to right, #ff8a00, #ff5200)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    marginBottom: '16px',
+    display: 'block'
+  },
+  footerText: {
+    color: '#64748b',
+    fontSize: '14px',
+    lineHeight: '1.6',
+    marginBottom: '20px',
+  },
+  footerTitle: {
+    fontSize: '16px',
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: '20px',
+  },
+  footerLink: {
+    color: '#64748b',
+    fontSize: '14px',
+    display: 'block',
+    marginBottom: '12px',
+    textDecoration: 'none',
+    transition: 'color 0.2s',
+    cursor: 'pointer'
+  },
+  testExam: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    backgroundColor: '#f1f5f9',
+  },
+
+  examNav: {
+    display: 'flex',
+    backgroundColor: '#ffffff',
+    padding: '8px 24px',
+    gap: '8px',
+    borderBottom: '1px solid #e2e8f0',
+    overflowX: 'auto',
+    scrollbarWidth: 'none', // Cho Firefox
+  },
+
+  navTab: {
+    padding: '10px 20px',
+    borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '600',
-    color: '#111827',
-    marginBottom: '12px'
-  },
-  questionGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '8px',
-    marginBottom: '16px'
-  },
-  questionNumber: {
-    padding: '8px',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontWeight: '600',
-    textAlign: 'center',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    backgroundColor: '#f3f4f6',
-    color: '#6b7280',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#e5e7eb'
+    whiteSpace: 'nowrap',
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    color: '#64748b',
+    border: '1px solid transparent',
   },
-  questionNumberActive: {
-    backgroundColor: '#dbeafe',
-    color: '#065f46',
-    borderColor: '#10b981'
+
+  navTabActive: {
+    backgroundColor: '#eff6ff',
+    color: '#2563eb',
+    borderColor: '#dbeafe',
+    boxShadow: '0 2px 4px rgba(37, 99, 235, 0.05)',
   },
+
+  examContent: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+    padding: '24px',
+    gap: '24px',
+  },
+
+  examLeft: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    padding: '32px',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+
+  examRight: {
+    width: '320px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
+
+  // --- NỘI DUNG CÂU HỎI ---
   questionContent: {
-    marginBottom: '32px'
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
   },
+
   questionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '16px'
+    alignItems: 'center',
+    marginBottom: '24px',
+    paddingBottom: '16px',
+    borderBottom: '1px solid #f1f5f9',
   },
+
   questionType: {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#111827'
+    fontSize: '13px',
+    fontWeight: '800',
+    color: '#2563eb',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    backgroundColor: '#eff6ff',
+    padding: '4px 12px',
+    borderRadius: '20px',
   },
+
   questionText: {
-    backgroundColor: '#f9fafb',
+    fontSize: '17px',
+    lineHeight: '1.7',
+    color: '#334155',
+    marginBottom: '24px',
     padding: '20px',
     borderRadius: '12px',
-    fontSize: '15px',
-    lineHeight: '1.8',
-    color: '#374151',
-    marginBottom: '20px',
-    border: '1px solid #e5e7eb',
-    whiteSpace: 'pre-line'
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
   },
-  recordButton: {
-    backgroundColor: '#ef4444',
-    color: 'white',
-    border: 'none',
+
+  examImage: {
+    maxWidth: '100%',
+    maxHeight: '380px',
+    objectFit: 'contain',
     borderRadius: '12px',
-    padding: '12px 24px',
-    fontSize: '15px',
+    marginBottom: '24px',
+    alignSelf: 'center',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+  },
+
+  // --- PHẦN NHẬP LIỆU (WRITING) ---
+  textarea: {
+    width: '100%',
+    minHeight: '220px',
+    padding: '20px',
+    borderRadius: '12px',
+    border: '2px solid #e2e8f0',
+    fontSize: '16px',
+    lineHeight: '1.6',
+    fontFamily: 'inherit',
+    transition: 'all 0.2s',
+    outline: 'none',
+    backgroundColor: '#fff',
+    resize: 'vertical',
+    boxSizing: 'border-box',
+    '&:focus': {
+      borderColor: '#2563eb',
+      boxShadow: '0 0 0 4px rgba(37, 99, 235, 0.1)',
+    }
+  },
+
+  wordCount: {
+    fontSize: '14px',
+    color: '#64748b',
+    marginTop: '10px',
+    textAlign: 'right',
     fontWeight: '600',
-    cursor: 'pointer',
+    fontVariantNumeric: 'tabular-nums',
+  },
+
+  // --- TIỆN ÍCH BÊN PHẢI (TIMER & GRID) ---
+  timerBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    textAlign: 'center',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+    border: '1px solid #e2e8f0',
+  },
+
+  timerLabel: {
+    fontSize: '12px',
+    color: '#94a3b8',
+    marginBottom: '4px',
+    textTransform: 'uppercase',
+    fontWeight: '700',
+    letterSpacing: '0.5px',
+  },
+
+  timerValue: {
+    fontSize: '34px',
+    fontWeight: '800',
+    color: '#ef4444',
+    fontFamily: "'JetBrains Mono', monospace",
+    letterSpacing: '-1px',
+  },
+
+  questionsBox: {
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+    border: '1px solid #e2e8f0',
+    flex: 1,
+    overflowY: 'auto',
+  },
+
+  questionsTitle: {
+    fontSize: '16px',
+    fontWeight: '700',
+    marginBottom: '16px',
+    color: '#1e293b',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
   },
-  textarea: {
-    width: '100%',
-    minHeight: '200px',
-    padding: '16px',
-    border: '2px solid #e5e7eb',
+
+  questionGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: '10px',
+  },
+
+  questionNumber: {
+    aspectRatio: '1',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '10px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    fontSize: '14px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    border: '2px solid transparent',
+  },
+
+  questionNumberActive: {
+    backgroundColor: '#2563eb',
+    color: '#ffffff',
+    boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)',
+    transform: 'scale(1.05)',
+  },
+
+  // --- KẾT QUẢ AI & MODAL ---
+  aiBox: {
+    backgroundColor: '#f0fdf4',
+    border: '1px solid #bbf7d0',
     borderRadius: '12px',
+    padding: '20px',
+    marginTop: '16px',
+    color: '#166534',
     fontSize: '15px',
     lineHeight: '1.6',
-    color: '#374151',
-    resize: 'vertical',
-    outline: 'none',
-    fontFamily: 'inherit'
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
   },
-  input: {
-    width: '100%',
-    padding: '12px 16px',
-    border: '2px solid #e5e7eb',
-    borderRadius: '8px',
-    fontSize: '15px',
-    color: '#374151',
-    outline: 'none',
-    fontFamily: 'inherit'
-  },
-  wordCount: {
-    fontSize: '12px',
-    color: '#6b7280',
-    marginTop: '8px'
-  },
-  examImage: {
-    width: '100%',
-    maxWidth: '500px',
-    borderRadius: '12px',
-    marginBottom: '16px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-  },
-  imageGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '16px',
-    marginBottom: '20px'
-  },
-  imageCaption: {
-    fontSize: '14px',
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: '20px',
-    fontStyle: 'italic'
-  },
-  dropdown: {
-    position: 'absolute',
-    right: 0,
-    top: '100%',
-    marginTop: '8px',
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-    border: '1px solid #e5e7eb',
-    padding: '8px',
-    minWidth: '200px',
-    zIndex: 1000
-  },
-  dropdownItem: {
-    padding: '10px 12px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    color: '#374151',
-    transition: 'background 0.2s ease'
-  },
-  dropdownDivider: {
-    height: '1px',
-    backgroundColor: '#e5e7eb',
-    margin: '8px 0'
-  },
-  badge: {
-    position: 'absolute',
-    top: '12px',
-    right: '12px',
-    backgroundColor: '#fbbf24',
-    color: '#92400e',
-    fontSize: '10px',
-    fontWeight: '700',
-    padding: '4px 8px',
-    borderRadius: '6px'
-  },
-  wordBox: {
-    display: 'inline-block',
-    padding: '8px 16px',
-    backgroundColor: '#e0e7ff',
-    color: '#065f46',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '600',
-    margin: '4px',
-    cursor: 'move',
-    userSelect: 'none'
-  },
-  sentenceBuilder: {
-    minHeight: '60px',
-    padding: '16px',
-    backgroundColor: '#f9fafb',
-    border: '2px dashed #cbd5e1',
-    borderRadius: '12px',
-    marginBottom: '20px',
+
+  resultOverlay: {
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    backdropFilter: 'blur(4px)',
     display: 'flex',
-    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: '8px'
+    justifyContent: 'center',
+    zIndex: 1000,
+    animation: 'fadeIn 0.3s ease',
   },
-  emailBox: {
-    backgroundColor: '#f9fafb',
-    padding: '20px',
-    borderRadius: '12px',
-    marginBottom: '20px',
-    border: '1px solid #e5e7eb'
+
+  resultModal: {
+    backgroundColor: '#ffffff',
+    borderRadius: '20px',
+    width: '560px',
+    maxWidth: '90%',
+    maxHeight: '85vh',
+    padding: '32px',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    overflowY: 'auto',
   },
-  emailHeader: {
-    marginBottom: '12px',
-    paddingBottom: '12px',
-    borderBottom: '1px solid #e5e7eb'
+
+  // --- NÚT BẤM ---
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 20px',
+    borderRadius: '10px',
+    fontWeight: '600',
+    fontSize: '15px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    border: 'none',
   },
-  emailLabel: {
-    fontSize: '12px',
-    color: '#6b7280',
-    marginRight: '8px'
+
+  primaryBtn: {
+    backgroundColor: '#2563eb',
+    color: '#ffffff',
+    '&:hover': {
+      backgroundColor: '#1d4ed8',
+      transform: 'translateY(-1px)',
+    }
   },
-  emailValue: {
-    fontSize: '14px',
-    color: '#111827',
-    fontWeight: '500'
+
+  secondaryBtn: {
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    '&:hover': {
+      backgroundColor: '#e2e8f0',
+    }
   },
+
   submitButton: {
-  backgroundColor: '#10b981',
-  color: '#fff',
-  border: 'none',
-  padding: '10px 18px',
-  borderRadius: '10px',
-  fontWeight: 600,
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px'
-},
-
-questionActionRow: {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: '24px'
-},
-resultBox: {
-  backgroundColor: '#ffffff',
-  borderRadius: '14px',
-  padding: '24px',
-  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-  maxWidth: '800px'
-},
-
-resultTitle: {
-  fontSize: '22px',
-  fontWeight: 700,
-  marginBottom: '20px'
-},
-
-resultSection: {
-  marginBottom: '16px',
-  lineHeight: 1.6
-},
-
-label: {
-  fontWeight: 600,
-  color: '#374151'
-},
-
-aiComment: {
-  backgroundColor: '#ecfdf5',
-  borderLeft: '4px solid #10b981',
-  padding: '12px',
-  borderRadius: '8px',
-  marginTop: '8px',
-  fontStyle: 'italic'
-},
-resultOverlay: {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100vw',
-  height: '100vh',
-  backgroundColor: 'rgba(0,0,0,0.4)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 999
-},
-
-resultModal: {
-  backgroundColor: '#fff',
-  borderRadius: '16px',
-  width: '520px',
-  maxWidth: '90%',
-  padding: '24px',
-  boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-  display: 'flex',
-  flexDirection: 'column'
-},
-
-resultHeader: {
-  fontSize: '20px',
-  fontWeight: 700,
-  marginBottom: '16px'
-},
-
-resultBody: {
-  flex: 1,
-  fontSize: '14px',
-  lineHeight: 1.6
-},
-
-resultFooter: {
-  display: 'flex',
-  justifyContent: 'flex-end',
-  gap: '12px',
-  marginTop: '20px'
-},
-
-secondaryBtn: {
-  border: '1px solid #10b981',
-  backgroundColor: '#fff',
-  color: '#10b981',
-  padding: '8px 16px',
-  borderRadius: '10px',
-  fontWeight: 600,
-  cursor: 'pointer'
-},
-
-primaryBtn: {
-  backgroundColor: '#10b981',
-  color: '#fff',
-  border: 'none',
-  padding: '8px 18px',
-  borderRadius: '10px',
-  fontWeight: 600,
-  cursor: 'pointer'
-},
-
-aiBox: {
-  backgroundColor: '#ecfdf5',
-  borderLeft: '4px solid #10b981',
-  padding: '12px',
-  borderRadius: '8px',
-  marginTop: '8px',
-  fontStyle: 'italic'
-}
-
+    backgroundColor: '#10b981',
+    color: 'white',
+    padding: '14px 28px',
+    borderRadius: '10px',
+    border: 'none',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)',
+    '&:hover': {
+      backgroundColor: '#059669',
+      boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.2)',
+    }
+  },
+  recordButton: {
+    display: 'flex',          // Chuyển về flex để căn chỉnh icon và chữ bên trong
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',               // Khoảng cách giữa icon và chữ
+    
+    // Kích thước ngắn lại
+    padding: '10px 24px', 
+    width: 'fit-content',     // Nút chỉ dài bằng nội dung bên trong
+    minWidth: '160px',        // Đảm bảo nút không quá ngắn khi đổi chữ
+    
+    // Căn giữa nút
+    margin: '20px auto',      // 20px cách trên dưới, 'auto' để căn giữa trái phải
+    
+    borderRadius: '50px',     // Bo tròn kiểu capsule
+    border: 'none',
+    fontWeight: '700',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+    color: '#ffffff',
+    textTransform: 'uppercase',
+  },
+  // Tạo class riêng cho trạng thái đang ghi âm
+  recordActive: {
+    backgroundColor: '#dc2626',
+    boxShadow: '0 0 0 4px rgba(220, 38, 38, 0.2), 0 4px 15px rgba(220, 38, 38, 0.4)',
+    animation: 'pulse 1.5s infinite', // Nếu bạn dùng CSS keyframes
+  }
 };
 
 export default styles;
