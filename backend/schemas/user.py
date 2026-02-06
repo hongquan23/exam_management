@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from pydantic import Field
+from typing import Optional
 
 class UserBase(BaseModel):
     name: str
@@ -20,7 +21,7 @@ class Token(BaseModel):
 
 class UserOut(UserBase):
     id: int
-    created_at: datetime
+    created_at: Optional[datetime] = None 
 
     class Config:
         from_attributes = True
