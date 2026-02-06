@@ -96,17 +96,14 @@ const AuthForm = () => {
     e.preventDefault();
 
     try {
-      const res = await login({
-        email,
-        password,
-      });
+      const res = await login({ email, password });
 
-      const { access_token } = res.data;
+      const { access_token, role: serverRole } = res.data;
 
       localStorage.setItem("access_token", access_token);
-      localStorage.setItem("role", role);
+      localStorage.setItem("role", serverRole);
 
-      if (role === "ADMIN") {
+      if (serverRole === "ADMIN") {
         navigate("/admin");
       } else {
         navigate("/member");
@@ -115,7 +112,6 @@ const AuthForm = () => {
       alert("Email hoặc mật khẩu không đúng");
     }
   };
-
   // =========================
   // 🔹 FORGOT PASSWORD (MOCK)
   // =========================
@@ -200,11 +196,6 @@ const AuthForm = () => {
                   setShowPasswordSignIn(!showPasswordSignIn)
                 }
               />
-
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="MEMBER">MEMBER</option>
-                <option value="ADMIN">ADMIN</option>
-              </select>
 
               <button type="submit">Sign In</button>
 
