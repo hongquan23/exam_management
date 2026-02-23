@@ -12,6 +12,10 @@ class WritingQuestion(Base):
     sample_answer = Column(Text)
     image_describe = Column(Text)
     part = Column(Integer)
+
+    required_word_1 = Column(String(255))
+    required_word_2 = Column(String(255))
+
    
     question_base = relationship("QuestionBase", back_populates="writing_question", uselist=False)
  
