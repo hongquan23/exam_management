@@ -6,7 +6,7 @@ class SpeakingQuestionOut(BaseModel):
     information: str | None
     image_url: str | None
     image_describe: str | None
-    question: str
+    question: str | None
     sample_answer: str | None
     part: int
     
@@ -16,7 +16,7 @@ class SpeakingQuestionCreate(BaseModel):
     information: str | None
     image_url: str | None
     image_describe: str | None
-    question: str
+    question: str | None
     sample_answer: str | None
     part: int
     

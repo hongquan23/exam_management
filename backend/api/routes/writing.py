@@ -22,6 +22,8 @@ def create_writing_question(
     image: UploadFile | None = File(None),
     image_describe: str = Form(None),
     sample_answer: str = Form(None),
+    required_word_1 : str = Form(None),
+    required_word_2 : str = Form(None),
     db: Session = Depends(get_db)
 ):
     image_path = None

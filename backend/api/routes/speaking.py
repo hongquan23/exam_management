@@ -26,7 +26,7 @@ def create_speaking_question(
     direction: str = Form(...),
     part: int = Form(...),
     information: str = Form(None),
-    question: str = Form(...),
+    question: str = Form(None),
     image: UploadFile | None = File(None),
     image_describe: str = Form(None),
     sample_answer: str = Form(None),
@@ -63,9 +63,17 @@ def get_questions(section_id: int, db: Session = Depends(get_db)):
 
 @router.post("/q1-2")
 async def speaking_part_1_2(
-    reference_text: str = Form(...),
-    audio: UploadFile = File(...)
+    question_id: int = Form(...),
+    audio: UploadFile = File(...),
+    db : Session = Depends(get_db)
 ):
+    question = db.query(SpeakingQuestion).filter(
+        SpeakingQuestion.id == question_id
+    ).first()
+    if not question:
+        raise HTTPException(status_code = 404, detail = "Question not found")
+    
+    reference_text = question.question
     temp_dir = tempfile.gettempdir()
 
     raw_path = os.path.join(temp_dir, f"{uuid.uuid4()}.webm")

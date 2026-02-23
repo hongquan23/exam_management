@@ -123,6 +123,7 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
 };
 
 const ToeicMember = () => {
+  const [audioBlob, setAudioBlob] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
@@ -322,7 +323,8 @@ const fetchTests = async () => {
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         const url = URL.createObjectURL(blob);
-        setAudioChunks(chunks);
+
+        setAudioBlob(blob); // ✅ quan trọng
         setAudioURL(url);
         setIsRecording(false);
         stream.getTracks().forEach((track) => track.stop());
@@ -464,13 +466,34 @@ const handlePrevQuestion = () => {
           <button
             style={styles.submitButton}
             disabled={!audioURL}
-            onClick={() => {
-              setSubmittedQuestion({
-                question,
-                answer: audioURL   // speaking dùng audio
-              });
-              setExamSubView("result");
-            }}
+           onClick={async () => {
+  if (!audioBlob) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("question_id", question.id);
+    formData.append("audio", audioBlob);
+
+    const response = await fetch("http://127.0.0.1:8000/api/speaking/q1-2", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    setSubmittedQuestion({
+      question,
+      transcript: data.transcript,
+      feedback: data.feedback,
+      audioURL
+    });
+
+    setExamSubView("result");
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi gửi bài!");
+  }
+}}
           >
             Nộp câu này
           </button>
@@ -984,7 +1007,7 @@ const handlePrevQuestion = () => {
  const renderQuestionResult = () => {
   if (!submittedQuestion) return null;
 
-  const { question, answer } = submittedQuestion;
+  const { question, transcript, feedback, audioURL } = submittedQuestion;
 
   return (
     <div style={styles.resultOverlay}>
@@ -997,15 +1020,34 @@ const handlePrevQuestion = () => {
         <div style={styles.resultBody}>
           <p><b>Câu hỏi:</b></p>
           <p>{question?.prompt || question?.type || '—'}</p>
-          <p style={{ marginTop: '12px' }}><b>Bài làm của bạn:</b></p>
-          {typeof answer === "string" && answer.startsWith("blob:") ? (
-              <audio controls src={answer} />
-            ) : (
-              <p>{answer || <i>Chưa nhập</i>}</p>
-            )}
-          <p style={{ marginTop: '12px' }}><b>AI nhận xét:</b></p>
+
+          <p style={{ marginTop: '12px' }}>
+            <b>Bài làm của bạn:</b>
+          </p>
+
+          {/* 🎤 Nếu có audio */}
+          {audioURL ? (
+            <audio controls src={audioURL} />
+          ) : (
+            <p><i>Không có audio</i></p>
+          )}
+
+          {/* 📝 Transcript nếu có */}
+          {transcript && (
+            <>
+              <p style={{ marginTop: '12px' }}>
+                <b>Transcript:</b>
+              </p>
+              <p>{transcript}</p>
+            </>
+          )}
+
+          <p style={{ marginTop: '12px' }}>
+            <b>AI nhận xét:</b>
+          </p>
+
           <div style={styles.aiBox}>
-            (Sẽ chấm bằng AI backend)
+            {feedback || "Chưa có feedback"}
           </div>
         </div>
 
@@ -1021,7 +1063,7 @@ const handlePrevQuestion = () => {
             style={styles.primaryBtn}
             onClick={() => {
               setExamSubView("question");
-              setSubmittedQuestion(null)
+              setSubmittedQuestion(null);
               handleNextQuestion();
             }}
           >
