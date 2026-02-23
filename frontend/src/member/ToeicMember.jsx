@@ -8,10 +8,6 @@ import styles from './styles';
 import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection } from "../api";
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 
-
-
-
-
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: true },
   { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: true },
