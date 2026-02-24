@@ -130,7 +130,9 @@ const rawImage = apiQuestion.image_url || apiQuestion.image;
       : `http://localhost:8000/${rawImage}`)
       : null,
       image_describe: apiQuestion.image_describe || '',
-      sample_answer: apiQuestion.sample_answer || ''
+      sample_answer: apiQuestion.sample_answer || '',
+      required_word_1: apiQuestion.required_word_1 || '',
+      required_word_2: apiQuestion.required_word_2 || ''
     };
   }
 
@@ -275,10 +277,12 @@ useEffect(() => {
           const qRes = await getWritingBySection(section.id);
           const part = section.part || parseInt(section.name?.match(/Part\s*(\d+)/i)?.[1]) || 1;
           
-          const mappedQuestions = (qRes.data || []).map(q => 
-            mapAPIQuestionToUIFormat(q, 'Writing', part)
-          );
-          
+          const mappedQuestions = (qRes.data || []).map(q => {
+            console.log("RAW WRITING API:", q)
+            const mapped = mapAPIQuestionToUIFormat(q, 'Writing', part)
+            console.log("MAPPED WRITING:", mapped)
+            return mapped
+          });
           groupedWriting[baseName].sections.push({
             id: section.id,
             name: section.name,
@@ -713,23 +717,29 @@ useEffect(() => {
             </div>
 
             <div style={styles.questionText}>{question.instruction}</div>
-
             {question.image && question.image.trim() !== '' && (
               <img src={question.image} alt="Question" style={styles.examImage} />
             )}
-
             {question.image_describe && (
               <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', borderColor: '#d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
                 {question.image_describe}
               </div>
             )}
-            {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
-                <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
-              </div>
-            )}
-
+            {(question.required_word_1 || question.required_word_2) && (
+            <div style={{
+                ...styles.questionText,
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                fontWeight: 500
+            }}>
+              Required words: 
+              <span style={{ color: '#b45309' }}>
+                {question.required_word_1}
+                {question.required_word_1 && question.required_word_2 ? ', ' : ''}
+                {question.required_word_2}
+              </span>
+            </div>
+          )}
             <textarea
               style={styles.textarea}
               placeholder="Write your sentence here..."

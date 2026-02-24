@@ -8,6 +8,9 @@ const api = axios.create({
 export const register = (data) => api.post("api/auth/register", data);
 export const login = (data) => api.post("api/auth/login", data);
 
+// 👉 Users
+export const getUsers = () => api.get("api/users");
+
 // 👉 Section API
 export const createSection = (data) => api.post("api/sections/create", data);
 export const getSections = () => api.get("api/sections/");

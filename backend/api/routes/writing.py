@@ -45,7 +45,9 @@ def create_writing_question(
         "part": part,
         "image_url": image_path,
         "image_describe": image_describe,
-        "sample_answer": sample_answer
+        "sample_answer": sample_answer,
+        "required_word_1": required_word_1,
+        "required_word_2": required_word_2
     }
 
     # 3. Gọi CRUD

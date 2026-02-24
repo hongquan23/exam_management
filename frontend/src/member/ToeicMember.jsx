@@ -77,7 +77,9 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
         : null,
       image_describe: apiQuestion.image_describe || '',
       information: apiQuestion.information || '',
-      sample_answer: apiQuestion.sample_answer || ''
+      sample_answer: apiQuestion.sample_answer || '',
+      required_word_1: apiQuestion.required_word_1 || '',
+      required_word_2: apiQuestion.required_word_2 || ''
     };
   }
 
@@ -721,13 +723,29 @@ const handlePrevQuestion = () => {
                 {question.image_describe}
               </div>
             )}
-            {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
-                <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
-              </div>
-            )}
-
+            {(question.required_word_1 || question.required_word_2) && (
+                <div style={{
+                  background: "#fef9c3",
+                  border: "1px solid #fde047",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  marginBottom: "12px",
+                  fontSize: "14px"
+                }}>
+                  <b>Required words:</b>{" "}
+                  <span style={{ color: "#92400e", fontWeight: 600 }}>
+                    {question.required_word_1}
+                  </span>
+                  {question.required_word_2 && (
+                    <>
+                      {" , "}
+                      <span style={{ color: "#92400e", fontWeight: 600 }}>
+                        {question.required_word_2}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             <textarea
               style={styles.textarea}
               placeholder="Write your sentence here..."
