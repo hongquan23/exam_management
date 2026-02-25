@@ -63,17 +63,11 @@ def get_questions(section_id: int, db: Session = Depends(get_db)):
 
 @router.post("/q1-2")
 async def speaking_part_1_2(
-    question_id: int = Form(...),
+    reference_text: str = Form(...),
     audio: UploadFile = File(...),
     db : Session = Depends(get_db)
 ):
-    question = db.query(SpeakingQuestion).filter(
-        SpeakingQuestion.id == question_id
-    ).first()
-    if not question:
-        raise HTTPException(status_code = 404, detail = "Question not found")
     
-    reference_text = question.question
     temp_dir = tempfile.gettempdir()
 
     raw_path = os.path.join(temp_dir, f"{uuid.uuid4()}.webm")
@@ -108,7 +102,7 @@ async def speaking_part_1_2(
 @router.post("/q3-4")
 async def speaking_q3_4(
     audio: UploadFile = File(...),
-    reference_text: str = Form(...),
+    image_description: str = Form(...),
 ):
     temp_dir = tempfile.gettempdir()
 
@@ -130,7 +124,7 @@ async def speaking_q3_4(
         raise HTTPException(status_code=400, detail="Invalid audio file")
 
     transcript = transcribe_audio(wav_path)
-    feedback = score_toeic_sp_q3_4(transcript, reference_text)
+    feedback = score_toeic_sp_q3_4(transcript, image_description)
 
     try:
         os.remove(raw_path)
@@ -185,10 +179,8 @@ async def speaking_q5_7(
 
 @router.post("/q8-10")
 async def speaking_q8_10(
-    poster_text: str = Form(...),
-    q8: str = Form(...),
-    q9: str = Form(...),
-    q10: str = Form(...),
+    information: str = Form(...),
+    question: str = Form(...),
     audio: UploadFile = File(...)
 ):
     temp_dir = tempfile.gettempdir()
@@ -201,8 +193,8 @@ async def speaking_q8_10(
 
 
     evaluation = score_toeic_sp_q8_10(
-        poster_text=poster_text,
-        questions=[q8, q9, q10],
+        poster_text=information,
+        question=question,
         transcript=transcript)
 
     return {

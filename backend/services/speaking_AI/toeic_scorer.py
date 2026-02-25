@@ -126,22 +126,19 @@ Be strict like ETS examiners.
 
 def score_toeic_sp_q8_10(
     poster_text: str,
-    questions: list[str],
+    question: str,
     transcript: str
 ) -> str:
     prompt = f"""
 You are a TOEIC Speaking examiner.
 
-Task: Respond to questions using provided information (Questions 8–10).
+Task: Respond to questions using provided information.
 
 INFORMATION PROVIDED:
 \"\"\"{poster_text}\"\"\"
 
 QUESTIONS:
-1. {questions[0]}
-2. {questions[1]}
-3. {questions[2]}
-
+\"\"\"{question}\"\"\"
 STUDENT ANSWER (spoken transcript):
 \"\"\"{transcript}\"\"\"
 
