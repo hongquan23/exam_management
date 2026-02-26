@@ -5,7 +5,7 @@ import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
 import styles from './styles';
-import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection } from "../api";
+import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8, scoreSpeakingQ1_2, scoreSpeakingQ3_4,  scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11 } from "../api";
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 
 const skills = [
@@ -48,11 +48,6 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
         responseTime = 30;
         break;
       case 5:
-        questionType = 'Propose a solution';
-        prepTime = 60;
-        responseTime = 60;
-        break;
-      case 6:
         questionType = 'Express an opinion';
         prepTime = 60;
         responseTime = 60;
@@ -111,6 +106,7 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
       timeLimit,
       question: apiQuestion.question || '',
       instruction: apiQuestion.question || '',
+      passage: apiQuestion.passage || '',
       image: rawImage
         ? (rawImage.startsWith('http')
           ? rawImage
@@ -125,6 +121,7 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
 };
 
 const ToeicMember = () => {
+  const [audioAnswers, setAudioAnswers] = useState({});
   const [audioBlob, setAudioBlob] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
   const [selectedSkill, setSelectedSkill] = useState(null);
@@ -145,10 +142,22 @@ const ToeicMember = () => {
   const [speakingTestsData, setSpeakingTestsData] = useState([]);
   const [writingTestsData, setWritingTestsData] = useState([]);
   const allTests = [...speakingTestsData, ...writingTestsData];
-
+  const resetExamState = () => {
+    setExamSubView("question");
+    setSubmittedQuestion(null);
+    setAnswers({});
+  };
+  const [isScoring, setIsScoring] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
+  const resetAudio = () => {
+  setAudioBlob(null);
+  setAudioURL(null);
+  setIsRecording(false);
+  setMediaRecorder(null);
+  setSubmittedQuestion(null);
+};
   
   const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
@@ -179,6 +188,7 @@ useEffect(() => {
   if (location.pathname.endsWith("/exam")) {
     const savedTest = localStorage.getItem("currentExam");
     if (savedTest) {
+      resetExamState();
       const parsed = JSON.parse(savedTest);
       setSelectedTest(parsed);
       setActiveView("exam");
@@ -186,7 +196,21 @@ useEffect(() => {
       navigate("/member/dashboard");
     }
   }
-}, []);
+}, [location.pathname]);
+useEffect(() => {
+  const q = getCurrentQuestion();
+  if (!q) return;
+
+  const saved = audioAnswers[q.id];
+
+  if (saved) {
+    setAudioBlob(saved.blob);
+    setAudioURL(saved.url);
+  } else {
+    setAudioBlob(null);
+    setAudioURL(null);
+  }
+}, [currentQuestionInSection, audioAnswers, selectedTest]);
 const fetchTests = async () => {
   try {
     // ===== SPEAKING =====
@@ -306,6 +330,9 @@ const fetchTests = async () => {
   }, [activeView, selectedTest]);
 
   const startRecording = async (maxDurationSec) => {
+    setSubmittedQuestion(null);
+    setAudioBlob(null);
+    setAudioURL(null);
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert('Trình duyệt không hỗ trợ ghi âm!');
       return;
@@ -326,8 +353,16 @@ const fetchTests = async () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         const url = URL.createObjectURL(blob);
 
-        setAudioBlob(blob); // ✅ quan trọng
+        setAudioBlob(blob);
         setAudioURL(url);
+
+        const q = getCurrentQuestion();
+        if (q) {
+          setAudioAnswers(prev => ({
+            ...prev,
+            [q.id]: { blob, url }
+          }));
+        }
         setIsRecording(false);
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -373,13 +408,13 @@ const fetchTests = async () => {
   };
 
   const handleTestClick = (test) => {
+    resetExamState();
     setSelectedTest(test);
     localStorage.setItem("currentExam", JSON.stringify(test));
     setCurrentSection(0);
     setCurrentQuestionInSection(0);
     setAnswers({});
-    setAudioURL(null);
-    setIsRecording(false);
+    resetAudio();
     setActiveView("exam");
     navigate("/member/exam");
   };
@@ -389,7 +424,7 @@ const fetchTests = async () => {
   };
 
   const getCurrentQuestion = () => {
-    if (!selectedTest) return null;
+    if (!selectedTest?.questions) return null;
     return selectedTest.questions[currentQuestionInSection];
   };
   const handleNextQuestion = () => {
@@ -397,10 +432,9 @@ const fetchTests = async () => {
 
   if (currentQuestionInSection < selectedTest.questions.length - 1) {
     setCurrentQuestionInSection(currentQuestionInSection + 1);
+    setExamSubView("question");
+    setSubmittedQuestion(null);
   }
-
-  setAudioURL(null);
-  setIsRecording(false);
 };
 
 const handlePrevQuestion = () => {
@@ -408,106 +442,154 @@ const handlePrevQuestion = () => {
 
   if (currentQuestionInSection > 0) {
     setCurrentQuestionInSection(currentQuestionInSection - 1);
+    setExamSubView("question");
+    setSubmittedQuestion(null);
+  }
+};
+const submitSpeaking = async (question) => {
+  if (!audioBlob) {
+    alert("Bạn chưa ghi âm!");
+    return;
   }
 
-  setAudioURL(null);
-  setIsRecording(false);
+  try {
+    setIsScoring(true);
+
+    const formData = new FormData();
+    formData.append("audio", audioBlob);
+
+    const part = Number(question.part);
+    let res = null;
+
+    switch (part) {
+      case 1:
+        formData.append("reference_text", question.text || "");
+        res = await scoreSpeakingQ1_2(formData);
+        break;
+
+      case 2:
+        formData.append("image_description", question.image_describe || "");
+        res = await scoreSpeakingQ3_4(formData);
+        break;
+
+      case 3:
+        formData.append("question", question.text || "");
+        res = await scoreSpeakingQ5_7(formData);
+        break;
+
+      case 4:
+        formData.append("information", question.information || "");
+        formData.append("question", question.text || "");
+        res = await scoreSpeakingQ8_10(formData);
+        break;
+
+      case 5:
+        formData.append("question", question.text || "");
+        res = await scoreSpeakingQ11(formData);
+        break;
+
+      default:
+        alert("Không xác định Part Speaking");
+        return;
+    }
+
+    if (!res || !res.data) {
+      alert("API không trả kết quả!");
+      return;
+    }
+
+    setSubmittedQuestion({
+      question,
+      transcript: res.data.transcript || "",
+      feedback: res.data.feedback || res.data.evaluation || "",
+      audioURL
+    });
+
+    setExamSubView("result");
+
+  } catch (err) {
+  console.error("API ERROR:", err?.response?.data || err.message || err);
+  alert("Lỗi gửi Speaking!");
+  } finally {
+    setIsScoring(false);
+  }
 };
 
  const renderExamQuestion = () => {
-    const question = getCurrentQuestion();
+   const question = getCurrentQuestion();
+   if (!question) return null;
+  const savedAudio = audioAnswers[question.id];
     if (!question) return null;
 
     const isSpeaking = selectedTest.skill === 'Speaking';
     const isWriting = selectedTest.skill === 'Writing';
 
-    const renderRecordControls = (responseTime, question) => (
-      <>
-       <button 
-  style={{
-    ...styles.recordButton,
-    backgroundColor: isRecording ? '#dc2626' : '#ef4444',
-    // Hiệu ứng scale nhẹ hơn khi ghi âm cho nút nhỏ
-    transform: isRecording ? 'scale(1.02)' : 'scale(1)',
-  }}
-  onClick={() => {
-    if (!isRecording) {
-      startRecording(responseTime);
-    } else {
-      stopRecording();
-    }
-  }}
->
-  {/* Chấm tròn nhỏ khi đang ghi âm */}
-  {isRecording && (
-    <span style={{
-      width: '6px',
-      height: '6px',
-      backgroundColor: '#fff',
-      borderRadius: '50%',
-      marginRight: '2px',
-      display: 'inline-block',
-      animation: 'blink 1s infinite'
-    }} />
-  )}
-  
-  <Mic size={14} strokeWidth={2.5} /> {/* Giảm Mic xuống size 14 */}
-  <span>
-    {isRecording ? 'DỪNG' : 'THU ÂM'}
-  </span>
-</button>
+const renderRecordControls = (responseTime, question) => {
+  const savedAudio = audioAnswers[question.id];
 
-        {audioURL && (
-          <div style={{ marginTop: '16px' }}>
-            <audio controls src={audioURL} />
-          </div>
+  return (
+    <>
+      <button 
+        style={{
+          ...styles.recordButton,
+          backgroundColor: isRecording ? '#dc2626' : '#ef4444',
+          transform: isRecording ? 'scale(1.02)' : 'scale(1)',
+        }}
+        onClick={() => {
+          if (!isRecording) {
+            startRecording(responseTime);
+          } else {
+            stopRecording();
+          }
+        }}
+      >
+        {isRecording && (
+          <span style={{
+            width: '6px',
+            height: '6px',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            marginRight: '2px',
+            display: 'inline-block',
+            animation: 'blink 1s infinite'
+          }} />
         )}
 
-        {/* ✅ NÚT NỘP CÂU SPEAKING */}
-        <div style={{ marginTop: '20px' }}>
-          <button
-            style={styles.submitButton}
-            disabled={!audioURL}
-           onClick={async () => {
-  if (!audioBlob) return;
+        <Mic size={14} strokeWidth={2.5} />
+        <span>
+          {isRecording ? 'DỪNG' : 'THU ÂM'}
+        </span>
+      </button>
 
-  try {
-    const formData = new FormData();
-    formData.append("question_id", question.id);
-    formData.append("audio", audioBlob);
-
-    const response = await fetch("http://127.0.0.1:8000/api/speaking/q1-2", {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-
-    setSubmittedQuestion({
-      question,
-      transcript: data.transcript,
-      feedback: data.feedback,
-      audioURL
-    });
-
-    setExamSubView("result");
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi gửi bài!");
-  }
-}}
-          >
-            Nộp câu này
-          </button>
-
-          {!audioURL && (
-            <div style={{ fontSize: '12px', color: '#ef4444', marginTop: '6px' }}>
-              Bạn cần ghi âm trước khi nộp
-            </div>
-          )}
+      {savedAudio && (
+        <div style={{ marginTop: '16px' }}>
+          <audio controls src={savedAudio.url} />
         </div>
-      </>
-    );
+      )}
+
+      <div style={{ marginTop: '20px' }}>
+        <button
+          disabled={!audioBlob || isScoring}
+          style={{
+            ...styles.submitBtn,
+            ...(isScoring ? styles.submitBtnLoading : {}),
+            ...((!audioBlob || isScoring) ? styles.submitBtnDisabled : {})
+          }}
+          onClick={() => submitSpeaking(question)}
+        >
+          {isScoring && <span style={styles.spinner} />}
+          {isScoring ? "AI đang chấm..." : "Nộp câu này"}
+        </button>
+
+        {!audioBlob && (
+          <div style={{ fontSize: '12px', color: '#ef4444', marginTop: '6px' }}>
+            Bạn cần ghi âm trước khi nộp
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
     // Speaking Questions
     if (isSpeaking) {
       if (question.type === 'Read a Short Text Aloud') {
@@ -521,12 +603,12 @@ const handlePrevQuestion = () => {
             </div>
 
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -549,7 +631,7 @@ const handlePrevQuestion = () => {
             </div>
 
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
@@ -558,15 +640,14 @@ const handlePrevQuestion = () => {
               <img src={question.image} alt="Question" style={styles.examImage} 
               onError={(e) => console.log("❌ Load ảnh lỗi:", question.image)}/>
             )}
-            {console.log("👉 IMAGE URL FE:", question.image)}
 
             {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', borderColor: '#d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
                 {question.image_describe}
               </div>
             )}
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -585,18 +666,18 @@ const handlePrevQuestion = () => {
               </div>
             </div>
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
             {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', borderColor: '#fbbf24', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', border: '1px solid #fbbf24', marginBottom: '12px' }}>
                 <strong>Information:</strong> {question.information}
               </div>
             )}
             <div style={styles.questionText}>{question.text}</div>
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -615,7 +696,7 @@ const handlePrevQuestion = () => {
               </div>
             </div>
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
@@ -623,7 +704,7 @@ const handlePrevQuestion = () => {
               <div style={styles.questionText}>{question.text}</div>
             )}
             {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', borderColor: '#fbbf24', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', border: '1px solid #fbbf24', marginBottom: '12px' }}>
                 <strong>Information:</strong> {question.information}
               </div>
             )}
@@ -631,38 +712,7 @@ const handlePrevQuestion = () => {
               <img src={question.image} alt="Question" style={styles.examImage} />
             )}
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
-                <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
-              </div>
-            )}
-            {renderRecordControls(question.responseTime, question)}
-          </div>
-        );
-      }
-
-      if (question.type === 'Propose a solution') {
-        return (
-          <div style={styles.questionContent}>
-            <div style={styles.questionHeader}>
-              <span style={styles.questionType}>{question.type}</span>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Preparation: {question.prepTime}s | Response: {question.responseTime}s
-              </div>
-            </div>
-            {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
-                <strong>Direction:</strong> {question.direction}
-              </div>
-            )}
-            <div style={styles.questionText}>{question.text}</div>
-            {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', borderColor: '#fbbf24' }}>
-                <strong>Information:</strong> {question.information}
-              </div>
-            )}
-            {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -682,13 +732,13 @@ const handlePrevQuestion = () => {
               </div>
             </div>
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
             <div style={styles.questionText}>{question.text}</div>
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -719,7 +769,7 @@ const handlePrevQuestion = () => {
             )}
 
             {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', borderColor: '#d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
                 {question.image_describe}
               </div>
             )}
@@ -754,16 +804,47 @@ const handlePrevQuestion = () => {
             />
             <div style={{ marginTop: '16px' }}>
               <button
-                style={styles.submitButton}
-                onClick={() => {
-                  setSubmittedQuestion({
-                    question: question,
-                    answer: answers[question.id] || ""
-                  });
-                  setExamSubView("result");
+                disabled={isScoring}
+                style={{
+                  ...styles.submitBtn,
+                  ...(isScoring ? styles.submitBtnLoading : {}),
+                  ...(isScoring ? styles.submitBtnDisabled : {})
+                }}
+                onClick={async () => {
+                  const studentSentence = (answers[question.id] || "").trim();
+                  if (!studentSentence) {
+                    alert("Bạn chưa nhập câu trả lời!");
+                    return;
+                  }
+
+                  try {
+                    setIsScoring(true);
+
+                    const formData = new URLSearchParams();
+                    formData.append("image_description", question.image_describe || "");
+                    formData.append("required_word_1", question.required_word_1 || "");
+                    formData.append("required_word_2", question.required_word_2 || "");
+                    formData.append("student_sentence", studentSentence);
+
+                    const res = await scoreWritingQ1_5(formData);
+
+                    setSubmittedQuestion({
+                      question,
+                      answer: studentSentence,
+                      feedback: res.data.feedback
+                    });
+
+                    setExamSubView("result");
+                  } catch (err) {
+                    console.error(err);
+                    alert("Lỗi chấm điểm Writing!");
+                  } finally {
+                    setIsScoring(false);
+                  }
                 }}
               >
-                Nộp câu này
+                {isScoring && <span style={styles.spinner} />}
+                {isScoring ? "AI đang chấm..." : "Nộp câu này"}
               </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
@@ -781,9 +862,22 @@ const handlePrevQuestion = () => {
                 Time limit: {Math.floor((question.timeLimit || 0) / 60)} minutes
               </div>
             </div>
+            {question.passage && (
+              <div style={{
+                ...styles.questionText,
+                backgroundColor: '#eef2ff',
+                border: '1px solid #6366f1',
+                whiteSpace: 'pre-line'
+              }}>
+                <strong>Email / Request:</strong>
+                <div style={{ marginTop: 6 }}>
+                  {question.passage}
+                </div>
+              </div>
+            )}
             <div style={styles.questionText}>{question.instruction || question.question}</div>
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -795,18 +889,49 @@ const handlePrevQuestion = () => {
               onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
             />
            <div style={{ marginTop: '16px' }}>
-              <button
-                style={styles.submitButton}
-                onClick={() => {
-                  setSubmittedQuestion({
-                    question: question,
-                    answer: answers[question.id] || ""
-                  });
-                  setExamSubView("result");
+            <button
+              disabled={isScoring}
+                style={{
+                  ...styles.submitBtn,
+                  ...(isScoring ? styles.submitBtnLoading : {}),
+                  ...(isScoring ? styles.submitBtnDisabled : {})
                 }}
-              >
-                Nộp câu này
-              </button>
+              onClick={async () => {
+                const studentResponse = (answers[question.id] || "").trim();
+
+                if (!studentResponse) {
+                  alert("Bạn chưa nhập câu trả lời!");
+                  return;
+                }
+
+                try {
+                  setIsScoring(true);
+
+                  const formData = new FormData();
+                  formData.append("email_prompt", question.passage || "");
+                  formData.append("directions", question.instruction || question.question || "");
+                  formData.append("student_response", studentResponse);
+
+                  const res = await scoreWritingQ6_7(formData);
+
+                  setSubmittedQuestion({
+                    question,
+                    answer: studentResponse,
+                    feedback: res.data.feedback || res.data
+                  });
+
+                  setExamSubView("result");
+                } catch (err) {
+                  console.error(err);
+                  alert("Lỗi chấm điểm Writing Part 2!");
+                } finally {
+                  setIsScoring(false);
+                }
+              }}
+            >
+                {isScoring && <span style={styles.spinner} />}
+                {isScoring ? "AI đang chấm..." : "Nộp câu này"}
+            </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
           </div>
@@ -826,7 +951,7 @@ const handlePrevQuestion = () => {
             </div>
             <div style={styles.questionText}>{question.instruction || question.question}</div>
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
+              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <strong>📝 Sample Answer:</strong>
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
@@ -839,16 +964,45 @@ const handlePrevQuestion = () => {
             />
              <div style={{ marginTop: '16px' }}>
               <button
-                style={styles.submitButton}
-                onClick={() => {
-                  setSubmittedQuestion({
-                    question: question,
-                    answer: answers[question.id] || ""
-                  });
-                  setExamSubView("result");
+                disabled={isScoring}
+                  style={{
+                    ...styles.submitBtn,
+                    ...(isScoring ? styles.submitBtnLoading : {}),
+                    ...(isScoring ? styles.submitBtnDisabled : {})
+                  }}
+                onClick={async () => {
+                  const studentResponse = (answers[question.id] || "").trim();
+
+                  if (!studentResponse) {
+                    alert("Bạn chưa nhập bài viết!");
+                    return;
+                  }
+
+                  try {
+                    setIsScoring(true);
+
+                    const formData = new FormData();
+                    formData.append("question", question.question || "");
+                    formData.append("student_response", studentResponse);
+
+                    const res = await scoreWritingQ8(formData);
+
+                    setSubmittedQuestion({
+                      question,
+                      feedback: res.data.feedback || res.data.evaluation || "",
+                    });
+
+                    setExamSubView("result");
+                  } catch (err) {
+                    console.error(err);
+                    alert("Lỗi chấm điểm Writing Part 3!");
+                  } finally {
+                    setIsScoring(false);
+                  }
                 }}
               >
-                Nộp câu này
+                  {isScoring && <span style={styles.spinner} />}
+                  {isScoring ? "AI đang chấm..." : "Nộp câu này"}   
               </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
@@ -860,6 +1014,7 @@ const handlePrevQuestion = () => {
 
     return null;
   };
+  
 
   const renderExam = () => {
     if (!selectedTest) return null;
@@ -869,15 +1024,22 @@ const handlePrevQuestion = () => {
         <div style={styles.examHeader}>
           <h1 style={styles.examTitle}>{selectedTest.title}</h1>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              style={{ ...styles.button, ...styles.buttonSecondary }}
-               onClick={() => {
-                  setActiveView("dashboard");
-                  navigate("/member/dashboard");
-                }}
-            >
-              Thoát
-            </button>
+          <button 
+            style={{ ...styles.button, ...styles.buttonSecondary }}
+            onClick={() => {
+              resetExamState();   // ⭐ reset trạng thái bài thi
+              setSelectedTest(null);
+              setCurrentQuestionInSection(0);
+              setCurrentSection(0);
+              setAudioURL(null);
+              setIsRecording(false);
+
+              setActiveView("dashboard");
+              navigate("/member/dashboard");
+            }}
+          >
+            Thoát
+          </button>
           </div>
         </div>
     <div style={styles.examNav}>
@@ -912,8 +1074,8 @@ const handlePrevQuestion = () => {
                 }}
                 onClick={() => {
                   setCurrentQuestionInSection(firstIdx);
-                  setAudioURL(null);
-                  setIsRecording(false);
+                  resetExamState();
+                  resetAudio();
                 }}
               >
                 {label}
@@ -999,8 +1161,7 @@ const handlePrevQuestion = () => {
                           }}
                           onClick={() => {
                             setCurrentQuestionInSection(q.originalIndex);
-                            setAudioURL(null);
-                            setIsRecording(false);
+                            resetAudio();
                           }}
                         >
                           {q.originalIndex + 1}
@@ -1022,73 +1183,85 @@ const handlePrevQuestion = () => {
     );
   };
 
- const renderQuestionResult = () => {
+const renderQuestionResult = () => {
   if (!submittedQuestion) return null;
 
-  const { question, transcript, feedback, audioURL } = submittedQuestion;
+  const q = submittedQuestion.question;
 
   return (
-    <div style={styles.resultOverlay}>
+    <div style={styles.resultModalOverlay}>
       <div style={styles.resultModal}>
-        
+      <button
+        onClick={() => {
+          setSubmittedQuestion(null);
+          setExamSubView("question");
+        }}
+        style={styles.closeBtn}
+      >
+        ×
+      </button>
         <div style={styles.resultHeader}>
-          Kết quả
+          Đáp án câu {currentQuestionInSection + 1}
         </div>
 
-        <div style={styles.resultBody}>
-          <p><b>Câu hỏi:</b></p>
-          <p>{question?.prompt || question?.type || '—'}</p>
+        {/* Question */}
+        <div style={styles.questionText}>
+          <b>Câu hỏi:</b> {q.text || q.instruction || q.question}
+        </div>
 
-          <p style={{ marginTop: '12px' }}>
+        {/* Audio */}
+        {submittedQuestion.audioURL && (
+          <div style={styles.resultAudio}>
             <b>Bài làm của bạn:</b>
-          </p>
-
-          {/* 🎤 Nếu có audio */}
-          {audioURL ? (
-            <audio controls src={audioURL} />
-          ) : (
-            <p><i>Không có audio</i></p>
-          )}
-
-          {/* 📝 Transcript nếu có */}
-          {transcript && (
-            <>
-              <p style={{ marginTop: '12px' }}>
-                <b>Transcript:</b>
-              </p>
-              <p>{transcript}</p>
-            </>
-          )}
-
-          <p style={{ marginTop: '12px' }}>
-            <b>AI nhận xét:</b>
-          </p>
-
-          <div style={styles.aiBox}>
-            {feedback || "Chưa có feedback"}
+            <audio controls src={submittedQuestion.audioURL} />
           </div>
-        </div>
+        )}
 
-        <div style={styles.resultFooter}>
+        {/* Transcript */}
+        {submittedQuestion.transcript && (
+          <div style={styles.resultAIBox}>
+            <b>Transcript:</b>
+            <div>{submittedQuestion.transcript}</div>
+          </div>
+        )}
+
+        {/* Writing answer */}
+        {submittedQuestion.answer && (
+          <div style={styles.resultAIBox}>
+            <b>Bài viết của bạn:</b>
+            <div style={{ whiteSpace: "pre-line" }}>
+              {submittedQuestion.answer}
+            </div>
+          </div>
+        )}
+
+        {/* AI feedback */}
+        {submittedQuestion.feedback && (
+          <div style={styles.resultAIBox}>
+            <b>Nhận xét AI:</b>
+            <div style={{ whiteSpace: "pre-line" }}>
+              {typeof submittedQuestion.feedback === "object"
+                ? JSON.stringify(submittedQuestion.feedback, null, 2)
+                : submittedQuestion.feedback}
+            </div>
+          </div>
+        )}
+
+        <div style={styles.resultActions}>
           <button
-            style={styles.secondaryBtn}
+            style={{ ...styles.button, ...styles.buttonSecondary }}
             onClick={() => setExamSubView("question")}
           >
             Quay lại
           </button>
 
           <button
-            style={styles.primaryBtn}
-            onClick={() => {
-              setExamSubView("question");
-              setSubmittedQuestion(null);
-              handleNextQuestion();
-            }}
+            style={{ ...styles.button, ...styles.buttonPrimary }}
+            onClick={handleNextQuestion}
           >
             Làm câu tiếp theo
           </button>
         </div>
-
       </div>
     </div>
   );

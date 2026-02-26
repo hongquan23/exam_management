@@ -1,6 +1,3 @@
-// Updated UploadModal with Writing Part 1 fields: required_word_1, required_word_2
-// and removed sample_answer for Writing Part 1
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Image } from 'lucide-react';
 import { createSection, createWritingQuestion, createSpeakingQuestion } from '../api';
@@ -11,8 +8,7 @@ const TOEIC_PARTS = {
     { value: 2, label: 'Part 2 - Describe a picture' },
     { value: 3, label: 'Part 3 - Respond to questions' },
     { value: 4, label: 'Part 4 - Respond using information' },
-    { value: 5, label: 'Part 5 - Propose a solution' },
-    { value: 6, label: 'Part 6 - Express an opinion' }
+    { value: 5, label: 'Part 5 - Express an opinion' }
   ],
   Writing: [
     { value: 1, label: 'Part 1 - Write a sentence based on a picture' },
@@ -24,7 +20,7 @@ const TOEIC_PARTS = {
 const getVisibleFields = (skill, part) => {
   if (skill === 'Writing') {
     if (part === 1) return ['question', 'image', 'image_describe', 'required_word_1', 'required_word_2'];
-    if (part === 2) return ['question', 'sample_answer'];
+    if (part === 2) return ['passage', 'question', 'sample_answer'];
     if (part === 3) return ['question', 'sample_answer'];
     return ['question'];
   }
@@ -35,8 +31,7 @@ const getVisibleFields = (skill, part) => {
       case 2: return ['direction', 'image', 'image_describe', 'sample_answer'];
       case 3: return ['direction', 'question', 'information', 'sample_answer'];
       case 4: return ['direction', 'question', 'information', 'image', 'sample_answer'];
-      case 5: return ['direction', 'question', 'information', 'sample_answer'];
-      case 6: return ['direction', 'question', 'sample_answer'];
+      case 5: return ['direction', 'question', 'sample_answer'];
       default: return [];
     }
   }
@@ -51,6 +46,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     duration: '',
     direction: '',
     question: '',
+    passage: '',
     information: '',
     image_describe: '',
     sample_answer: '',
@@ -110,6 +106,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     fd.append('section_id', sectionId);
     fd.append('part', String(form.part));
     fd.append('question', form.question || '');
+    fd.append('passage', form.passage || '');
     fd.append('direction', form.direction || '');
     fd.append('information', form.information || '');
     fd.append('sample_answer', form.sample_answer || '');
@@ -131,6 +128,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
       ...prev,
       direction: '',
       question: '',
+      passage: '',
       information: '',
       image_describe: '',
       sample_answer: '',
@@ -213,18 +211,29 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
             <textarea name="direction" value={form.direction} onChange={handleChange} style={styles.inputField} />
           </div>
         )}
+        {visibleFields.includes('passage') && (
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Passage / Email</label>
+            <textarea
+              name="passage"
+              value={form.passage || ''}
+              onChange={handleChange}
+              style={styles.inputField}
+            />
+          </div>
+        )}
 
         {visibleFields.includes('question') && (
           <div style={styles.formGroup}>
             <label style={styles.label}>Question</label>
-            <textarea name="question" value={form.question} onChange={handleChange} style={styles.inputField} />
+            <textarea name="question" value={form.question || ''} onChange={handleChange} style={styles.inputField} />
           </div>
         )}
 
         {visibleFields.includes('information') && (
           <div style={styles.formGroup}>
             <label style={styles.label}>Information</label>
-            <textarea name="information" value={form.information} onChange={handleChange} style={styles.inputField} />
+            <textarea name="information" value={form.information || ''} onChange={handleChange} style={styles.inputField} />
           </div>
         )}
 

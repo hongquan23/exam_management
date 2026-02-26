@@ -11,6 +11,7 @@ def create_app() -> FastAPI:
         version = "1.0.0",
         description = "An API for managing TOEIC exam data",
 )
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,

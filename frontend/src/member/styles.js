@@ -180,8 +180,7 @@ const styles = {
 
   navTabActive: {
     backgroundColor: '#eff6ff',
-    color: '#2563eb',
-    borderColor: '#dbeafe',
+    color: '1px solid #2563eb',
     boxShadow: '0 2px 4px rgba(37, 99, 235, 0.05)',
   },
 
@@ -275,7 +274,7 @@ const styles = {
     resize: 'vertical',
     boxSizing: 'border-box',
     '&:focus': {
-      borderColor: '#2563eb',
+      border: '1px solid #2563eb',
       boxShadow: '0 0 0 4px rgba(37, 99, 235, 0.1)',
     }
   },
@@ -475,7 +474,115 @@ const styles = {
     backgroundColor: '#dc2626',
     boxShadow: '0 0 0 4px rgba(220, 38, 38, 0.2), 0 4px 15px rgba(220, 38, 38, 0.4)',
     animation: 'pulse 1.5s infinite', // Nếu bạn dùng CSS keyframes
-  }
+  },
+submitBtn: {
+  background: "#4CAF50",
+  color: "#fff",
+  border: "none",
+  padding: "12px 26px",
+  borderRadius: "8px",
+  fontSize: "15px",
+  fontWeight: 600,
+  cursor: "pointer",
+  transition: "all 0.25s ease",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+  position: "relative",
+},
+
+submitBtnHover: {
+  background: "#43a047",
+  transform: "translateY(-1px)",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+},
+
+submitBtnActive: {
+  transform: "translateY(0)",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+},
+
+submitBtnDisabled: {
+  background: "#9e9e9e",
+  cursor: "not-allowed",
+  boxShadow: "none",
+  transform: "none",
+},
+
+submitBtnLoading: {
+  paddingLeft: "42px",
+},
+
+spinner: {
+  position: "absolute",
+  left: "14px",
+  top: "50%",
+  width: "16px",
+  height: "16px",
+  border: "3px solid #fff",
+  borderTop: "3px solid transparent",
+  borderRadius: "50%",
+  transform: "translateY(-50%)",
+  animation: "spin 0.8s linear infinite",
+},
+resultModalOverlay: {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  background: "rgba(0,0,0,0.35)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 9999,
+  overflowY: "auto"   
+},
+resultModal: {
+  position: "relative",
+  width: "80vw",      
+  maxWidth: "1100px",
+  background: "#fff",
+  borderRadius: "14px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+  padding: "22px",
+  maxHeight: "90vh",   
+  overflowY: "auto"   
+},
+resultHeader: {
+  fontSize: "18px",
+  fontWeight: 700,
+  marginBottom: "10px"
+},
+
+resultAudio: {
+  margin: "10px 0"
+},
+
+resultAIBox: {
+  background: "#ecfeff",
+  border: "1px solid #67e8f9",
+  borderRadius: "8px",
+  padding: "10px",
+  marginTop: "10px"
+},
+
+resultActions: {
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: "10px",
+  marginTop: "14px"
+},
+closeBtn: {
+  position: "absolute",
+  top: "10px",
+  right: "12px",
+  border: "none",
+  background: "transparent",
+  fontSize: "22px",
+  cursor: "pointer",
+  color: "#666",
+  fontWeight: "bold"
+}
+
 };
 
 export default styles;

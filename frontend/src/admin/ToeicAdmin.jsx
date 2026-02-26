@@ -65,11 +65,6 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
         responseTime = 30;
         break;
       case 5:
-        questionType = 'Propose a solution';
-        prepTime = 60;
-        responseTime = 60;
-        break;
-      case 6:
         questionType = 'Express an opinion';
         prepTime = 60;
         responseTime = 60;
@@ -124,6 +119,7 @@ const rawImage = apiQuestion.image_url || apiQuestion.image;
       timeLimit,
       question: apiQuestion.question || '',
       instruction: apiQuestion.question || '',
+      passage: apiQuestion.passage || '',
       image: rawImage
       ? (rawImage.startsWith('http')
       ? rawImage
@@ -643,38 +639,6 @@ useEffect(() => {
           </div>
         );
       }
-
-      if (question.type === 'Propose a solution') {
-        return (
-          <div style={styles.questionContent}>
-            <div style={styles.questionHeader}>
-              <span style={styles.questionType}>{question.type}</span>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Preparation: {question.prepTime}s | Response: {question.responseTime}s
-              </div>
-            </div>
-            {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', borderColor: '#3b82f6', marginBottom: '12px' }}>
-                <strong>Direction:</strong> {question.direction}
-              </div>
-            )}
-            <div style={styles.questionText}>{question.text}</div>
-            {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', borderColor: '#fbbf24' }}>
-                <strong>Information:</strong> {question.information}
-              </div>
-            )}
-            {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
-                <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
-              </div>
-            )}
-            {renderRecordControls(question.responseTime)}
-          </div>
-        );
-      }
-
       if (question.type === 'Express an opinion') {
         return (
           <div style={styles.questionContent}>
@@ -760,6 +724,19 @@ useEffect(() => {
                 Time limit: {Math.floor((question.timeLimit || 0) / 60)} minutes
               </div>
             </div>
+            {question.passage && (
+                <div style={{
+                  ...styles.questionText,
+                  backgroundColor: '#eef2ff',
+                  borderColor: '#6366f1',
+                  whiteSpace: 'pre-line'
+                }}>
+                  <strong>Email / Request:</strong>
+                  <div style={{ marginTop: 6 }}>
+                    {question.passage}
+                  </div>
+                </div>
+              )}
             <div style={styles.questionText}>{question.instruction || question.question}</div>
             {question.sample_answer && (
               <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
