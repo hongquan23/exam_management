@@ -5,12 +5,13 @@ import {
   Facebook, Youtube, Mail, Phone, Settings, Bell, LayoutDashboard, ShieldCheck
 } from 'lucide-react';
 import Users from './Users';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = ({
   activeView, styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
   setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,
-  setShowUploadModal, setActiveView, mockUsers
+  setShowUploadModal, setActiveView, mockUsers, navigate
 }) => {
   
   const handleSearch = () => {
@@ -21,7 +22,10 @@ const AdminDashboard = ({
     <div style={styles.container}>
       {/* HEADER - ADMIN STYLE */}
       <header style={styles.header}>
-        <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveView('dashboard')}>
+        <div className="flex items-center gap-4 cursor-pointer" onClick={() => {
+            setActiveView('dashboard');
+            navigate('/admin/dashboard');  // ✅ THÊM DÒNG NÀY
+          }}>
           <div style={{...styles.logo, backgroundColor: '#4f46e5'}}>
             <ShieldCheck size={22} color="white" />
           </div>
@@ -34,13 +38,19 @@ const AdminDashboard = ({
         <div className="flex items-center gap-6">
           <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-600 mr-4">
             <span 
-              onClick={() => setActiveView('dashboard')}
+              onClick={() => {
+                setActiveView('dashboard');
+                navigate('/admin/dashboard'); 
+              }}
               className={`cursor-pointer transition-colors ${activeView !== 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'}`}
             >
               Tổng quan
             </span>
             <span 
-              onClick={() => setActiveView('users')}
+                onClick={() => {
+                setActiveView('users');
+                navigate('/admin/users');
+                }}
               className={`cursor-pointer transition-colors ${activeView === 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'}`}
             >
               Người dùng
@@ -98,7 +108,7 @@ const AdminDashboard = ({
       <main className="flex-1 overflow-y-auto px-6 py-10 md:px-20 bg-[#f8fafc]">
         
         {activeView === 'users' ? (
-          <Users styles={styles} mockUsers={mockUsers} handleTabChange={setActiveView} />
+          <Users styles={styles} />
         ) : (
           <>
             {/* HERO SECTION ADMIN */}
@@ -142,7 +152,7 @@ const AdminDashboard = ({
                 <span className="w-2 h-8 bg-indigo-600 rounded-full"></span> Danh mục Kỹ năng
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {skills.map(skill => (
+                {skills?.map(skill => (
                   <div
                     key={skill.id}
                     style={{
@@ -176,7 +186,7 @@ const AdminDashboard = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {allTests.map(test => (
+                {allTests?.map(test => (
                   <div
                     key={test.id}
                     style={{

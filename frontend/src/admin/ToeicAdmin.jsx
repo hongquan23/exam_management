@@ -1013,6 +1013,7 @@ useEffect(() => {
           handleTestClick={handleTestClick}
           setShowUploadModal={setShowUploadModal}
           setActiveView={setActiveView}
+          navigate={navigate}
         />
 
         {showUploadModal && (
@@ -1065,7 +1066,23 @@ if (activeView === 'writing') {
       setActiveView={setActiveView}
       styles={styles}
       mockUsers={mockUsers}
-    />
+      navigate={navigate}  // ← THÊM navigate
+      // Thêm các props còn thiếu:
+      skills={skillsWithCount}
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      showUserMenu={showUserMenu}
+      setShowUserMenu={setShowUserMenu}
+      handleSkillClick={handleSkillClick}
+      handleLogout={handleLogout}
+      hoveredSkill={hoveredSkill}
+      setHoveredSkill={setHoveredSkill}
+      hoveredCard={hoveredCard}
+      setHoveredCard={setHoveredCard}
+      allTests={allTests}
+      handleTestClick={handleTestClick}
+      setShowUploadModal={setShowUploadModal}
+      />
   );
 };
 
