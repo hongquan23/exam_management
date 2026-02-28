@@ -10,3 +10,11 @@ router = APIRouter()
 @router.get("/", response_model=list[UserOut])
 def get_users(db: Session = Depends(get_db)):
     return user_crud.get_all(db)
+
+@router.get("/{user_id}",response_model = UserOut)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    return user_crud.get_by_id(db, user_id)
+
+@router.delete("/{user_id}", response_model = UserOut)
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    return user_crud.delete(db, user_id)

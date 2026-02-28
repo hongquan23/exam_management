@@ -2,64 +2,89 @@ from services.speaking_AI.groq_service import send_message
 
 def score_toeic_sp_q1_2(reference_text: str, transcript: str) -> str:
     prompt = f"""
-You are a TOEIC Speaking examiner.
+You are a professional ETS-style TOEIC Speaking examiner.
 
 TASK: TOEIC Speaking – Question 1–2 (Read a text aloud)
 
 REFERENCE TEXT:
-"{reference_text}"
+\"\"\"{reference_text}\"\"\"
 
 CANDIDATE TRANSCRIPT:
-"{transcript}"
+\"\"\"{transcript}\"\"\"
 
-Your job is to evaluate the candidate using TOEIC Speaking-style feedback.
-Be supportive, fair, and constructive in comments.
-However, the Accuracy score MUST be calculated in a strictly objective, word-by-word manner.
+--------------------------------------------------
+SCORING CRITERIA (TOTAL = 100)
 
---------------------
-ACCURACY SCORING RULES (STRICT – NO FLEXIBILITY):
+1) Accuracy (40%)
+ RULES:
 
-1. Split both texts into words using whitespace as the delimiter.
-2. Compare words sequentially by position.
-3. A word is counted as correct ONLY IF it is exactly the same as the corresponding word
-   in the reference text.
-   - Case-sensitive
-   - Punctuation-sensitive
-   - No spelling correction
-   - No synonym or semantic matching
-4. Missing words, extra words, or incorrect words are counted as incorrect.
-5. Accuracy formula:
-   Accuracy (%) = (Number of correct words / Total number of words in the reference text) × 100
-6. Do NOT infer meaning.
-7. Do NOT be lenient for the Accuracy score.
-8. After calculating the Accuracy score, round it to the nearest whole number.
+- Split both texts by whitespace.
+- Compare word-by-word in order.
+- A word is correct ONLY IF identical:
+  • Same spelling
+  • Same case
+  • Same punctuation
+- No synonym matching.
+- No spelling correction.
+- Missing/extra words = incorrect.
+- Accuracy formula:
+  (Correct words / Total reference words) × 100
+- Round to nearest whole number.
 
---------------------
-OTHER SCORES (HOLISTIC TOEIC-STYLE):
+2) Fluency (30%)
+- Smoothness
+- Natural pacing
+- Rhythm and pauses
 
-- Fluency score (0–100): Consider smoothness, pacing, pauses, and rhythm.
-- Pronunciation score (0–100): Consider clarity, stress, intonation, and intelligibility.
-  Minor or natural pronunciation errors are acceptable if understanding is not affected.
+3) Pronunciation (30%)
+- Clarity
+- Word stress
+- Intelligibility
 
---------------------
+--------------------------------------------------
+OVERALL SCORE CALCULATION:
+
+Step 1:
+Raw Overall =
+(Accuracy × 0.4) +
+(Fluency × 0.3) +
+(Pronunciation × 0.3)
+
+Round to nearest whole number.
+
+Step 2 (SOFT LIMIT RULE):
+
+If Accuracy < 60
+AND Raw Overall > (Accuracy + 15)
+THEN Final Overall = Accuracy + 15
+
+Otherwise:
+Final Overall = Raw Overall
+
+Round final score to nearest whole number.
+
+--------------------------------------------------
 OUTPUT FORMAT (FOLLOW EXACTLY):
 
-Accuracy score (0–100): <number>
+Overall score (0–100): <number>
 
-Fluency score (0–100): <number>
+Score breakdown:
+- Accuracy: <number>
+- Fluency: <number>
+- Pronunciation: <number>
 
-Pronunciation score (0–100): <number>
+Feedback:
+<short professional summary>
 
-Overall comment:
-- Brief, positive, and constructive summary of the performance.
+Key mistakes:
+- ...
+- ...
 
-Mistakes and suggestions for improvement:
-- List key mistakes that affect understanding (if any).
-- Give clear, practical, TOEIC-relevant suggestions for improvement.
+Improvement suggestions:
+- ...
+- ...
 
 """
-
-
     return send_message(prompt)
 
 
@@ -195,65 +220,165 @@ def score_toeic_w_q1_5(
     student_sentence: str
 ):
     prompt = f"""
-You are a TOEIC Writing examiner.
+You are a professional ETS-style TOEIC Writing examiner.
 
-Task: Write ONE sentence based on a picture.
+TASK: Write ONE sentence based on a picture.
 
 Picture description:
 \"\"\"{image_description}\"\"\"
 
-Required words/phrases (must be used):
+Required words/phrases (must be used exactly as given):
 {", ".join(required_words)}
 
 Student sentence:
 \"\"\"{student_sentence}\"\"\"
 
-Evaluate strictly based on ETS TOEIC Writing criteria:
+--------------------------------------------------
+SCORING CRITERIA (TOTAL = 100)
 
-1. Grammar accuracy
-2. Relevance to the picture
-3. Correct use of required words
-4. Sentence completeness
+1) Grammar accuracy (40%)
+- Verb tense
+- Subject-verb agreement
+- Word order
+- Articles and prepositions
 
-Give:
-- Score (0–3)
-- Explanation
-- Corrected version (if needed)
+2) Relevance to the picture (30%)
+- Sentence must describe the picture logically.
+- Minor missing details are acceptable.
 
+3) Correct use of required words (20%)
+- Required words must appear exactly as given.
+- Incorrect form = incorrect usage.
+
+4) Sentence completeness (10%)
+- Must be a complete, grammatically correct sentence.
+- No fragments.
+
+--------------------------------------------------
+OVERALL SCORE CALCULATION:
+
+Raw Overall =
+(Grammar × 0.4) +
+(Relevance × 0.3) +
+(Required words × 0.2) +
+(Completeness × 0.1)
+
+Round to nearest whole number.
+
+SOFT LIMIT RULES:
+
+- If any required word is missing → Final score cannot exceed 80.
+- If sentence is incomplete → Final score cannot exceed 70.
+
+Apply limits only if necessary.
+
+--------------------------------------------------
+OUTPUT FORMAT (FOLLOW EXACTLY):
+
+Overall score (0–100): <number>
+
+Score breakdown:
+- Grammar: <number>
+- Relevance: <number>
+- Required words usage: <number>
+- Sentence completeness: <number>
+
+Feedback:
+<short, constructive explanation>
+
+Key mistakes:
+- ...
+- ...
+
+Improved version:
+<correct TOEIC-level sentence>
 
 """
     return send_message(prompt)
-
 def score_toeic_w_q6_7(
     email_prompt: str,
     student_email: str,
     directions: str
 ):
     prompt = f"""
-You are a TOEIC Writing examiner.
+You are a professional ETS-style TOEIC Writing examiner.
 
-Task: Write an email based on a prompt.
+TASK: Write an email based on a prompt.
 
 Email prompt:
 \"\"\"{email_prompt}\"\"\"
+
 Directions:
 \"\"\"{directions}\"\"\"
 
 Student email:
 \"\"\"{student_email}\"\"\"
 
-Evaluate student email based on ETS TOEIC Writing criteria:
+--------------------------------------------------
+SCORING CRITERIA (TOTAL = 100)
 
-1. Grammar accuracy
-2. Relevance to the email prompt and directions
-3. Email structure (greeting, body, closing)
-4. Appropriate tone and register
+1) Task completion (40%)
+- All required points in the directions must be addressed.
+- Content must be relevant to the prompt.
+- Missing major information lowers score significantly.
 
-Give:
-- Score (0–3)
-- Explanation
-- Corrected version
+2) Grammar accuracy (30%)
+- Sentence structure
+- Verb tense
+- Agreement
+- Articles & prepositions
+- Spelling
 
+3) Organization & structure (20%)
+- Clear greeting
+- Logical body paragraphs
+- Proper closing
+- Coherence between ideas
+
+4) Tone & register (10%)
+- Appropriate level of formality
+- Professional wording
+- Suitable expressions for email context
+
+--------------------------------------------------
+OVERALL SCORE CALCULATION:
+
+Raw Overall =
+(Task × 0.4) +
+(Grammar × 0.3) +
+(Organization × 0.2) +
+(Tone × 0.1)
+
+Round to nearest whole number.
+
+SOFT LIMIT RULES:
+
+- If one major required point is missing → Final score cannot exceed 85.
+- If greeting or closing is missing → Final score cannot exceed 80.
+- If tone is inappropriate for the situation → Final score cannot exceed 75.
+
+Apply limits only if necessary.
+
+--------------------------------------------------
+OUTPUT FORMAT (FOLLOW EXACTLY):
+
+Overall score (0–100): <number>
+
+Score breakdown:
+- Task completion: <number>
+- Grammar: <number>
+- Organization & structure: <number>
+- Tone & register: <number>
+
+Feedback:
+<clear and constructive paragraph>
+
+Key mistakes:
+- ...
+- ...
+
+Improved version:
+<high-scoring TOEIC-level email>
 
 """
     return send_message(prompt)
@@ -264,19 +389,80 @@ def score_toeic_w_q8(
         student_response: str
 ):
     prompt = f"""
-You are a TOEIC Writing examiner.
-Task: Write a response to a question.
+You are a professional ETS-style TOEIC Writing examiner.
+
+TASK: Write a response to a question.
+
 Question:
 \"\"\"{question}\"\"\"
+
 Student response:
 \"\"\"{student_response}\"\"\"
-Evaluate student response based on ETS TOEIC Writing criteria:
-1. Grammar accuracy
-2. Relevance to the question
-3. Response completeness
-Give:
-- Score (0–3)
-- Explanation
-- Corrected version
+
+--------------------------------------------------
+SCORING CRITERIA (TOTAL = 100)
+
+1) Idea development & relevance (40%)
+- Response must directly answer the question.
+- Ideas should be clear and reasonably developed.
+- Simple ideas are acceptable but must be logical.
+
+2) Grammar accuracy (30%)
+- Sentence structure
+- Verb tense
+- Agreement
+- Articles & prepositions
+- Spelling
+
+3) Organization & coherence (20%)
+- Logical flow
+- Clear connections between ideas
+- Proper paragraphing (if multiple sentences)
+
+4) Vocabulary range & appropriateness (10%)
+- Suitable word choice
+- Some variety in vocabulary
+- No major misuse of words
+
+--------------------------------------------------
+OVERALL SCORE CALCULATION:
+
+Raw Overall =
+(Idea × 0.4) +
+(Grammar × 0.3) +
+(Organization × 0.2) +
+(Vocabulary × 0.1)
+
+Round to nearest whole number.
+
+SOFT LIMIT RULES:
+
+- If response does not directly answer the question → Final score cannot exceed 80.
+- If response is extremely short or lacks development → Final score cannot exceed 75.
+- If there are multiple serious grammar errors affecting clarity → Final score cannot exceed 70.
+
+Apply limits only if necessary.
+
+--------------------------------------------------
+OUTPUT FORMAT (FOLLOW EXACTLY):
+
+Overall score (0–100): <number>
+
+Score breakdown:
+- Idea development & relevance: <number>
+- Grammar: <number>
+- Organization & coherence: <number>
+- Vocabulary: <number>
+
+Feedback:
+<clear and constructive explanation>
+
+Key mistakes:
+- ...
+- ...
+
+Improved version:
+<high-scoring TOEIC-level response>
+
 """
     return send_message(prompt)
