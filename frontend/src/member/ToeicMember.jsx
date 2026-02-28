@@ -603,17 +603,44 @@ const renderRecordControls = (responseTime, question) => {
             </div>
 
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
+
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #86efac',
+                }}
+              >
                 <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
+                <div
+                  style={{
+                    marginTop: '6px',
+                    whiteSpace: 'pre-line',
+                    color: '#166534',
+                  }}
+                >
+                  {question.sample_answer}
+                </div>
               </div>
             )}
-            <div style={styles.questionText}>{question.text}</div>
+
+            <div style={{ ...styles.questionText, whiteSpace: 'pre-line' }}>
+              {question.text}
+            </div>
 
             {renderRecordControls(question.responseTime, question)}
           </div>
@@ -631,31 +658,70 @@ const renderRecordControls = (responseTime, question) => {
             </div>
 
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
 
             {question.image && question.image.trim() !== '' && (
-              <img src={question.image} alt="Question" style={styles.examImage} 
-              onError={(e) => console.log("❌ Load ảnh lỗi:", question.image)}/>
+              <img
+                src={question.image}
+                alt="Question"
+                style={styles.examImage}
+                onError={(e) => console.log('❌ Load ảnh lỗi:', question.image)}
+              />
             )}
 
             {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  fontSize: '13px',
+                  fontStyle: 'italic',
+                }}
+              >
                 {question.image_describe}
               </div>
             )}
+
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #86efac',
+                }}
+              >
                 <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
+                <div
+                  style={{
+                    marginTop: '6px',
+                    whiteSpace: 'pre-line',
+                    color: '#166534',
+                  }}
+                >
+                  {question.sample_answer}
+                </div>
               </div>
             )}
+
             {renderRecordControls(question.responseTime, question)}
           </div>
         );
       }
+
       if (question.type === 'Respond to questions') {
         return (
           <div style={styles.questionContent}>
@@ -665,27 +731,66 @@ const renderRecordControls = (responseTime, question) => {
                 Preparation: {question.prepTime}s | Response: {question.responseTime}s
               </div>
             </div>
+
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
+
             {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', border: '1px solid #fbbf24', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#fef3c7',
+                  border: '1px solid #fbbf24',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Information:</strong> {question.information}
               </div>
             )}
-            <div style={styles.questionText}>{question.text}</div>
+
+            <div style={{ ...styles.questionText, whiteSpace: 'pre-line' }}>
+              {question.text}
+            </div>
+
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #86efac',
+                }}
+              >
                 <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
+                <div
+                  style={{
+                    marginTop: '6px',
+                    whiteSpace: 'pre-line',
+                    color: '#166534',
+                  }}
+                >
+                  {question.sample_answer}
+                </div>
               </div>
             )}
+
             {renderRecordControls(question.responseTime, question)}
           </div>
         );
       }
+
       if (question.type === 'Respond using information') {
         return (
           <div style={styles.questionContent}>
@@ -695,28 +800,67 @@ const renderRecordControls = (responseTime, question) => {
                 Preparation: {question.prepTime}s | Response: {question.responseTime}s
               </div>
             </div>
+
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
+
             {question.text && (
-              <div style={styles.questionText}>{question.text}</div>
+              <div style={{ ...styles.questionText, whiteSpace: 'pre-line' }}>
+                {question.text}
+              </div>
             )}
+
             {question.information && (
-              <div style={{ ...styles.questionText, backgroundColor: '#fef3c7', border: '1px solid #fbbf24', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#fef3c7',
+                  border: '1px solid #fbbf24',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Information:</strong> {question.information}
               </div>
             )}
+
             {question.image && question.image.trim() !== '' && (
               <img src={question.image} alt="Question" style={styles.examImage} />
             )}
+
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #86efac',
+                }}
+              >
                 <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
+                <div
+                  style={{
+                    marginTop: '6px',
+                    whiteSpace: 'pre-line',
+                    color: '#166534',
+                  }}
+                >
+                  {question.sample_answer}
+                </div>
               </div>
             )}
+
             {renderRecordControls(question.responseTime, question)}
           </div>
         );
@@ -731,18 +875,47 @@ const renderRecordControls = (responseTime, question) => {
                 Preparation: {question.prepTime}s | Response: {question.responseTime}s
               </div>
             </div>
+
             {question.direction && (
-              <div style={{ ...styles.questionText, backgroundColor: '#dbeafe', border: '1px solid #3b82f6', marginBottom: '12px' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#dbeafe',
+                  border: '1px solid #3b82f6',
+                  marginBottom: '12px',
+                }}
+              >
                 <strong>Direction:</strong> {question.direction}
               </div>
             )}
-            <div style={styles.questionText}>{question.text}</div>
+
+            <div style={{ ...styles.questionText, whiteSpace: 'pre-line' }}>
+              {question.text}
+            </div>
+
             {question.sample_answer && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              <div
+                style={{
+                  ...styles.questionText,
+                  whiteSpace: 'pre-line',
+                  backgroundColor: '#f0fdf4',
+                  border: '1px solid #86efac',
+                }}
+              >
                 <strong>📝 Sample Answer:</strong>
-                <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
+                <div
+                  style={{
+                    marginTop: '6px',
+                    whiteSpace: 'pre-line',
+                    color: '#166534',
+                  }}
+                >
+                  {question.sample_answer}
+                </div>
               </div>
             )}
+
             {renderRecordControls(question.responseTime, question)}
           </div>
         );
