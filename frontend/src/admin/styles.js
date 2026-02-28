@@ -13,12 +13,12 @@ const styles = {
   },
   header: {
     backgroundColor: '#ffffff',
-    padding: '0 40px',
-    height: '80px',
+    padding: '12px 40px',
     borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
     position: 'sticky',
     top: 0,
     zIndex: 1000,
@@ -52,21 +52,21 @@ const styles = {
   },
 
   // --- SEARCH BAR (Đã đồng bộ User) ---
-  searchWrapper: {
+ searchWrapper: {
     display: 'flex',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '100px',
+    borderRadius: '999px',
     padding: '6px',
-    width: '100%',
-    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)',
+    transition: 'all 0.3s ease',
   },
   searchBar: {
     flex: 1,
     border: 'none',
-    padding: '12px 20px',
-    fontSize: '16px',
+    padding: '10px 16px',
+    fontSize: '15px',
     outline: 'none',
     color: '#475569',
     backgroundColor: 'transparent',
@@ -75,9 +75,8 @@ const styles = {
     backgroundColor: '#4f46e5',
     color: 'white',
     border: 'none',
-    padding: '12px 30px',
-    fontSize: '15px',
-    fontWeight: '700',
+    padding: '12px 28px',
+    fontWeight: '600',
     cursor: 'pointer',
     borderRadius: '100px',
     transition: 'all 0.2s ease',
@@ -372,19 +371,18 @@ const styles = {
     marginTop: '32px',
   },
   button: {
-    flex: 1,
-    padding: '16px 24px',
-    borderRadius: '16px',
-    fontSize: '15px',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    border: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: '8px',
+    padding: '12px 20px',
+    borderRadius: '10px',
+    fontWeight: '600',
+    fontSize: '15px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    border: 'none',
   },
+
   buttonPrimary: {
     backgroundColor: '#4f46e5',
     color: '#ffffff',
@@ -474,22 +472,26 @@ const styles = {
     borderColor: '#3b82f6',
     boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
   },
-  examContent: {
+   examContent: {
+    display: 'flex',
     flex: 1,
-    display: 'grid',
-    gridTemplateColumns: '1fr 320px', // Chia màn hình làm 2 phần
-    gap: '24px',
-    padding: '24px',
     overflow: 'hidden',
+    padding: '24px',
+    gap: '24px',
   },
-  examLeft: {
+examLeft: {
+    flex: 1,
     backgroundColor: '#ffffff',
     borderRadius: '16px',
     padding: '32px',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
     overflowY: 'auto',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+    display: 'flex',
+    flexDirection: 'column',
   },
+
   examRight: {
+    width: '320px',
     display: 'flex',
     flexDirection: 'column',
     gap: '20px',
@@ -497,14 +499,16 @@ const styles = {
 
   // --- QUESTION CONTENT ---
   questionContent: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
   },
+
   questionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: '24px',
     borderBottom: '1px solid #f1f5f9',
     paddingBottom: '16px',
   },
@@ -514,38 +518,50 @@ const styles = {
     color: '#2563eb',
     textTransform: 'uppercase',
   },
-  questionText: {
-    fontSize: '16px',
-    lineHeight: '1.6',
+ questionText: {
+    fontSize: '17px',
+    lineHeight: '1.7',
     color: '#334155',
-    padding: '16px',
+    marginBottom: '24px',
+    padding: '20px',
     borderRadius: '12px',
-    border: '1px solid transparent',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
   },
   examImage: {
-    width: '100%',
-    maxWidth: '600px',
-    height: 'auto',
+    maxWidth: '100%',
+    maxHeight: '380px',
+    objectFit: 'contain',
     borderRadius: '12px',
-    margin: '12px 0',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    marginBottom: '24px',
     alignSelf: 'center',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
   },
 
   // --- CONTROLS (RECORD & TEXTAREA) ---
   recordButton: {
-    display: 'flex',
+    display: 'flex',          // Chuyển về flex để căn chỉnh icon và chữ bên trong
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
-    padding: '14px 28px',
-    borderRadius: '50px', // Nút bo tròn kiểu thuốc (capsule)
-    color: '#ffffff',
-    fontWeight: 'bold',
+    gap: '8px',               // Khoảng cách giữa icon và chữ
+    
+    // Kích thước ngắn lại
+    padding: '10px 24px', 
+    width: 'fit-content',     // Nút chỉ dài bằng nội dung bên trong
+    minWidth: '160px',        // Đảm bảo nút không quá ngắn khi đổi chữ
+    
+    // Căn giữa nút
+    margin: '20px auto',      // 20px cách trên dưới, 'auto' để căn giữa trái phải
+    
+    borderRadius: '50px',     // Bo tròn kiểu capsule
     border: 'none',
+    fontWeight: '700',
+    fontSize: '14px',
     cursor: 'pointer',
-    transition: 'transform 0.2s, background-color 0.2s',
-    boxShadow: '0 4px 14px rgba(239, 68, 68, 0.4)',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+    color: '#ffffff',
+    textTransform: 'uppercase',
   },
   textarea: {
     width: '100%',
@@ -592,41 +608,47 @@ const styles = {
     fontFamily: 'monospace',
   },
   questionsBox: {
-    backgroundColor: '#ffffff',
-    padding: '20px',
+    backgroundColor: 'rgb(255, 255, 255)',
     borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+    border: '1px solid #e2e8f0',
     flex: 1,
     overflowY: 'auto',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
   },
   questionsTitle: {
-    fontSize: '15px',
+    fontSize: '16px',
     fontWeight: '700',
-    color: '#1e293b',
     marginBottom: '16px',
+    color: '#1e293b',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
   questionGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '8px',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: '10px',
   },
   questionNumber: {
     aspectRatio: '1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '8px',
+    borderRadius: '10px',
     backgroundColor: '#f1f5f9',
-    color: '#64748b',
+    color: '#475569',
     fontSize: '14px',
-    fontWeight: '600',
+    fontWeight: '700',
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    transition: 'all 0.2s ease',
+    border: '2px solid transparent',
   },
   questionNumberActive: {
     backgroundColor: '#2563eb',
     color: '#ffffff',
     boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)',
+    transform: 'scale(1.05)',
   },
   
   // Nút Nộp bài đặc biệt

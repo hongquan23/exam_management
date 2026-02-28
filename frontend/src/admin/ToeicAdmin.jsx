@@ -485,7 +485,8 @@ useEffect(() => {
         <button
           style={{
             ...styles.recordButton,
-            backgroundColor: isRecording ? '#dc2626' : '#ef4444'
+            backgroundColor: isRecording ? '#dc2626' : '#ef4444',
+            transform: isRecording ? 'scale(1.02)' : 'scale(1)',
           }}
           onClick={() => {
             if (!isRecording) {
@@ -495,8 +496,22 @@ useEffect(() => {
             }
           }}
         >
-          <Mic size={18} />
-          {isRecording ? 'DỪNG GHI' : 'THU ÂM'}
+        {isRecording && (
+          <span style={{
+            width: '6px',
+            height: '6px',
+            backgroundColor: '#fff',
+            borderRadius: '50%',
+            marginRight: '2px',
+            display: 'inline-block',
+            animation: 'blink 1s infinite'
+          }} />
+        )}
+        
+          <Mic size={14} strokeWidth={2.5} />
+          <span>
+            {isRecording ? 'DỪNG' : 'THU ÂM'}
+          </span>
         </button>
 
         {audioURL && (
@@ -975,11 +990,6 @@ useEffect(() => {
               ));
           })()}
         </div>
-              <button
-                style={{ ...styles.button, ...styles.buttonPrimary, width: '100%', justifyContent: 'center' }}
-              >
-                NỘP BÀI
-              </button>
 
               <div style={{ fontSize: '11px', color: '#f97316', textAlign: 'center', padding: '8px' }}>
                 Khôi phục/lưu bài làm

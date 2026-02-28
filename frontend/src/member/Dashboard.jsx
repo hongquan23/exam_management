@@ -22,13 +22,23 @@ const Dashboard = ({
         
         <div className="flex items-center gap-6">
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 mr-4">
-            <span className="text-orange-600 cursor-pointer">Khám phá</span>
-            <span className="hover:text-orange-600 cursor-pointer transition-colors">Các cuộc thi</span>
+            <span className="relative cursor-pointer group text-orange-600">Khám phá
+              <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-orange-500"></span>
+            </span>
+            <span className="hover:text-orange-600 cursor-pointer transition-colors">Thư viện</span>
             <span className="hover:text-orange-600 cursor-pointer transition-colors">Lộ trình</span>
           </nav>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-600 rounded-full font-bold text-xs hover:bg-orange-100 transition-all">
-            <Crown size={14} /> NÂNG CẤP PRO
+          <button className="relative flex items-center gap-2 px-5 py-2.5 
+            bg-gradient-to-r from-orange-500 to-red-500 
+            text-white rounded-full font-bold text-xs 
+            shadow-md hover:shadow-xl 
+            transition-all duration-300 
+            hover:scale-105 active:scale-95"
+          >
+            <div className="absolute inset-0 rounded-full blur-lg opacity-30 bg-orange-400"></div>
+            <Crown size={14} className="relative text-yellow-300" />
+            <span className="relative">NÂNG CẤP PRO</span>
           </button>
 
           <div className="relative group">
@@ -40,54 +50,122 @@ const Dashboard = ({
               <ChevronDown size={14} className="text-slate-400" />
             </div>
 
-{showUserMenu && (
-  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-    {/* Phần thông tin người dùng */}
-    <div className="px-5 py-4 bg-slate-50/50 border-b border-slate-100">
-      <div className="flex items-center gap-3 mb-1">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-          MB
-        </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-slate-800 text-sm leading-tight">Member User</span>
-          <span className="text-[11px] text-slate-500 font-medium">Hạng: Thành viên PRO</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 mt-2 text-slate-400">
-        <Mail size={12} />
-        <span className="text-xs truncate">member@toeic.com</span>
-      </div>
-    </div>
+            {showUserMenu && (
+              <div
+                className="absolute right-0 mt-3 w-72
+                          bg-white/95 backdrop-blur-xl
+                          rounded-2xl
+                          shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+                          border border-slate-200/60
+                          z-50 overflow-hidden
+                          
+                          opacity-0 invisible
+                          translate-y-2
+                    
+                          
+                          group-hover:opacity-100
+                          group-hover:visible
+                          group-hover:translate-y-0
+                          group-hover:pointer-events-auto
+                          
+                          transition-all duration-200"
+              >
 
-    {/* Các lựa chọn menu */}
-    <div className="p-2 space-y-1">
-      <button className="w-full text-left px-3 py-2.5 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-white">
-           <span className="text-xs">👤</span>
-        </div>
-        Hồ sơ cá nhân
-      </button>
-      <button className="w-full text-left px-3 py-2.5 text-sm text-slate-600 hover:bg-orange-50 hover:text-orange-600 rounded-xl transition-all flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-           <span className="text-xs">📊</span>
-        </div>
-        Lịch sử bài làm
-      </button>
-      
-      <div className="h-[1px] bg-slate-100 my-1 mx-2" />
-      
-      <button 
-        onClick={handleLogout} 
-        className="w-full text-left px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-xl font-semibold flex items-center gap-3 transition-colors"
-      >
-        <div className="w-8 h-8 rounded-lg bg-red-100/50 flex items-center justify-center">
-           <span className="text-xs">🚪</span>
-        </div>
-        Đăng xuất
-      </button>
-    </div>
-  </div>
-)}
+                {/* Header */}
+                <div className="px-5 py-4 bg-gradient-to-br from-slate-50 to-white border-b border-slate-200/60">
+                  <div
+                    className="flex items-center gap-2 cursor-pointer p-1 pr-3 
+                              bg-slate-50 rounded-full 
+                              hover:bg-slate-100 
+                              transition-all duration-200"
+                  >
+                    <div className="w-8 h-8 rounded-full 
+                                    bg-gradient-to-tr from-orange-400 to-red-500 
+                                    text-white flex items-center justify-center 
+                                    font-bold text-xs shadow-sm">
+                      MB
+                    </div>
+
+                    <ChevronDown
+                      size={14}
+                      className="text-slate-400 transition-transform duration-200 
+                                group-hover:rotate-180"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-3 text-slate-500">
+                    <Mail size={13} />
+                    <span className="text-xs truncate">
+                      member@toeic.com
+                    </span>
+                  </div>
+                </div>
+
+                {/* Menu items */}
+                <div className="p-2 space-y-1">
+
+                  <button className="group w-full text-left px-3 py-2.5 
+                                    text-sm font-medium text-slate-700 
+                                    hover:bg-orange-50 
+                                    hover:text-orange-600 
+                                    rounded-xl transition-all duration-200 
+                                    flex items-center gap-3">
+
+                    <div className="w-8 h-8 rounded-lg 
+                                    bg-slate-100 
+                                    flex items-center justify-center 
+                                    group-hover:bg-white 
+                                    group-hover:shadow-sm 
+                                    transition-all">
+                      👤
+                    </div>
+
+                    Hồ sơ cá nhân
+                  </button>
+
+                  <button className="group w-full text-left px-3 py-2.5 
+                                    text-sm font-medium text-slate-700 
+                                    hover:bg-orange-50 
+                                    hover:text-orange-600 
+                                    rounded-xl transition-all duration-200 
+                                    flex items-center gap-3">
+
+                    <div className="w-8 h-8 rounded-lg 
+                                    bg-slate-100 
+                                    flex items-center justify-center 
+                                    group-hover:bg-white 
+                                    group-hover:shadow-sm 
+                                    transition-all">
+                      📊
+                    </div>
+
+                    Lịch sử bài làm
+                  </button>
+
+                  <div className="h-px bg-slate-200 my-2 mx-2" />
+
+                  <button
+                    onClick={handleLogout}
+                    className="group w-full text-left px-3 py-2.5 
+                              text-sm font-semibold text-red-500 
+                              hover:bg-red-50 
+                              rounded-xl transition-all duration-200 
+                              flex items-center gap-3">
+
+                    <div className="w-8 h-8 rounded-lg 
+                                    bg-red-100/70 
+                                    flex items-center justify-center 
+                                    group-hover:bg-white 
+                                    transition-all">
+                      🚪
+                    </div>
+
+                    Đăng xuất
+                  </button>
+
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -95,32 +173,70 @@ const Dashboard = ({
       {/* MAIN CONTENT */}
       <main className="flex-1 overflow-y-auto px-6 py-10 md:px-20">
         {/* HERO */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold mb-4">
-            <TrendingUp size={12}/> #1 NỀN TẢNG LUYỆN THI TOEIC 2026
+        <div className="relative py-12 md:py-10 overflow-hidden">
+          
+          {/* Background Glow */}
+          <div className="absolute inset-0 flex justify-center">
+            <div className="w-[500px] h-[300px] bg-orange-200/30 blur-[120px] rounded-full"></div>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight">
-            Chinh phục <span className="text-orange-500">TOEIC®</span> Thông Minh
-          </h2>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-            Đề thi được biên soạn theo cấu trúc mới nhất, tích hợp AI chấm điểm Speaking & Writing.
-          </p>
+
+          <div className="relative text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-[10px] font-bold mb-4">
+              <TrendingUp size={12}/> #1 NỀN TẢNG LUYỆN THI TOEIC 2026
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight">
+              Chinh phục <span className="text-orange-500">TOEIC®</span> Thông Minh
+            </h2>
+
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+              Đề thi được biên soạn theo cấu trúc mới nhất, tích hợp AI chấm điểm Speaking & Writing.
+            </p>
+          </div>
         </div>
 
         {/* SEARCH BAR */}
         <div className="max-w-3xl mx-auto mb-20">
           <div style={styles.searchWrapper} className="focus-within:ring-4 focus-within:ring-orange-100 transition-all">
-            <Search size={20} className="ml-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Nhập tên đề thi, kỹ năng hoặc từ khóa..."
-              style={styles.searchBar}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button style={styles.searchButton} onClick={handleSearch} className="hover:opacity-90 active:scale-95">
-              Tìm kiếm
+            <Search  size={20} className="ml-5 text-slate-400 transition-colors duration-300" />
+              <input
+                type="text"
+                placeholder="Nhập tên đề thi, kỹ năng hoặc từ khóa..."
+                style={styles.searchBar}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onFocus={(e) => {
+                  e.target.previousSibling.style.color = '#ff6a00';
+                  e.target.parentElement.style.boxShadow =
+                    '0 20px 50px rgba(255, 120, 0, 0.15)';
+                  e.target.parentElement.style.border =
+                    '1px solid rgba(255, 140, 0, 0.3)';
+                }}
+                onBlur={(e) => {
+                  e.target.previousSibling.style.color = '#94a3b8';
+                  e.target.parentElement.style.boxShadow =
+                    '0 15px 40px rgba(0, 0, 0, 0.06)';
+                  e.target.parentElement.style.border =
+                    '1px solid rgba(0,0,0,0.05)';
+                }}
+              />
+            <button
+              style={{
+                ...styles.searchButton,
+              }}
+              onClick={handleSearch}
+              onMouseEnter={(e) => {
+                e.target.style.boxShadow = '0 10px 25px rgba(255, 100, 0, 0.4)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.boxShadow = '0 8px 20px rgba(255, 100, 0, 0.25)';
+                e.target.style.transform = 'translateY(0)';
+              }}
+              className="active:scale-95"
+            >
+              🔍 Tìm kiếm
             </button>
           </div>
         </div>
@@ -136,21 +252,49 @@ const Dashboard = ({
                 key={skill.id}
                 style={{
                   ...styles.skillCard,
-                  boxShadow: hoveredSkill === skill.id ? '0 20px 40px rgba(0,0,0,0.08)' : 'none',
+                  boxShadow: hoveredSkill === skill.id 
+                    ? '0 20px 40px rgba(0,0,0,0.08)' 
+                    : '0 8px 20px rgba(0,0,0,0.04)',
                   transform: hoveredSkill === skill.id ? 'translateY(-8px)' : 'none',
                   borderColor: hoveredSkill === skill.id ? '#ff5200' : '#f1f5f9'
                 }}
                 onMouseEnter={() => !skill.disabled && setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
                 onClick={() => handleSkillClick(skill)}
-                className={skill.disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''}
-              >
-                {skill.disabled && <div style={styles.badge} className="!bg-slate-200 !text-slate-600">SẮP RA MẮT</div>}
-                <div style={{ ...styles.skillIcon, backgroundColor: `${skill.color}15`, color: skill.color }}>
-                  <span className="text-3xl">{skill.icon}</span>
+                className={skill.disabled ? 'cursor-not-allowed relative' : ''}
+                >
+                {skill.disabled && (
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center pointer-events-none">
+                    <div className="text-sm font-semibold text-orange-600 bg-white px-4 py-2 rounded-full shadow-md border border-orange-200">
+                      🚀 Sắp ra mắt 2026
+                    </div>
+                  </div>
+                )}
+                <div
+                  className="relative flex items-center justify-center w-20 h-20 rounded-2xl mb-5 transition-all duration-300"
+                  style={{
+                    background: `linear-gradient(135deg, ${skill.color}25, ${skill.color}10)`,
+                  }}
+                >
+                  {/* Glow */}
+                  <div
+                    className="absolute inset-0 rounded-2xl blur-2xl opacity-30"
+                    style={{ background: skill.color }}
+                  />
+
+                  {/* Icon */}
+                  <span
+                    className="relative text-4xl transition-all duration-300"
+                    style={{
+                      color: skill.color,
+                      transform: hoveredSkill === skill.id ? 'scale(1.12)' : 'scale(1)',
+                    }}
+                  >
+                    {skill.icon}
+                  </span>
                 </div>
-                <div className="text-xl font-black text-slate-800 mb-2">{skill.name}</div>
-                <div className="text-slate-400 font-medium">{skill.count} bộ đề chuẩn</div>
+                  <div className="text-xl font-black text-slate-800 mb-2">{skill.name}</div>
+                  <div className="text-slate-400 font-medium">{skill.count} bộ đề chuẩn</div>
               </div>
             ))}
           </div>
@@ -160,7 +304,7 @@ const Dashboard = ({
         <div>
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-               Đề Thi Tiêu Biểu
+              <Star size={24} className="text-yellow-400 fill-yellow-400" /> Đề Thi Tiêu Biểu
             </h3>
             <span className="text-orange-600 font-bold text-sm cursor-pointer hover:underline">Xem tất cả →</span>
           </div>
@@ -169,110 +313,229 @@ const Dashboard = ({
             {allTests.map(test => (
               <div
                 key={test.id}
+                className="group bg-white rounded-2xl border transition-all duration-300 cursor-pointer"
                 style={{
-                  ...styles.testCard,
-                  boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(0,0,0,0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
-                  borderColor: hoveredCard === test.id ? '#ff8a00' : '#f1f5f9'
+                  borderColor: hoveredCard === test.id ? '#ff8a00' : '#f1f5f9',
+                  boxShadow:
+                    hoveredCard === test.id
+                      ? '0 25px 50px rgba(0,0,0,0.12)'
+                      : '0 8px 20px rgba(0,0,0,0.04)',
+                  transform: hoveredCard === test.id ? 'scale(1.02)' : 'scale(1)'
                 }}
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div className="flex gap-2">
-                  <span style={{ ...styles.tag, backgroundColor: '#eff6ff', color: '#2563eb' }}>#{test.type}</span>
-                  <span style={{ ...styles.tag, backgroundColor: '#faf5ff', color: '#9333ea' }}>#{test.skill}</span>
-                </div>
-                
-                <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight hover:text-orange-600 transition-colors cursor-pointer">
-                  {test.title || test.name}
-                </h4>
-
-                <div className="flex items-center justify-between text-slate-400 text-xs font-semibold py-2 border-y border-slate-50">
-                  <span className="flex items-center gap-1"><Clock size={14} /> {test.duration} phút</span>
-                  <span className="flex items-center gap-1"><Eye size={14} /> {test.views > 1000 ? `${(test.views/1000).toFixed(1)}k` : test.views} lượt</span>
-                </div>
-
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-[11px] font-bold text-slate-500">
-                    {(test.questions?.length ?? test.question_count ?? 0)} câu hỏi
+                {/* BADGE HOT / NEW */}
+                {test.views > 2000 && (
+                  <div className="absolute -top-3 left-4 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
+                    🔥 HOT
                   </div>
-                  <div className="text-[11px] text-orange-500 font-bold">Free</div>
-                </div>
+                )}
 
-                <button 
-                  style={styles.searchButton}
-                  className="w-full mt-2 !py-3 shadow-lg shadow-orange-200 active:scale-95 transition-all"
-                  onClick={() => handleTestClick(test)}
-                >
-                  Làm bài ngay
-                </button>
+                <div className="p-5 space-y-3 relative">
+
+                  {/* TAGS */}
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
+                      #{test.type}
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-600">
+                      #{test.skill}
+                    </span>
+                  </div>
+
+                  {/* TITLE */}
+                  <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight 
+                                group-hover:text-orange-600 transition-colors">
+                    {test.title || test.name}
+                  </h4>
+
+                  {/* META */}
+                  <div className="flex items-center justify-between text-slate-500 text-xs font-semibold py-2 border-y border-slate-100">
+                    <span className="flex items-center gap-1">
+                      <Clock size={14} /> {test.duration} phút
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Eye size={14} />
+                      {test.views > 1000
+                        ? `${(test.views / 1000).toFixed(1)}k`
+                        : test.views}{' '}
+                      lượt
+                    </span>
+                  </div>
+
+                  {/* FOOTER INFO */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] font-semibold text-slate-600">
+                      {(test.questions?.length ?? test.question_count ?? 0)} câu hỏi
+                    </div>
+                    <div className="text-[11px] text-orange-500 font-bold">
+                      Free
+                    </div>
+                  </div>
+
+                  {/* BUTTON PREMIUM */}
+                  <button
+                    className="w-full mt-3 py-3 rounded-xl font-semibold text-sm text-white
+                              bg-gradient-to-r from-orange-500 to-orange-600
+                              shadow-lg shadow-orange-200
+                              group-hover:shadow-orange-300
+                              group-hover:brightness-110
+                              transition-all duration-300
+                              active:scale-95
+                              flex items-center justify-center gap-2"
+                    onClick={() => handleTestClick(test)}
+                  >
+                    Làm bài ngay
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
+                  </button>
+
+                </div>
               </div>
             ))}
           </div>
         </div>
             {/* --- FOOTER SECTION --- */}
-        <footer style={styles.footer}>
-          <div style={styles.footerGrid} className="flex flex-col md:grid">
-            {/* Cột 1: Thông tin chung */}
+      <footer className="mt-20">
+
+        {/* ===== TOP FOOTER ===== */}
+        <div className="bg-gradient-to-b from-white via-slate-50 to-slate-100/70 
+                        border-t border-slate-200/60">
+
+          <div className="max-w-[1200px] mx-auto px-6 py-16 
+                          grid grid-cols-1 md:grid-cols-4 gap-12">
+
+            {/* Cột 1 */}
             <div>
-              <span style={styles.footerLogo}>LearnWithMe</span>
-              <p style={styles.footerText}>
-                Nền tảng luyện thi TOEIC trực tuyến hàng đầu Việt Nam. Chúng tôi giúp bạn chinh phục mục tiêu điểm số một cách thông minh và hiệu quả nhất.
+              <span className="text-2xl font-bold text-orange-600">
+                LearnWithMe
+              </span>
+
+              <p className="mt-4 text-slate-600 text-sm leading-relaxed">
+                Nền tảng luyện thi TOEIC trực tuyến hàng đầu Việt Nam. 
+                Chúng tôi giúp bạn chinh phục mục tiêu điểm số một cách 
+                thông minh và hiệu quả nhất.
               </p>
-              <div className="flex gap-4 mt-4">
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all">
+
+              {/* Social icons */}
+              <div className="flex gap-4 mt-6">
+                <div className="p-2 bg-orange-50 text-orange-500 rounded-full 
+                                cursor-pointer transition-all duration-300
+                                hover:bg-orange-500 hover:text-white 
+                                hover:scale-110 hover:shadow-md">
                   <Facebook size={18} />
                 </div>
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all">
+
+                <div className="p-2 bg-orange-50 text-orange-500 rounded-full 
+                                cursor-pointer transition-all duration-300
+                                hover:bg-orange-500 hover:text-white 
+                                hover:scale-110 hover:shadow-md">
                   <Youtube size={18} />
                 </div>
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all">
+
+                <div className="p-2 bg-orange-50 text-orange-500 rounded-full 
+                                cursor-pointer transition-all duration-300
+                                hover:bg-orange-500 hover:text-white 
+                                hover:scale-110 hover:shadow-md">
                   <Mail size={18} />
                 </div>
               </div>
             </div>
 
-            {/* Cột 2: Khám phá */}
+            {/* Cột 2 */}
             <div>
-              <h4 style={styles.footerTitle}>Khám phá</h4>
-              <span style={styles.footerLink} className="hover:text-orange-500">Thư viện đề thi</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Lộ trình học</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Thi thử Online</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Bảng xếp hạng</span>
+              <h4 className="text-sm font-semibold text-slate-800 mb-4">
+                Khám phá
+              </h4>
+
+              <div className="flex flex-col gap-3 text-sm text-slate-600">
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Thư viện đề thi
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Lộ trình học
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Thi thử Online
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Bảng xếp hạng
+                </span>
+              </div>
             </div>
 
-            {/* Cột 3: Hỗ trợ */}
+            {/* Cột 3 */}
             <div>
-              <h4 style={styles.footerTitle}>Hỗ trợ</h4>
-              <span style={styles.footerLink} className="hover:text-orange-500">Hướng dẫn sử dụng</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Chính sách bảo mật</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Điều khoản dịch vụ</span>
-              <span style={styles.footerLink} className="hover:text-orange-500">Câu hỏi thường gặp</span>
+              <h4 className="text-sm font-semibold text-slate-800 mb-4">
+                Hỗ trợ
+              </h4>
+
+              <div className="flex flex-col gap-3 text-sm text-slate-600">
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Hướng dẫn sử dụng
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Chính sách bảo mật
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Điều khoản dịch vụ
+                </span>
+                <span className="hover:text-orange-500 hover:translate-x-1 transition-all cursor-pointer">
+                  Câu hỏi thường gặp
+                </span>
+              </div>
             </div>
 
-            {/* Cột 4: Liên hệ */}
+            {/* Cột 4 */}
             <div>
-              <h4 style={styles.footerTitle}>Liên hệ</h4>
-              <div className="flex items-center gap-3 text-slate-500 mb-3 text-sm font-medium">
-                <Phone size={16} className="text-orange-500" /> 0987.654.321
+              <h4 className="text-sm font-semibold text-slate-800 mb-4">
+                Liên hệ
+              </h4>
+
+              <div className="flex items-center gap-3 text-slate-600 mb-3 text-sm font-medium">
+                <Phone size={16} className="text-orange-500" />
+                0987.654.321
               </div>
-              <div className="flex items-center gap-3 text-slate-500 mb-3 text-sm font-medium">
-                <Mail size={16} className="text-orange-500" /> hotro@learnwithme.com
+
+              <div className="flex items-center gap-3 text-slate-600 mb-3 text-sm font-medium">
+                <Mail size={16} className="text-orange-500" />
+                hotro@learnwithme.com
               </div>
-              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-[11px] text-slate-400">
+
+              <div className="mt-4 p-3 bg-white/60 backdrop-blur-sm 
+                              rounded-xl border border-slate-200 
+                              text-[11px] text-slate-500 shadow-sm">
                 Địa chỉ: Hà Đông, Hà Nội.
               </div>
             </div>
-          </div>
 
-          {/* Dòng bản quyền dưới cùng */}
-          <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 flex justify-between items-center text-[12px] text-slate-400 font-medium">
-            <p>© 2026 LearnWithMe. Tất cả quyền được bảo lưu.</p>
-            <div className="flex gap-6">
-              <span>English (US)</span>
-              <span>Tiếng Việt</span>
-            </div>
           </div>
-        </footer>
+        </div>
+
+        {/* ===== BOTTOM FOOTER ===== */}
+        <div className="bg-white border-t border-slate-200/60">
+          <div className="max-w-[1200px] mx-auto px-6 py-6 
+                          flex flex-col md:flex-row 
+                          justify-between items-center 
+                          text-[12px] text-slate-500 font-medium">
+
+            <p>© 2026 LearnWithMe. Tất cả quyền được bảo lưu.</p>
+
+            <div className="flex gap-6 mt-4 md:mt-0">
+              <span className="hover:text-orange-500 transition-colors cursor-pointer">
+                English (US)
+              </span>
+              <span className="hover:text-orange-500 transition-colors cursor-pointer">
+                Tiếng Việt
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </footer>
         
       </main>
     </div>

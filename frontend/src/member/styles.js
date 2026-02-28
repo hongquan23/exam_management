@@ -1,11 +1,14 @@
 const styles = {
-  container: {
+   container: {
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
     width: '100vw',
-    fontFamily: "'Inter', sans-serif",
-    backgroundColor: '#f8faff', // Nền xanh xám rất nhẹ
+    margin: 0,
+    padding: 0,
+    fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+    overflow: 'hidden',
+    backgroundColor: '#f8fafc', // Slate 50
   },
   header: {
     backgroundColor: '#ffffff',
@@ -39,43 +42,58 @@ const styles = {
     WebkitTextFillColor: 'transparent',
     margin: 0,
   },
+  badge: {
+  position: 'absolute',
+  top: '12px',
+  right: '12px',
+  padding: '4px 10px',
+  fontSize: '10px',
+  fontWeight: '700',
+  borderRadius: '999px',
+  letterSpacing: '0.5px',
+  },
   searchWrapper: {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    background: 'white',
     borderRadius: '999px',
-    padding: '6px',
-    border: '1px solid #e2e8f0',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)',
+    padding: '8px',
+    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.06)',
     transition: 'all 0.3s ease',
+    border: '1px solid rgba(0,0,0,0.05)',
   },
-  searchBar: {
-    flex: 1,
-    border: 'none',
-    padding: '10px 16px',
-    fontSize: '15px',
-    outline: 'none',
-    color: '#334155',
+ searchBar: {
+  flex: 1,
+  border: 'none',
+  outline: 'none',
+  padding: '14px 18px',
+  fontSize: '15px',
+  background: 'transparent',
   },
   searchButton: {
     background: 'linear-gradient(to right, #ff8a00, #ff5200)',
     color: 'white',
     border: 'none',
-    padding: '10px 28px',
+    padding: '12px 32px',
     borderRadius: '999px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'opacity 0.2s',
+    transition: 'all 0.25s ease',
+    boxShadow: '0 8px 20px rgba(255, 100, 0, 0.25)',
   },
   // Thẻ kỹ năng
-  skillCard: {
+   skillCard: {
     backgroundColor: 'white',
     borderRadius: '24px',
-    padding: '30px',
+    padding: '32px 24px',
     textAlign: 'center',
     cursor: 'pointer',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    border: '1px solid #f1f5f9',
+    border: '2px solid transparent',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   skillIcon: {
     width: '70px',
@@ -105,7 +123,6 @@ const styles = {
     fontWeight: '700',
     textTransform: 'uppercase',
   },
-  // Thêm vào trong styles.js
   footer: {
     backgroundColor: '#ffffff',
     borderTop: '1px solid #eef2f6',
@@ -154,34 +171,50 @@ const styles = {
     flexDirection: 'column',
     height: '100vh',
     backgroundColor: '#f1f5f9',
+    fontFamily: "'Inter', sans-serif",
+  },
+    examHeader: {
+    height: '64px',
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 24px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  },
+  examTitle: {
+    fontSize: '20px',
+    fontWeight: '800',
+    color: '#1e293b',
   },
 
   examNav: {
+    backgroundColor: '#f8fafc',
+    padding: '12px 24px',
     display: 'flex',
-    backgroundColor: '#ffffff',
-    padding: '8px 24px',
     gap: '8px',
     borderBottom: '1px solid #e2e8f0',
     overflowX: 'auto',
-    scrollbarWidth: 'none', // Cho Firefox
   },
 
-  navTab: {
-    padding: '10px 20px',
+ navTab: {
+    padding: '8px 16px',
     borderRadius: '8px',
+    backgroundColor: '#ffffff',
+    color: '#64748b',
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
+    border: '1px solid #e2e8f0',
     whiteSpace: 'nowrap',
-    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-    color: '#64748b',
-    border: '1px solid transparent',
+    transition: 'all 0.2s',
   },
 
   navTabActive: {
     backgroundColor: '#eff6ff',
-    color: '1px solid #2563eb',
-    boxShadow: '0 2px 4px rgba(37, 99, 235, 0.05)',
+    color: '#2563eb',
+    borderColor: '#3b82f6',
+    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
   },
 
   examContent: {
@@ -227,14 +260,10 @@ const styles = {
   },
 
   questionType: {
-    fontSize: '13px',
+    fontSize: '18px',
     fontWeight: '800',
     color: '#2563eb',
     textTransform: 'uppercase',
-    letterSpacing: '1px',
-    backgroundColor: '#eff6ff',
-    padding: '4px 12px',
-    borderRadius: '20px',
   },
 
   questionText: {
@@ -307,13 +336,12 @@ const styles = {
     letterSpacing: '0.5px',
   },
 
-  timerValue: {
-    fontSize: '34px',
-    fontWeight: '800',
-    color: '#ef4444',
-    fontFamily: "'JetBrains Mono', monospace",
-    letterSpacing: '-1px',
-  },
+timerValue: {
+  fontSize: "32px",
+  fontWeight: 800,
+  color: "#ef4444",
+  letterSpacing: "2px"
+},
 
   questionsBox: {
     backgroundColor: '#ffffff',
