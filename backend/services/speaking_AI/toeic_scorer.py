@@ -152,9 +152,8 @@ Evaluate strictly based on ETS TOEIC criteria:
 
 Give:
 1. Overall score (0–100)
-2. Score for each question (Q8, Q9, Q10)
-3. Specific missing or incorrect information
-4. Correct sample answers (TOEIC level)
+2. Specific missing or incorrect information
+3. Correct sample answers (TOEIC level)
 
 """
     return send_message(prompt)

@@ -23,7 +23,7 @@ const Dashboard = ({
         <div className="flex items-center gap-6">
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 mr-4">
             <span className="text-orange-600 cursor-pointer">Khám phá</span>
-            <span className="hover:text-orange-600 cursor-pointer transition-colors">Thư viện</span>
+            <span className="hover:text-orange-600 cursor-pointer transition-colors">Các cuộc thi</span>
             <span className="hover:text-orange-600 cursor-pointer transition-colors">Lộ trình</span>
           </nav>
 
@@ -160,7 +160,7 @@ const Dashboard = ({
         <div>
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-              <Star size={24} className="text-yellow-400 fill-yellow-400" /> Đề Thi Tiêu Biểu
+               Đề Thi Tiêu Biểu
             </h3>
             <span className="text-orange-600 font-bold text-sm cursor-pointer hover:underline">Xem tất cả →</span>
           </div>

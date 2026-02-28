@@ -1173,9 +1173,9 @@ const renderRecordControls = (responseTime, question) => {
             })()}
           </div>
             <div style={{ fontSize: '11px', color: '#f97316', textAlign: 'center', padding: '8px' }}>
-              Khôi phục/lưu bài làm
+              
               <br />
-              Chú ý: Bạn có thể click vào số thứ tự câu hỏi trong bảng để đánh dấu review
+              Chú ý: Bạn có thể click vào số thứ tự câu hỏi trong bảng để chuyển nhanh đến câu đó. Hãy đảm bảo nộp bài trước khi chuyển câu!
             </div>
           </div>
         </div>

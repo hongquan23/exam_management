@@ -29,13 +29,13 @@ const WritingTests = ({
       <header style={styles.header}>
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate('/member/dashboard')}>
           <div style={styles.logo}><BookOpen size={22} /></div>
-          <h1 style={styles.headerTitle}>EstudyMe</h1>
+          <h1 style={styles.headerTitle}>LearnWithMe</h1>
         </div>
         
         <div className="flex items-center gap-6">
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 mr-4">
             <span className="hover:text-orange-600 cursor-pointer transition-colors" onClick={() => navigate('/member/dashboard')}>Khám phá</span>
-            <span className="text-orange-600 cursor-pointer">Thư viện</span>
+            <span className="text-orange-600 cursor-pointer">Các cuộc thi</span>
             <span className="hover:text-orange-600 cursor-pointer transition-colors">Lộ trình</span>
           </nav>
 
@@ -148,7 +148,7 @@ const WritingTests = ({
         <footer style={styles.footer}>
           <div style={styles.footerGrid}>
             <div>
-              <span style={styles.footerLogo}>EstudyMe</span>
+              <span style={styles.footerLogo}>LearnWithMe</span>
               <p style={styles.footerText}>Luyện thi TOEIC 4 kỹ năng với công nghệ AI hàng đầu.</p>
               <div className="flex gap-3 mt-4">
                 <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all"><Facebook size={18} /></div>
@@ -178,12 +178,12 @@ const WritingTests = ({
               <h4 style={styles.footerTitle}>Liên hệ</h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-slate-500 text-sm"><Phone size={16} className="text-orange-500" /> 0987.654.321</div>
-                <div className="flex items-center gap-3 text-slate-500 text-sm"><Mail size={16} className="text-orange-500" /> hotro@estudyme.com</div>
+                <div className="flex items-center gap-3 text-slate-500 text-sm"><Mail size={16} className="text-orange-500" /> hotro@LearnWithMe.com</div>
               </div>
             </div>
           </div>
           <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 text-center text-[12px] text-slate-400">
-            © 2026 EstudyMe - Học thông minh, thi điểm cao.
+            © 2026 LearnWithMe - Học thông minh, thi điểm cao.
           </div>
         </footer>
       </main>
