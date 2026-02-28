@@ -75,7 +75,7 @@ const SpeakingTests = ({
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+<main className="flex-1 overflow-y-auto">
         <div className="px-6 py-10 md:px-20">
           {/* BACK BUTTON & TITLE */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
@@ -106,24 +106,56 @@ const SpeakingTests = ({
           </div>
 
           {/* GRID TESTS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
             {speakingTests.map(test => (
               <div
                 key={test.id}
-                style={{
-                  ...styles.testCard,
-                  boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(0,0,0,0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
-                  borderColor: hoveredCard === test.id ? '#ff8a00' : '#f1f5f9'
-                }}
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
+                className="relative rounded-3xl border transition-all duration-300 group bg-white"
+                style={{
+                  ...styles.testCard,
+                  boxShadow:
+                    hoveredCard === test.id
+                      ? '0 30px 60px rgba(255,138,0,0.25)'
+                      : '0 10px 25px rgba(0,0,0,0.04)',
+                  borderColor:
+                    hoveredCard === test.id
+                      ? '#ff8a00'
+                      : '#f1f5f9'
+                }}
               >
-                <div className="flex gap-2 mb-3">
-                  <span style={{ ...styles.tag, backgroundColor: '#eff6ff', color: '#2563eb' }}>#TOEIC Bridge</span>
-                  <span style={{ ...styles.tag, backgroundColor: '#fff7ed', color: '#ea580c' }}>#Speaking</span>
-                </div>
+                {hoveredCard === test.id && (
+                  <div className="absolute inset-0 rounded-3xl 
+                                  bg-gradient-to-br from-orange-100/40 to-transparent 
+                                  opacity-60 pointer-events-none">
+                  </div>
+                )}
+                  <div className="flex gap-2 mb-3">
+                    <span className="flex items-center gap-1 
+                                    text-[11px] font-semibold 
+                                    px-3 py-1 
+                                    bg-blue-50 text-blue-600 
+                                    rounded-full shadow-sm">
+                      <BookOpen size={12} />
+                      TOEIC Bridge
+                    </span>
+
+                    <span className="flex items-center gap-1 
+                                    text-[11px] font-semibold 
+                                    px-3 py-1 
+                                    bg-orange-50 text-orange-600 
+                                    rounded-full shadow-sm">
+                      🎤 Speaking
+                    </span>
+                  </div>
                 
-                <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight hover:text-orange-600 transition-colors cursor-pointer">
+                <h4 className="text-lg font-bold text-slate-800 
+               line-clamp-2 min-h-[3.5rem] 
+               leading-tight 
+               transition-all duration-300 
+               group-hover:text-orange-600 
+               cursor-pointer">
                   {test.title || test.name || "Untitled Test"}
                 </h4>
 
@@ -156,55 +188,10 @@ const SpeakingTests = ({
             )}
           </div>
         </div>
-
-        {/* FOOTER ĐỒNG BỘ */}
-        <footer style={styles.footer}>
-          <div style={styles.footerGrid}>
-            <div className="space-y-4">
-              <span style={styles.footerLogo}>LearnWithMe</span>
-              <p style={styles.footerText}>Nền tảng luyện thi TOEIC trực tuyến hàng đầu Việt Nam.</p>
-              <div className="flex gap-3">
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all"><Facebook size={18} /></div>
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all"><Youtube size={18} /></div>
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-full cursor-pointer hover:bg-orange-500 hover:text-white transition-all"><Mail size={18} /></div>
-              </div>
-            </div>
-
-            <div>
-              <h4 style={styles.footerTitle}>Khám phá</h4>
-              <nav className="flex flex-col">
-                <span style={styles.footerLink}>Thư viện đề thi</span>
-                <span style={styles.footerLink}>Lộ trình học</span>
-                <span style={styles.footerLink}>Thi thử Online</span>
-              </nav>
-            </div>
-
-            <div>
-              <h4 style={styles.footerTitle}>Hỗ trợ</h4>
-              <nav className="flex flex-col">
-                <span style={styles.footerLink}>Chính sách bảo mật</span>
-                <span style={styles.footerLink}>Điều khoản dịch vụ</span>
-                <span style={styles.footerLink}>Câu hỏi thường gặp</span>
-              </nav>
-            </div>
-
-            <div>
-              <h4 style={styles.footerTitle}>Liên hệ</h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-slate-500 text-sm font-medium"><Phone size={16} className="text-orange-500" /> 0987.654.321</div>
-                <div className="flex items-center gap-3 text-slate-500 text-sm font-medium"><Mail size={16} className="text-orange-500" /> hotro@LearnWithMe.com</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-[12px] text-slate-400 font-medium">
-            <p>© 2026 LearnWithMe. Tất cả quyền được bảo lưu.</p>
-            <div className="flex gap-6"><span>English (US)</span><span>Tiếng Việt</span></div>
-          </div>
-        </footer>
       </main>
     </div>
   );
 };
 
 export default SpeakingTests;
+

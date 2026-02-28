@@ -13,7 +13,7 @@ const Dashboard = ({
 
   return (
     <div style={styles.container}>
-      {/* HEADER */}
+      {/* HEADER - MEMBER*/}
       <header style={styles.header}>
         <div className="flex items-center gap-4 cursor-pointer">
           <div style={styles.logo}><BookOpen size={22} /></div>
@@ -172,8 +172,8 @@ const Dashboard = ({
 
       {/* MAIN CONTENT */}
       <main className="flex-1 overflow-y-auto px-6 py-10 md:px-20">
-        {/* HERO */}
-        <div className="relative py-12 md:py-10 overflow-hidden">
+        {/* HERO SECTION MEMBER */}
+        <div className="relative py-0 md:py-5 overflow-hidden">
           
           {/* Background Glow */}
           <div className="absolute inset-0 flex justify-center">
@@ -196,7 +196,7 @@ const Dashboard = ({
         </div>
 
         {/* SEARCH BAR */}
-        <div className="max-w-3xl mx-auto mb-20">
+        <div className="max-w-3xl mx-auto mb-10">
           <div style={styles.searchWrapper} className="focus-within:ring-4 focus-within:ring-orange-100 transition-all">
             <Search  size={20} className="ml-5 text-slate-400 transition-colors duration-300" />
               <input
@@ -241,7 +241,7 @@ const Dashboard = ({
           </div>
         </div>
 
-        {/* SKILLS SECTION */}
+        {/* SKILLS SECTION - MEMBER */}
         <div className="mb-20">
           <h3 className="text-2xl font-extrabold text-slate-800 mb-8 flex items-center gap-3">
             <span className="w-2 h-8 bg-orange-500 rounded-full"></span> 4 Kỹ Năng Chính
@@ -266,7 +266,7 @@ const Dashboard = ({
                 {skill.disabled && (
                   <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex items-center justify-center pointer-events-none">
                     <div className="text-sm font-semibold text-orange-600 bg-white px-4 py-2 rounded-full shadow-md border border-orange-200">
-                      🚀 Sắp ra mắt 2026
+                      🚀 Sắp ra mắt
                     </div>
                   </div>
                 )}
@@ -300,7 +300,7 @@ const Dashboard = ({
           </div>
         </div>
 
-        {/* FEATURED TESTS */}
+        {/* FEATURED TESTS - MEMBER */}
         <div>
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
@@ -397,7 +397,7 @@ const Dashboard = ({
             ))}
           </div>
         </div>
-            {/* --- FOOTER SECTION --- */}
+      {/* --- FOOTER SECTION - MEMBER --- */}
       <footer className="mt-20">
 
         {/* ===== TOP FOOTER ===== */}
