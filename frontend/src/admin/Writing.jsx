@@ -19,17 +19,17 @@ const WritingTests = ({
           className="flex items-center gap-4 cursor-pointer" 
           onClick={() => navigate('/admin/dashboard')}
         >
-          <div style={{...styles.logo, backgroundColor: '#10b981'}}> {/* Màu Emerald cho Writing */}
+          <div style={{...styles.logo, backgroundColor: '#4f46e5'}}> {/* Màu Emerald cho Writing */}
             <span style={{ fontSize: '20px' }}>📚</span>
           </div>
           <div>
             <h1 style={styles.headerTitle}>LearnWithMe</h1>
-            <span className="text-[10px] font-bold text-emerald-600 tracking-widest uppercase">Thư viện đề thi</span>
+            <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">Thư viện đề thi</span>
           </div>
         </div>
         
         <div style={styles.userProfile}>
-          <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
             AD
           </div>
         </div>
@@ -41,7 +41,7 @@ const WritingTests = ({
         {/* NÚT BACK TINH TẾ */}
         <div className="mb-10">
           <button 
-            className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-emerald-600 font-bold text-sm transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-indigo-600 font-bold text-sm transition-colors"
             onClick={() => navigate('/admin/dashboard')}
           >
             <ArrowLeft size={18} /> QUAY LẠI BẢNG ĐIỀU KHIỂN
@@ -51,10 +51,10 @@ const WritingTests = ({
         <div>
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-              <PenTool size={28} className="text-emerald-500" /> 
+              <PenTool size={28} className="text-indigo-500" /> 
               Writing Tests
             </h2>
-            <div className="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-sm font-bold">
+            <div className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold">
               {writingTests.length} Đề thi hiện có
             </div>
           </div>
@@ -66,8 +66,8 @@ const WritingTests = ({
                 key={test.id}
                 style={{
                   ...styles.testCard,
-                  boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(16, 185, 129, 0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
-                  borderColor: hoveredCard === test.id ? '#10b981' : '#f1f5f9',
+                  boxShadow: hoveredCard === test.id ? '0 15px 30px rgba(79, 70, 229, 0.1)' : '0 4px 6px rgba(0,0,0,0.02)',
+                  borderColor: hoveredCard === test.id ? '#4f46e5' : '#f1f5f9',
                   transform: hoveredCard === test.id ? 'translateY(-5px)' : 'none',
                   transition: 'all 0.3s ease'
                 }}
@@ -77,8 +77,8 @@ const WritingTests = ({
                 {/* ID & TAGS */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex flex-wrap gap-1">
-                    <span style={{ ...styles.tag, backgroundColor: '#ecfdf5', color: '#059669' }}>#TOEIC BRIDGE</span>
-                    <span style={{ ...styles.tag, backgroundColor: '#f0fdf4', color: '#16a34a' }}>#WRITING</span>
+                    <span style={{ ...styles.tag, backgroundColor: '#ecfdf5', color: '#4f46e5' }}>#TOEIC BRIDGE</span>
+                    <span style={{ ...styles.tag, backgroundColor: '#f0fdf4', color: '#4f46e5' }}>#WRITING</span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-400">ID: {test.id.toString().slice(0, 5)}</span>
                 </div>
@@ -109,19 +109,19 @@ const WritingTests = ({
                 <button 
                   style={{ 
                     ...styles.button, 
-                    backgroundColor: '#10b981', 
+                    backgroundColor: '#4f46e5', 
                     color: 'white', 
                     width: '100%',
                     justifyContent: 'center'
                   }}
-                  className="hover:bg-emerald-700 active:scale-95 transition-all shadow-md shadow-emerald-100 font-bold"
+                  className="hover:bg-indigo-700 active:scale-95 transition-all shadow-md shadow-indigo-100 font-bold"
                   onClick={() => handleTestClick(test)}
                 >
                   CHI TIẾT ĐỀ THI
                 </button>
 
                 {/* BÌNH LUẬN */}
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 mt-4 cursor-pointer hover:text-emerald-600 transition-colors">
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-slate-400 mt-4 cursor-pointer hover:text-indigo-600 transition-colors">
                   <MessageSquare size={12} />
                   {(test.comments || 0)} bình luận
                 </div>

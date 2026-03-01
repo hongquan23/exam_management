@@ -196,7 +196,7 @@ const WritingTests = ({
               <ArrowLeft size={18} /> Quay lại trang chủ
             </button>
             <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-              <span className="w-2 h-10 bg-purple-500 rounded-full"></span>
+              <span className="w-2 h-10 bg-orange-500 rounded-full"></span>
               Kỹ năng Writing
             </h2>
             <p className="text-slate-500 mt-2 italic text-sm">Hệ thống AI tự động chấm điểm và sửa lỗi ngữ pháp ngay lập tức.</p>
@@ -210,11 +210,11 @@ const WritingTests = ({
                 style={{
                   ...styles.testCard,
                   boxShadow: hoveredCard === test.id 
-                    ? '0 30px 60px rgba(139,92,246,0.25)'
+                    ? '0 30px 60px rgba(255,138,0,0.25)'
                     : '0 10px 25px rgba(0,0,0,0.04)',
 
                   borderColor: hoveredCard === test.id 
-                    ? '#8b5cf6'
+                    ? '#ff8a00'
                     : '#f1f5f9',
                 }}
                 onMouseEnter={() => setHoveredCard(test.id)}
@@ -225,7 +225,7 @@ const WritingTests = ({
                   <span className="flex items-center gap-1 
                 text-[11px] font-semibold 
                 px-3 py-1 
-                bg-purple-50 text-purple-600 
+                bg-orange-50 text-orange-600 
                 rounded-full 
                 shadow-sm">#TOEIC Writing</span>
                   <span style={{ ...styles.tag, backgroundColor: '#f0fdf4', color: '#16a34a' }}>#Free</span>
@@ -244,12 +244,12 @@ const WritingTests = ({
                   <div className="text-[11px] font-bold text-slate-500">
                     {(test.questions?.length ?? test.question_count ?? 0)} phần thi
                   </div>
-                  <div className="text-[11px] text-purple-600 font-bold">AI Feedback</div>
+                  <div className="text-[11px] text-orange-600 font-bold">AI Feedback</div>
                 </div>
 
                 <button 
-                  style={{ ...styles.searchButton, background: 'linear-gradient(to right, #8b5cf6, #7c3aed)' }}
-                  className="w-full mt-4 !py-3 shadow-lg shadow-purple-100 active:scale-95 transition-all"
+                  style={{ ...styles.searchButton, background: 'linear-gradient(to right, #ff8a00, #ff5858)' }}
+                  className="w-full mt-4 !py-3 shadow-lg shadow-orange-100 active:scale-95 transition-all"
                   onClick={() => handleTestClick(test)}
                 >
                   Bắt đầu thi

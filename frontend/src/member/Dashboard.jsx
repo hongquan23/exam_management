@@ -8,8 +8,26 @@ const Dashboard = ({
 }) => {
   
   const handleSearch = () => {
-    console.log("Tìm kiếm:", searchQuery);
+    if (!searchQuery.trim()) return;
+
+    const section = document.getElementById("member-tests");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
   };
+
+  const filteredTests = allTests?.filter(test => {
+  if (!searchQuery.trim()) return true;
+
+  const keyword = searchQuery.toLowerCase();
+
+  return (
+    test.title?.toLowerCase().includes(keyword) ||
+    test.name?.toLowerCase().includes(keyword) ||
+    test.skill?.toLowerCase().includes(keyword) ||
+    test.type?.toLowerCase().includes(keyword)
+  );
+});
 
   return (
     <div style={styles.container}>
@@ -301,7 +319,7 @@ const Dashboard = ({
         </div>
 
         {/* FEATURED TESTS - MEMBER */}
-        <div>
+        <div id="member-tests">
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
               <Star size={24} className="text-yellow-400 fill-yellow-400" /> Đề Thi Tiêu Biểu
@@ -310,7 +328,7 @@ const Dashboard = ({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {allTests.map(test => (
+            {filteredTests?.map(test => (
               <div
                 key={test.id}
                 className="group bg-white rounded-2xl border transition-all duration-300 cursor-pointer"

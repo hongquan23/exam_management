@@ -15,13 +15,30 @@ const AdminDashboard = ({
 }) => {
   
   const handleSearch = () => {
-    console.log("Admin tìm kiếm:", searchQuery);
+    if (!searchQuery.trim()) return;
+
+    const element = document.getElementById("test-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
+
+  const filteredTests = allTests?.filter(test => {
+  if (!searchQuery.trim()) return true;
+
+  const keyword = searchQuery.toLowerCase();
+
+  return (
+    test.title?.toLowerCase().includes(keyword) ||
+    test.name?.toLowerCase().includes(keyword) ||
+    test.id?.toString().includes(keyword) ||
+    test.skill?.toLowerCase().includes(keyword)
+  );
+});
 
   return (
     <div style={styles.container}>
       {/* HEADER - ADMIN STYLE */}
-      {/* HEADER - ADMIN (SYNC WITH MEMBER STYLE) */}
       <header style={styles.header}>
         <div 
           className="flex items-center gap-4 cursor-pointer"
@@ -272,7 +289,7 @@ const AdminDashboard = ({
         </div>
 
         {/* SKILLS SECTION - ADMIN */}
-        <div className="mb-20">
+        <div className="mb-20" id="test-section">
 
           <h3 className="text-2xl font-extrabold text-slate-800 mb-8 flex items-center gap-3">
             <span className="w-2 h-8 bg-indigo-600 rounded-full"></span>
@@ -368,7 +385,7 @@ const AdminDashboard = ({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {allTests?.map(test => (
+            {filteredTests?.map(test => (
               <div
                 key={test.id}
                 className="group relative bg-white rounded-2xl border transition-all duration-300 cursor-pointer"
