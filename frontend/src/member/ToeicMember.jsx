@@ -5,7 +5,7 @@ import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
 import styles from './styles';
-import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8, scoreSpeakingQ1_2, scoreSpeakingQ3_4,  scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11 } from "../api";
+import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8, scoreSpeakingQ1_2, scoreSpeakingQ3_4,  scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11, getUser } from "../api";
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 
 const skills = [
@@ -141,6 +141,7 @@ const ToeicMember = () => {
   const location = useLocation();
   const [speakingTestsData, setSpeakingTestsData] = useState([]);
   const [writingTestsData, setWritingTestsData] = useState([]);
+  const [isTimeUp, setIsTimeUp] = useState(false);
   const allTests = [...speakingTestsData, ...writingTestsData];
   const resetExamState = () => {
     setExamSubView("question");
@@ -151,6 +152,8 @@ const ToeicMember = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); 
+  const [loadingUser, setLoadingUser] = useState(true);
   const resetAudio = () => {
   setAudioBlob(null);
   setAudioURL(null);
@@ -183,6 +186,32 @@ useEffect(() => {
 useEffect(() => {
   
   fetchTests();
+}, []);
+useEffect(() => {
+  const loadUserInfo = async () => {
+    try {
+      const userId = localStorage.getItem("user_id");
+      
+      if (!userId) {
+        console.warn("Không tìm thấy user_id trong localStorage");
+        setLoadingUser(false);
+        return;
+      }
+
+      // Gọi API getUser
+      const response = await getUser(userId);
+      console.log("User info:", response.data);
+      
+      // Lưu vào state
+      setCurrentUser(response.data);
+      setLoadingUser(false);
+    } catch (error) {
+      console.error("Lỗi load user info:", error);
+      setLoadingUser(false);
+    }
+  };
+
+  loadUserInfo();
 }, []);
 useEffect(() => {
   if (location.pathname.endsWith("/exam")) {
@@ -314,11 +343,17 @@ const fetchTests = async () => {
       const minutes = selectedTest.duration;
       const seconds = minutes * 60;
       setTimeRemaining(seconds);
+      setIsTimeUp(false); // Reset trạng thái
       
       const timer = setInterval(() => {
         setTimeRemaining(prev => {
-          if (prev <= 0) {
+          if (prev <= 1) {
             clearInterval(timer);
+            setIsTimeUp(true); // ⭐ Đánh dấu hết giờ
+            
+            // ⭐ Hiển thị thông báo
+            alert('⏰ HẾT GIỜ LÀM BÀI!\n\nBài thi đã kết thúc. Bạn không thể làm bài nữa.');
+            
             return 0;
           }
           return prev - 1;
@@ -420,7 +455,14 @@ const fetchTests = async () => {
   };
 
   const handleLogout = () => {
-    navigate("/");
+  // Xóa tất cả thông tin user
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("user_id");
+  localStorage.removeItem("currentExam");
+  
+  setCurrentUser(null);
+  navigate("/");
   };
 
   const getCurrentQuestion = () => {
@@ -529,20 +571,24 @@ const renderRecordControls = (responseTime, question) => {
 
   return (
     <>
-      <button 
-        style={{
-          ...styles.recordButton,
-          backgroundColor: isRecording ? '#dc2626' : '#ef4444',
-          transform: isRecording ? 'scale(1.02)' : 'scale(1)',
-        }}
-        onClick={() => {
-          if (!isRecording) {
-            startRecording(responseTime);
-          } else {
-            stopRecording();
-          }
-        }}
-      >
+        <button 
+          disabled={isTimeUp} // ⭐ THÊM
+          style={{
+            ...styles.recordButton,
+            backgroundColor: isTimeUp ? '#9ca3af' : (isRecording ? '#dc2626' : '#ef4444'), // ⭐ Màu xám khi hết giờ
+            transform: isRecording ? 'scale(1.02)' : 'scale(1)',
+            cursor: isTimeUp ? 'not-allowed' : 'pointer', // ⭐ THÊM
+            opacity: isTimeUp ? 0.6 : 1, // ⭐ THÊM
+          }}
+          onClick={() => {
+            if (isTimeUp) return; // ⭐ THÊM
+            if (!isRecording) {
+              startRecording(responseTime);
+            } else {
+              stopRecording();
+            }
+          }}
+        >
         {isRecording && (
           <span style={{
             width: '6px',
@@ -569,16 +615,16 @@ const renderRecordControls = (responseTime, question) => {
 
       <div style={{ marginTop: '20px' }}>
         <button
-          disabled={!audioBlob || isScoring}
+          disabled={!audioBlob || isScoring || isTimeUp} // ⭐ Thêm isTimeUp
           style={{
             ...styles.submitBtn,
             ...(isScoring ? styles.submitBtnLoading : {}),
-            ...((!audioBlob || isScoring) ? styles.submitBtnDisabled : {})
+            ...((!audioBlob || isScoring || isTimeUp) ? styles.submitBtnDisabled : {}) // ⭐ Thêm isTimeUp
           }}
           onClick={() => submitSpeaking(question)}
         >
           {isScoring && <span style={styles.spinner} />}
-          {isScoring ? "AI đang chấm..." : "Nộp câu này"}
+          {isTimeUp ? "Hết giờ" : (isScoring ? "AI đang chấm..." : "Nộp câu này")} {/* ⭐ Thay đổi text */}
         </button>
 
         {!audioBlob && (
@@ -678,21 +724,6 @@ const renderRecordControls = (responseTime, question) => {
                 style={styles.examImage}
                 onError={(e) => console.log('❌ Load ảnh lỗi:', question.image)}
               />
-            )}
-
-            {question.image_describe && (
-              <div
-                style={{
-                  ...styles.questionText,
-                  whiteSpace: 'pre-line',
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #d1d5db',
-                  fontSize: '13px',
-                  fontStyle: 'italic',
-                }}
-              >
-                {question.image_describe}
-              </div>
             )}
 
             {question.sample_answer && (
@@ -940,12 +971,6 @@ const renderRecordControls = (responseTime, question) => {
             {question.image && question.image.trim() !== '' && (
               <img src={question.image} alt="Question" style={styles.examImage} />
             )}
-
-            {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', border: '1px solid #d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
-                {question.image_describe}
-              </div>
-            )}
             {(question.required_word_1 || question.required_word_2) && (
                 <div style={{
                   background: "#fef9c3",
@@ -969,21 +994,34 @@ const renderRecordControls = (responseTime, question) => {
                   )}
                 </div>
               )}
-            <textarea
-              style={styles.textarea}
-              placeholder="Write your sentence here..."
-              value={answers[question.id] || ''}
-              onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-            />
+              <textarea
+                disabled={isTimeUp} // ⭐ THÊM
+                style={{
+                  ...styles.textarea,
+                  cursor: isTimeUp ? 'not-allowed' : 'text', // ⭐ THÊM
+                  opacity: isTimeUp ? 0.6 : 1, // ⭐ THÊM
+                  backgroundColor: isTimeUp ? '#f3f4f6' : '#fff', // ⭐ THÊM
+                }}
+                placeholder={isTimeUp ? "Hết giờ làm bài" : "Write your sentence here..."}
+                value={answers[question.id] || ''}
+                onChange={(e) => {
+                  if (isTimeUp) return; // ⭐ THÊM
+                  setAnswers({ ...answers, [question.id]: e.target.value });
+                }}
+              />
             <div style={{ marginTop: '16px' }}>
               <button
-                disabled={isScoring}
-                style={{
-                  ...styles.submitBtn,
-                  ...(isScoring ? styles.submitBtnLoading : {}),
-                  ...(isScoring ? styles.submitBtnDisabled : {})
-                }}
+                  disabled={isScoring || isTimeUp} // ⭐ Thêm isTimeUp
+                  style={{
+                    ...styles.submitBtn,
+                    ...(isScoring ? styles.submitBtnLoading : {}),
+                    ...((isScoring || isTimeUp) ? styles.submitBtnDisabled : {}) // ⭐ Thêm isTimeUp
+                  }}
                 onClick={async () => {
+                      if (isTimeUp) {
+                        alert("Hết giờ làm bài!");
+                        return;
+                      }
                   const studentSentence = (answers[question.id] || "").trim();
                   if (!studentSentence) {
                     alert("Bạn chưa nhập câu trả lời!");
@@ -1017,7 +1055,7 @@ const renderRecordControls = (responseTime, question) => {
                 }}
               >
                 {isScoring && <span style={styles.spinner} />}
-                {isScoring ? "AI đang chấm..." : "Nộp câu này"}
+                {isTimeUp ? "Hết giờ" : (isScoring ? "AI đang chấm..." : "Nộp câu này")}
               </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
@@ -1056,20 +1094,33 @@ const renderRecordControls = (responseTime, question) => {
               </div>
             )}
             <textarea
-              style={{ ...styles.textarea, minHeight: 200, height: 'auto',resize: 'vertical' }}
-              placeholder="Write your response here..."
+              disabled={isTimeUp} // ⭐ THÊM
+              style={{
+                ...styles.textarea,
+                cursor: isTimeUp ? 'not-allowed' : 'text', // ⭐ THÊM
+                opacity: isTimeUp ? 0.6 : 1, // ⭐ THÊM
+                backgroundColor: isTimeUp ? '#f3f4f6' : '#fff', // ⭐ THÊM
+              }}
+              placeholder={isTimeUp ? "Hết giờ làm bài" : "Write your reponse here..."}
               value={answers[question.id] || ''}
-              onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
+              onChange={(e) => {
+                if (isTimeUp) return; // ⭐ THÊM
+                setAnswers({ ...answers, [question.id]: e.target.value });
+              }}
             />
            <div style={{ marginTop: '16px' }}>
             <button
-              disabled={isScoring}
-                style={{
-                  ...styles.submitBtn,
-                  ...(isScoring ? styles.submitBtnLoading : {}),
-                  ...(isScoring ? styles.submitBtnDisabled : {})
-                }}
+               disabled={isScoring || isTimeUp} // ⭐ Thêm isTimeUp
+               style={{
+                ...styles.submitBtn,
+                ...(isScoring ? styles.submitBtnLoading : {}),
+                ...((isScoring || isTimeUp) ? styles.submitBtnDisabled : {}) // ⭐ Thêm isTimeUp
+               }}
               onClick={async () => {
+                  if (isTimeUp) {
+                  alert("Hết giờ làm bài!");
+                  return;
+                }
                 const studentResponse = (answers[question.id] || "").trim();
 
                 if (!studentResponse) {
@@ -1103,7 +1154,7 @@ const renderRecordControls = (responseTime, question) => {
               }}
             >
                 {isScoring && <span style={styles.spinner} />}
-                {isScoring ? "AI đang chấm..." : "Nộp câu này"}
+                {isTimeUp ? "Hết giờ" : (isScoring ? "AI đang chấm..." : "Nộp câu này")}
             </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
@@ -1129,21 +1180,34 @@ const renderRecordControls = (responseTime, question) => {
                 <div style={{ marginTop: '6px', whiteSpace: 'pre-line', color: '#166534' }}>{question.sample_answer}</div>
               </div>
             )}
-            <textarea
-              style={{ ...styles.textarea, minHeight: 200, height: 'auto',resize: 'vertical' }}
-              placeholder="Write your essay here..."
-              value={answers[question.id] || ''}
-              onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-            />
+              <textarea
+                disabled={isTimeUp} // ⭐ THÊM
+                style={{
+                  ...styles.textarea,
+                  cursor: isTimeUp ? 'not-allowed' : 'text', // ⭐ THÊM
+                  opacity: isTimeUp ? 0.6 : 1, // ⭐ THÊM
+                  backgroundColor: isTimeUp ? '#f3f4f6' : '#fff', // ⭐ THÊM
+                }}
+                placeholder={isTimeUp ? "Hết giờ làm bài" : "Write your essay here..."}
+                value={answers[question.id] || ''}
+                onChange={(e) => {
+                  if (isTimeUp) return; // ⭐ THÊM
+                  setAnswers({ ...answers, [question.id]: e.target.value });
+                }}
+              />
              <div style={{ marginTop: '16px' }}>
               <button
-                disabled={isScoring}
+                  disabled={isScoring || isTimeUp} // ⭐ Thêm isTimeUp
                   style={{
                     ...styles.submitBtn,
                     ...(isScoring ? styles.submitBtnLoading : {}),
-                    ...(isScoring ? styles.submitBtnDisabled : {})
+                    ...((isScoring || isTimeUp) ? styles.submitBtnDisabled : {}) // ⭐ Thêm isTimeUp
                   }}
                 onClick={async () => {
+                    if (isTimeUp) {
+                        alert("Hết giờ làm bài!");
+                        return;
+                    }
                   const studentResponse = (answers[question.id] || "").trim();
 
                   if (!studentResponse) {
@@ -1175,7 +1239,7 @@ const renderRecordControls = (responseTime, question) => {
                 }}
               >
                   {isScoring && <span style={styles.spinner} />}
-                  {isScoring ? "AI đang chấm..." : "Nộp câu này"}   
+                  {isTimeUp ? "Hết giờ" : (isScoring ? "AI đang chấm..." : "Nộp câu này")}   
               </button>
             </div>
             <div style={styles.wordCount}>Word count: {wordCount}</div>
@@ -1267,7 +1331,7 @@ const renderRecordControls = (responseTime, question) => {
               <button
                 style={{ ...styles.button, ...styles.buttonSecondary }}
                 onClick={handlePrevQuestion}
-                disabled={currentSection === 0 && currentQuestionInSection === 0}
+                disabled={isTimeUp || (currentSection === 0 && currentQuestionInSection === 0)}
               >
                 <ArrowLeft size={16} />
                 Câu trước
@@ -1275,10 +1339,7 @@ const renderRecordControls = (responseTime, question) => {
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary }}
                 onClick={handleNextQuestion}
-                disabled={
-                  currentSection === selectedTest.sections.length - 1 &&
-                  currentQuestionInSection === selectedTest.sections[currentSection].questions.length - 1
-                }
+                disabled={isTimeUp || (currentSection === selectedTest.sections.length - 1 && currentQuestionInSection === selectedTest.sections[currentSection].questions.length - 1)}
               >
                 Câu sau
                 <ArrowRight size={16} />
@@ -1287,9 +1348,39 @@ const renderRecordControls = (responseTime, question) => {
           </div>
 
           <div style={styles.examRight}>
-            <div style={styles.timerBox}>
-              <div style={styles.timerLabel}>Thời gian còn lại:</div>
-              <div style={styles.timerValue}>{timeRemaining ? formatTime(timeRemaining) : '--:--'}</div>
+            <div style={{
+              ...styles.timerBox,
+              backgroundColor: timeRemaining <= 120 ? '#fee2e2' : styles.timerBox.backgroundColor, // ⭐ Đỏ nhạt khi < 2 phút
+              border: timeRemaining <= 120 ? '2px solid #ef4444' : styles.timerBox.border, // ⭐ Viền đỏ
+            }}>
+              <div style={styles.timerLabel}>
+                {timeRemaining <= 120 && timeRemaining > 0 && '⚠️ '} {/* ⭐ Icon cảnh báo */}
+                Thời gian còn lại:
+              </div>
+              <div style={{
+                ...styles.timerValue,
+                color: timeRemaining <= 120 ? '#ef4444' : styles.timerValue.color, // ⭐ Chữ đỏ khi < 2 phút
+                animation: timeRemaining <= 10 && timeRemaining > 0 ? 'blink 1s infinite' : 'none', // ⭐ Nhấp nháy khi < 10s
+              }}>
+                {timeRemaining ? formatTime(timeRemaining) : '--:--'}
+              </div>
+              
+              {/* ⭐ Thông báo hết giờ */}
+              {isTimeUp && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '8px',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #ef4444',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#ef4444',
+                  textAlign: 'center',
+                }}>
+                  ⏰ HẾT GIỜ LÀM BÀI
+                </div>
+              )}
             </div>
           <div style={styles.questionsBox}>
             <div style={styles.questionsTitle}>Danh sách câu hỏi</div>
@@ -1457,6 +1548,8 @@ const renderQuestionResult = () => {
         setHoveredCard={setHoveredCard}
         allTests={allTests}
         handleTestClick={handleTestClick}
+        currentUser={currentUser}      
+        loadingUser={loadingUser}
       />
     );
   }
@@ -1470,6 +1563,8 @@ const renderQuestionResult = () => {
         speakingTests={speakingTestsData}
         setActiveView={setActiveView}
         handleTestClick={handleTestClick}
+        currentUser={currentUser}      
+        loadingUser={loadingUser}
       />
     );
   }
@@ -1483,6 +1578,8 @@ const renderQuestionResult = () => {
         writingTests={writingTestsData}
         setActiveView={setActiveView}
         handleTestClick={handleTestClick}
+        currentUser={currentUser}      
+        loadingUser={loadingUser}
       />
     );
   }

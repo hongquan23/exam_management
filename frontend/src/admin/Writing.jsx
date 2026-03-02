@@ -27,12 +27,6 @@ const WritingTests = ({
             <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">Thư viện đề thi</span>
           </div>
         </div>
-        
-        <div style={styles.userProfile}>
-          <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-            AD
-          </div>
-        </div>
       </header>
 
       {/* CONTENT AREA */}

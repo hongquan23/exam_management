@@ -3,6 +3,7 @@ import styles from "./login.module.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { login, register } from "../api"; 
+import { jwtDecode } from "jwt-decode";
 
 const PasswordInput = ({ value, onChange, placeholder, show, toggleShow }) => (
   <div className={styles.passwordContainer}>
@@ -92,26 +93,46 @@ const AuthForm = () => {
   // =========================
   // 🔹 SIGN IN
   // =========================
-  const handleSignIn = async (e) => {
-    e.preventDefault();
+const handleSignIn = async (e) => {
+  e.preventDefault();
 
+  try {
+    const res = await login({ email, password });
+    const { access_token, token_type, role: serverRole } = res.data;
+
+    // Lưu token và role
+    localStorage.setItem("access_token", access_token);
+    localStorage.setItem("role", serverRole);
+
+    // ⭐ DECODE JWT TOKEN để lấy user_id
     try {
-      const res = await login({ email, password });
+      const decoded = jwtDecode(access_token);
+      console.log("🔍 Decoded JWT:", decoded);
 
-      const { access_token, role: serverRole } = res.data;
+      // JWT có thể chứa: sub, user_id, id, hoặc userId
+      const userId = decoded.sub || decoded.user_id || decoded.id || decoded.userId;
 
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("role", serverRole);
-
-      if (serverRole === "ADMIN") {
-        navigate("/admin");
+      if (userId) {
+        localStorage.setItem("user_id", userId.toString());
+        console.log("✅ Đã lưu user_id:", userId);
       } else {
-        navigate("/member");
+        console.warn("⚠️ Token không chứa user_id. Decoded data:", decoded);
       }
-    } catch (err) {
-      alert("Email hoặc mật khẩu không đúng");
+    } catch (decodeError) {
+      console.error("❌ Lỗi decode JWT token:", decodeError);
     }
-  };
+
+    // Điều hướng
+    if (serverRole === "ADMIN") {
+      navigate("/admin");
+    } else {
+      navigate("/member");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Email hoặc mật khẩu không đúng");
+  }
+};
   // =========================
   // 🔹 FORGOT PASSWORD (MOCK)
   // =========================

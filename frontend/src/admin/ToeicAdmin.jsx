@@ -7,23 +7,7 @@ import UploadModal from './UploadModal';
 import Users from './Users';
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from './styles';
-import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection } from "../api";
-
-// ====== DATA & UI TỪ ORIGINAL CODE ======
-const mockUsers = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    email: 'a@gmail.com',
-    registeredDate: '01/01/2025'
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    email: 'b@gmail.com',
-    registeredDate: '05/01/2025'
-  }
-];
+import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, getUser } from "../api";
 
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: true },
@@ -153,6 +137,8 @@ const ToeicAdmin = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null); 
+  const [loadingUser, setLoadingUser] = useState(true);
   const [speakingTestsData, setSpeakingTestsData] = useState([]);
   const [writingTestsData, setWritingTestsData] = useState([]);
   const allTests = [...speakingTestsData, ...writingTestsData];
@@ -308,6 +294,32 @@ useEffect(() => {
   fetchTests();
   }, []);
   useEffect(() => {
+  const loadUserInfo = async () => {
+    try {
+      const userId = localStorage.getItem("user_id");
+      
+      if (!userId) {
+        console.warn("Không tìm thấy user_id trong localStorage");
+        setLoadingUser(false);
+        return;
+      }
+
+      // Gọi API getUser
+      const response = await getUser(userId);
+      console.log("User info:", response.data);
+      
+      // Lưu vào state
+      setCurrentUser(response.data);
+      setLoadingUser(false);
+    } catch (error) {
+      console.error("Lỗi load user info:", error);
+      setLoadingUser(false);
+    }
+  };
+
+  loadUserInfo();
+}, []);
+  useEffect(() => {
   if (location.pathname.endsWith("/exam")) {
     const savedTest = localStorage.getItem("currentExam");
     if (savedTest) {
@@ -443,6 +455,13 @@ useEffect(() => {
   };
 
   const handleLogout = () => {
+    // Xóa tất cả thông tin user
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("currentExam");
+    
+    setCurrentUser(null);
     navigate("/");
   };
 
@@ -572,13 +591,8 @@ useEffect(() => {
               <img src={question.image} alt="Question" style={styles.examImage} 
               onError={(e) => console.log("❌ Load ảnh lỗi:", question.image)}/>
             )}
-{console.log("👉 IMAGE URL FE:", question.image)}
+            {console.log("👉 IMAGE URL FE:", question.image)}
 
-            {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', borderColor: '#d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
-                {question.image_describe}
-              </div>
-            )}
             {question.sample_answer && (
               <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac' }}>
                 <strong>📝 Sample Answer:</strong>
@@ -698,11 +712,6 @@ useEffect(() => {
             <div style={styles.questionText}>{question.instruction}</div>
             {question.image && question.image.trim() !== '' && (
               <img src={question.image} alt="Question" style={styles.examImage} />
-            )}
-            {question.image_describe && (
-              <div style={{ ...styles.questionText, backgroundColor: '#f3f4f6', borderColor: '#d1d5db', fontSize: '13px', fontStyle: 'italic' }}>
-                {question.image_describe}
-              </div>
             )}
             {(question.required_word_1 || question.required_word_2) && (
             <div style={{
@@ -1021,6 +1030,8 @@ useEffect(() => {
           setHoveredCard={setHoveredCard}
           allTests={allTests}
           handleTestClick={handleTestClick}
+          currentUser={currentUser}     
+          loadingUser={loadingUser}
           setShowUploadModal={setShowUploadModal}
           setActiveView={setActiveView}
           navigate={navigate}

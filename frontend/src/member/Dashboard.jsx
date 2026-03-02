@@ -4,9 +4,15 @@ import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Fac
 const Dashboard = ({
   styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
-  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick
+  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,      
+  loadingUser
 }) => {
-  
+  const getUserInitials = (name) => {
+    if (!name) return "U";
+    const words = name.trim().split(" ");
+    if (words.length === 1) return words[0][0].toUpperCase();
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
 
@@ -64,7 +70,15 @@ const Dashboard = ({
               className="flex items-center gap-2 cursor-pointer p-1 pr-3 bg-slate-50 rounded-full hover:bg-slate-100 transition-all"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">MB</div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                {loadingUser ? "..." : getUserInitials(currentUser?.name)}
+              </div>
+              
+              {/* ⭐ THÊM TÊN */}
+              <span className="text-sm font-semibold text-slate-700 hidden md:block">
+                {loadingUser ? "Loading..." : (currentUser?.name || "User")}
+              </span>
+              
               <ChevronDown size={14} className="text-slate-400" />
             </div>
 
@@ -91,31 +105,23 @@ const Dashboard = ({
 
                 {/* Header */}
                 <div className="px-5 py-4 bg-gradient-to-br from-slate-50 to-white border-b border-slate-200/60">
-                  <div
-                    className="flex items-center gap-2 cursor-pointer p-1 pr-3 
-                              bg-slate-50 rounded-full 
-                              hover:bg-slate-100 
-                              transition-all duration-200"
-                  >
-                    <div className="w-8 h-8 rounded-full 
+                  <div className="flex items-center gap-3">
+                    {/* Avatar */}
+                    <div className="w-12 h-12 rounded-full 
                                     bg-gradient-to-tr from-orange-400 to-red-500 
                                     text-white flex items-center justify-center 
-                                    font-bold text-xs shadow-sm">
-                      MB
+                                    font-bold text-base shadow-sm">
+                      {loadingUser ? "..." : getUserInitials(currentUser?.name)}
                     </div>
 
-                    <ChevronDown
-                      size={14}
-                      className="text-slate-400 transition-transform duration-200 
-                                group-hover:rotate-180"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 mt-3 text-slate-500">
-                    <Mail size={13} />
-                    <span className="text-xs truncate">
-                      member@toeic.com
-                    </span>
+                    {/* Thông tin User */}
+                    <div className="flex-1 min-w-0">
+                      {/* Email */}
+                      <div className="flex items-center gap-1.5 text-slate-600 text-sm font-medium truncate">
+                        <Mail size={13} />
+                        {loadingUser ? "Loading..." : (currentUser?.email || "No email")}
+                      </div>
+                    </div>
                   </div>
                 </div>
 

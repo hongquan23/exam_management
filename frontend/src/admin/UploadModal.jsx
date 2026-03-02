@@ -179,12 +179,12 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
         <h2 style={styles.modalTitle}>Upload Đề TOEIC</h2>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Tên đề</label>
+          <label style={styles.label}>Title</label>
           <input name="title" value={form.title} onChange={handleChange} style={styles.inputField} />
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Kỹ năng</label>
+          <label style={styles.label}>Skill</label>
           <select name="skill" value={form.skill} onChange={handleChange} style={styles.inputField}>
             <option>Speaking</option>
             <option>Writing</option>
@@ -271,7 +271,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
 
         {visibleFields.includes('image_describe') && (
           <div style={styles.formGroup}>
-            <label style={styles.label}>Mô tả ảnh</label>
+            <label style={styles.label}>Describe image</label>
             <textarea name="image_describe" value={form.image_describe || ''} onChange={handleChange} style={styles.inputField} />
           </div>
         )}

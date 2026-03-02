@@ -10,6 +10,8 @@ export const login = (data) => api.post("api/auth/login", data);
 
 // 👉 Users
 export const getUsers = () => api.get("api/users");
+export const getUser = (userId) => api.get(`api/users/${userId}`);
+export const deleteUser = (userId) => api.delete(`api/users/${userId}`);
 
 // 👉 Section API
 export const createSection = (data) => api.post("api/sections/create", data);

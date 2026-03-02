@@ -11,9 +11,15 @@ const AdminDashboard = ({
   activeView, styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
   setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,
-  setShowUploadModal, setActiveView, mockUsers, navigate
+  setShowUploadModal, setActiveView, mockUsers, navigate, currentUser,      
+  loadingUser
 }) => {
-  
+  const getUserInitials = (name) => {
+    if (!name) return "U";
+    const words = name.trim().split(" ");
+    if (words.length === 1) return words[0][0].toUpperCase();
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
 
@@ -124,9 +130,11 @@ const AdminDashboard = ({
                               bg-gradient-to-tr from-indigo-500 to-indigo-700 
                               text-white flex items-center justify-center 
                               font-bold text-xs shadow-sm">
-                AD
+                {loadingUser ? "..." : getUserInitials(currentUser?.name)}
               </div>
-
+              <span className="text-sm font-semibold text-slate-700 hidden md:block">
+                  {loadingUser ? "Loading..." : (currentUser?.name || "Admin")}
+              </span>
               <ChevronDown 
                 size={14} 
                 className="text-slate-400 transition-transform duration-200 group-hover:rotate-180" 
@@ -155,12 +163,12 @@ const AdminDashboard = ({
                                     bg-gradient-to-tr from-indigo-500 to-indigo-700 
                                     text-white flex items-center justify-center 
                                     font-bold text-sm shadow-sm">
-                      AD
+                      {loadingUser ? "..." : getUserInitials(currentUser?.name)}
                     </div>
 
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-800 text-sm">
-                        Administrator
+                        {loadingUser ? "Loading..." : (currentUser?.email || "No email")}
                       </span>
                       <span className="text-[11px] text-indigo-600 font-medium">
                         Hệ thống quản trị

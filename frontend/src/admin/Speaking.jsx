@@ -28,11 +28,7 @@ const SpeakingTests = ({
           </div>
         </div>
         
-        <div style={styles.userProfile}>
-          <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-            AD
-          </div>
-        </div>
+       
       </header>
 
       {/* NỘI DUNG CHÍNH */}

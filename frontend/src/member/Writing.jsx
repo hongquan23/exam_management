@@ -14,8 +14,16 @@ const WritingTests = ({
   showUserMenu,
   setShowUserMenu,
   handleLogout,
-  handleTestClick
+  handleTestClick,
+  currentUser,      
+  loadingUser
 }) => {
+   const getUserInitials = (name) => {
+    if (!name) return "U";
+    const words = name.trim().split(" ");
+    if (words.length === 1) return words[0][0].toUpperCase();
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
   const navigate = useNavigate();
 
   // Hàm lấy chữ cái đầu của tên user cho Avatar
@@ -61,7 +69,9 @@ const WritingTests = ({
               className="flex items-center gap-2 cursor-pointer p-1 pr-3 bg-slate-50 rounded-full hover:bg-slate-100 transition-all"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">MB</div>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                {loadingUser ? "..." : getUserInitials(currentUser?.name)}
+                </div>
               <ChevronDown size={14} className="text-slate-400" />
             </div>
 
@@ -98,7 +108,7 @@ const WritingTests = ({
                                     bg-gradient-to-tr from-orange-400 to-red-500 
                                     text-white flex items-center justify-center 
                                     font-bold text-xs shadow-sm">
-                      MB
+                      {loadingUser ? "..." : getUserInitials(currentUser?.name)}
                     </div>
 
                     <ChevronDown
