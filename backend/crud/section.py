@@ -17,3 +17,11 @@ def create(db: Session,  section_in: SectionBase):
 
 def get_by_skill(db: Session, skill: str):
     return db.query(Section).filter(Section.skill == skill).all()
+
+def delete(db: Session, section_id: int):
+    section = db.query(Section).filter(Section.id == section_id).first()
+    if not section:
+        return {"message": "Section not found"}
+    db.delete(section)
+    db.commit()
+    return {"message": "Section deleted successfully"}

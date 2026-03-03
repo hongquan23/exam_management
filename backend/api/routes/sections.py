@@ -19,3 +19,7 @@ def get_sections(skill: str | None = None, db: Session = Depends(get_db)):
     if skill:
         return section_crud.get_by_skill(db, skill)
     return section_crud.get_all(db)
+
+@router.delete("/{section_id}")
+def delete_section(section_id: int, db: Session = Depends(get_db)):
+    return section_crud.delete(db, section_id)
