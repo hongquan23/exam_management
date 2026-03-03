@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { getUsers } from "../api";
+import { getUsers, deleteUser } from "../api";
 
 const Users = ({ styles }) => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const Users = ({ styles }) => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
       try {
-        // await deleteUser(userId);
+        await deleteUser(userId);
         await fetchUsers();
         alert('Xóa người dùng thành công!');
       } catch (err) {
@@ -118,14 +118,13 @@ const Users = ({ styles }) => {
           style={{
             ...styles.tableHeader,
             display: 'grid',
-            gridTemplateColumns: '100px 2fr 3fr 2fr 180px',
+            gridTemplateColumns: '100px 2fr 3fr 150px',
             alignItems: 'center'
           }}
         >
           <div>ID</div>
           <div>Tên</div>
           <div>Email</div>
-          <div>Ngày đăng ký</div>
           <div style={{ textAlign: 'center' }}>Hành động</div>
         </div>
 
@@ -137,7 +136,7 @@ const Users = ({ styles }) => {
               style={{
                 ...styles.tableRow,
                 display: 'grid',
-                gridTemplateColumns: '100px 2fr 3fr 2fr 180px',
+                gridTemplateColumns: '100px 2fr 3fr 150px',
                 alignItems: 'center'
               }}
             >
@@ -151,17 +150,6 @@ const Users = ({ styles }) => {
                 {user.email}
               </div>
 
-             <div>
-              {user.created_at 
-                ? new Date(user.created_at).toLocaleDateString('vi-VN', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                  })
-                : user.registeredDate || user.register_date || 'Chưa cập nhật'
-              }
-            </div>
-
               <div
                 style={{
                   display: 'flex',
@@ -169,13 +157,6 @@ const Users = ({ styles }) => {
                   gap: '16px'
                 }}
               >
-                <Eye
-                  size={22}
-                  color="#2563eb"
-                  style={{ cursor: 'pointer' }}
-                  title="Xem chi tiết"
-                />
-
                 <Trash2
                   size={22}
                   color="#dc2626"

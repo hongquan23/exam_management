@@ -18,6 +18,7 @@ export const createSection = (data) => api.post("api/sections/create", data);
 export const getSections = () => api.get("api/sections/");
 export const getSpeakingTests = () => api.get("api/sections?skill=speaking");
 export const getWritingTests = () => api.get("api/sections?skill=writing");
+export const deleteSection = (sectionId) =>api.delete(`api/sections/${sectionId}`);
 
 // 👉 Writing
 export const createWritingQuestion = (formData) =>api.post("api/writing/", formData);
