@@ -7,7 +7,7 @@ import UploadModal from './UploadModal';
 import Users from './Users';
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from './styles';
-import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, getUser } from "../api";
+import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, getUser, getUsers } from "../api";
 
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: true },
@@ -141,6 +141,8 @@ const ToeicAdmin = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [speakingTestsData, setSpeakingTestsData] = useState([]);
   const [writingTestsData, setWritingTestsData] = useState([]);
+  const [mockUsers, setMockUsers] = useState([]); 
+  const [loadingUsers, setLoadingUsers] = useState(true)
   const allTests = [...speakingTestsData, ...writingTestsData];
   const skillsWithCount = skills.map(skill => {
   if (skill.id === 'writing') {
@@ -186,8 +188,6 @@ useEffect(() => {
     try {
       // ===== SPEAKING =====
       const speakingRes = await getSpeakingTests();
-      
-      // Group sections by base test name (remove "- Part X")
       const groupedSpeaking = {};
       
       for (const section of speakingRes.data || []) {
@@ -196,6 +196,7 @@ useEffect(() => {
         if (!groupedSpeaking[baseName]) {
           groupedSpeaking[baseName] = {
             id: `speaking-${baseName}`,
+            section_id: section.id,  // ⭐ THÊM DÒNG NÀY
             title: baseName,
             name: baseName,
             skill: 'Speaking',
@@ -213,9 +214,9 @@ useEffect(() => {
           const part = section.part || parseInt(section.name?.match(/Part\s*(\d+)/i)?.[1]) || 1;
           
           const mappedQuestions = (qRes.data || []).map(q => {
-            console.log("API question:", q);   // 👈 log raw API
+            console.log("API question:", q);
             const mapped = mapAPIQuestionToUIFormat(q, 'Speaking', part);
-            console.log("Mapped question:", mapped); // 👈 log sau khi map
+            console.log("Mapped question:", mapped);
             return mapped;
           });
           
@@ -243,6 +244,7 @@ useEffect(() => {
         if (!groupedWriting[baseName]) {
           groupedWriting[baseName] = {
             id: `writing-${baseName}`,
+            section_id: section.id,  // ⭐ THÊM DÒNG NÀY
             title: baseName,
             name: baseName,
             skill: 'Writing',
@@ -265,6 +267,7 @@ useEffect(() => {
             console.log("MAPPED WRITING:", mapped)
             return mapped
           });
+          
           groupedWriting[baseName].sections.push({
             id: section.id,
             name: section.name,
@@ -319,6 +322,31 @@ useEffect(() => {
 
   loadUserInfo();
 }, []);
+useEffect(() => {
+  const fetchAllUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      
+      // Gọi API getUsers
+      const response = await getUsers();
+      console.log("📋 Danh sách users từ API:", response.data);
+      
+      // Lưu vào state
+      setMockUsers(response.data || []);
+      
+    } catch (error) {
+      console.error("❌ Lỗi load danh sách users:", error);
+      setMockUsers([]); // Set rỗng nếu lỗi
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Gọi khi vào trang users hoặc dashboard
+  if (activeView === 'users' || activeView === 'dashboard') {
+    fetchAllUsers();
+  }
+}, [activeView]);
   useEffect(() => {
   if (location.pathname.endsWith("/exam")) {
     const savedTest = localStorage.getItem("currentExam");
@@ -1035,6 +1063,9 @@ useEffect(() => {
           setShowUploadModal={setShowUploadModal}
           setActiveView={setActiveView}
           navigate={navigate}
+          mockUsers={mockUsers}       
+          loadingUsers={loadingUsers}
+          fetchAllTests={fetchTests}
         />
 
         {showUploadModal && (
@@ -1086,11 +1117,7 @@ if (activeView === 'writing') {
   return (
     <Dashboard
       activeView={activeView}
-      setActiveView={setActiveView}
       styles={styles}
-      mockUsers={mockUsers}
-      navigate={navigate}  // ← THÊM navigate
-      // Thêm các props còn thiếu:
       skills={skillsWithCount}
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
@@ -1105,8 +1132,18 @@ if (activeView === 'writing') {
       allTests={allTests}
       handleTestClick={handleTestClick}
       setShowUploadModal={setShowUploadModal}
-      />
+      setActiveView={setActiveView}
+      navigate={navigate}
+      currentUser={currentUser}
+      loadingUser={loadingUser}
+      mockUsers={mockUsers}           
+      loadingUsers={loadingUsers}    
+      fetchAllTests={fetchTests}  
+    />
   );
-};
+}
+
+return null;
+;
 
 export default ToeicAdmin;

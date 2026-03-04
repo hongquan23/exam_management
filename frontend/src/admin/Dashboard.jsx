@@ -6,13 +6,14 @@ import {
 } from 'lucide-react';
 import Users from './Users';
 import { useNavigate } from 'react-router-dom';
+import { deleteSection } from '../api';
 
 const AdminDashboard = ({
   activeView, styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
   setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,
   setShowUploadModal, setActiveView, mockUsers, navigate, currentUser,      
-  loadingUser
+  loadingUser, fetchAllTests  // Thêm fetchAllTests để refresh lại danh sách
 }) => {
   const getUserInitials = (name) => {
     if (!name) return "U";
@@ -20,6 +21,7 @@ const AdminDashboard = ({
     if (words.length === 1) return words[0][0].toUpperCase();
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   };
+
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
 
@@ -29,18 +31,36 @@ const AdminDashboard = ({
     }
   };
 
+  // Hàm xóa section
+  const handleDeleteSection = async (sectionId, sectionTitle) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xóa đề thi "${sectionTitle}"?`)) {
+      try {
+        await deleteSection(sectionId);
+        alert('Xóa đề thi thành công!');
+        
+        // Refresh lại danh sách đề thi
+        if (fetchAllTests) {
+          await fetchAllTests();
+        }
+      } catch (err) {
+        console.error('Error deleting section:', err);
+        alert('Không thể xóa đề thi! Vui lòng thử lại.');
+      }
+    }
+  };
+
   const filteredTests = allTests?.filter(test => {
-  if (!searchQuery.trim()) return true;
+    if (!searchQuery.trim()) return true;
 
-  const keyword = searchQuery.toLowerCase();
+    const keyword = searchQuery.toLowerCase();
 
-  return (
-    test.title?.toLowerCase().includes(keyword) ||
-    test.name?.toLowerCase().includes(keyword) ||
-    test.id?.toString().includes(keyword) ||
-    test.skill?.toLowerCase().includes(keyword)
-  );
-});
+    return (
+      test.title?.toLowerCase().includes(keyword) ||
+      test.name?.toLowerCase().includes(keyword) ||
+      test.id?.toString().includes(keyword) ||
+      test.skill?.toLowerCase().includes(keyword)
+    );
+  });
 
   return (
     <div style={styles.container}>
@@ -70,27 +90,33 @@ const AdminDashboard = ({
 
         <div className="flex items-center gap-6">
 
-          {/* NAV */}
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 mr-4">
 
+            {/* TAB TỔNG QUAN */}
             <span 
               onClick={() => {
                 setActiveView('dashboard');
                 navigate('/admin/dashboard');
               }}
-              className="relative cursor-pointer group text-indigo-600"
+              className={`relative cursor-pointer group ${
+                activeView === 'dashboard' ? 'text-indigo-600' : 'hover:text-indigo-600'
+              }`}
             >
               Tổng quan
-              <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-indigo-500"></span>
+              {activeView === 'dashboard' && (
+                <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-indigo-500"></span>
+              )}
             </span>
 
+            {/* TAB NGƯỜI DÙNG */}
             <span 
               onClick={() => {
                 setActiveView('users');
                 navigate('/admin/users');
               }}
-              className={`relative cursor-pointer group 
-                ${activeView === 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'}`}
+              className={`relative cursor-pointer group ${
+                activeView === 'users' ? 'text-indigo-600' : 'hover:text-indigo-600'
+              }`}
             >
               Người dùng
               {activeView === 'users' && (
@@ -98,9 +124,11 @@ const AdminDashboard = ({
               )}
             </span>
 
+            {/* TAB BÁO CÁO */}
             <span className="hover:text-indigo-600 cursor-pointer transition-colors">
               Báo cáo
             </span>
+
           </nav>
 
           {/* BUTTON ĐĂNG ĐỀ THI (Glow giống PRO button) */}
@@ -468,6 +496,7 @@ const AdminDashboard = ({
                     <button
                       className="p-2 rounded-xl bg-emerald-50 text-emerald-600
                                 hover:bg-emerald-100 transition-all duration-200"
+                      title="Chỉnh sửa đề thi"
                     >
                       <Pencil size={16} />
                     </button>
@@ -475,6 +504,16 @@ const AdminDashboard = ({
                     <button
                       className="p-2 rounded-xl bg-red-50 text-red-600
                                 hover:bg-red-100 transition-all duration-200"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        
+                        console.log('🔍 Test object:', test);
+                        console.log('🔍 section_id:', test.section_id);
+                        
+                        // SỬ DỤNG section_id
+                        handleDeleteSection(test.section_id, test.title || test.name);
+                      }}
+                      title="Xóa đề thi"
                     >
                       <Trash2 size={16} />
                     </button>
