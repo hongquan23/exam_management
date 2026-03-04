@@ -1081,6 +1081,8 @@ if (activeView === 'writing') {
     return renderExam();
   }
 
+
+
   return (
     <Dashboard
       activeView={activeView}
