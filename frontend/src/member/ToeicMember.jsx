@@ -5,6 +5,8 @@ import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
 import styles from './styles';
+import Profile from './Profile';
+import ContestPage from './ContestPage';
 import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8, scoreSpeakingQ1_2, scoreSpeakingQ3_4,  scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11, getUser } from "../api";
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 
@@ -181,6 +183,9 @@ useEffect(() => {
   else if (path.endsWith("/speaking")) setActiveView("speaking");
   else if (path.endsWith("/writing")) setActiveView("writing");
   else if (path.endsWith("/exam")) setActiveView("exam");
+  else if (path.endsWith("/profile")) setActiveView("profile");
+    else if (path.endsWith("/contest")) setActiveView("ContestPage");
+
 }, [location.pathname]);
 
 useEffect(() => {
@@ -441,6 +446,16 @@ const fetchTests = async () => {
       navigate("/member/writing");
     }
   };
+
+  const handleProfileClick = () => {
+  setActiveView("profile");
+  navigate("/member/profile");
+};
+
+const handleContestClick = () => {
+  setActiveView("ContestPage");
+  navigate("/member/contest");
+};
 
   const handleTestClick = (test) => {
     resetExamState();
@@ -1550,6 +1565,8 @@ const renderQuestionResult = () => {
         handleTestClick={handleTestClick}
         currentUser={currentUser}      
         loadingUser={loadingUser}
+        handleProfileClick={handleProfileClick}
+        handleContestClick={handleContestClick}
       />
     );
   }
@@ -1587,6 +1604,23 @@ const renderQuestionResult = () => {
   if (activeView === 'exam') {
     return renderExam();
   }
+  if (activeView === "profile") {
+  return (
+    <Profile
+      currentUser={currentUser}
+      navigate={navigate}
+    />
+  );
+}
+
+if (activeView === "ContestPage") {
+  return (
+    <ContestPage  
+      currentUser={currentUser}
+      navigate={navigate}
+    />
+  );
+}
 
   return null;
 };

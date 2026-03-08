@@ -29,3 +29,28 @@ def delete(db: Session, user_id: int):
         db.delete(user)
         db.commit()
     return user
+
+def update_name(db: Session, user_id: int, new_name: str):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return None
+
+    user.name = new_name
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+def update_password(db: Session, user_id: int, new_password_hash: str):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return None
+
+    user.password_hash = new_password_hash
+    db.commit()
+    db.refresh(user)
+
+    return user

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
+import Profile from './Profile';
+import ContestPage from './ContestPage';
 
 const Dashboard = ({
   styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
   setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,      
-  loadingUser
+  loadingUser, handleProfileClick, handleContestClick
 }) => {
   const getUserInitials = (name) => {
     if (!name) return "U";
@@ -49,7 +51,12 @@ const Dashboard = ({
             <span className="relative cursor-pointer group text-orange-600">Khám phá
               <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-orange-500"></span>
             </span>
-            <span className="hover:text-orange-600 cursor-pointer transition-colors">Thư viện</span>
+           <span
+            onClick={handleContestClick}
+            className="hover:text-orange-600 cursor-pointer transition-colors"
+           >
+            Các cuộc thi
+          </span>
             <span className="hover:text-orange-600 cursor-pointer transition-colors">Lộ trình</span>
           </nav>
 
@@ -128,7 +135,9 @@ const Dashboard = ({
                 {/* Menu items */}
                 <div className="p-2 space-y-1">
 
-                  <button className="group w-full text-left px-3 py-2.5 
+                  <button 
+                  onClick={handleProfileClick}
+                  className="group w-full text-left px-3 py-2.5 
                                     text-sm font-medium text-slate-700 
                                     hover:bg-orange-50 
                                     hover:text-orange-600 
@@ -379,13 +388,13 @@ const Dashboard = ({
                     <span className="flex items-center gap-1">
                       <Clock size={14} /> {test.duration} phút
                     </span>
-                    <span className="flex items-center gap-1">
+                    {/* <span className="flex items-center gap-1">
                       <Eye size={14} />
                       {test.views > 1000
                         ? `${(test.views / 1000).toFixed(1)}k`
                         : test.views}{' '}
                       lượt
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* FOOTER INFO */}

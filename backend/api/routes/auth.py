@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from api.deps import get_db
-from schemas.user import UserCreate, UserLogin, Token
+from schemas.user import UserCreate, UserLogin, Token, ChangePassword
 from services import auth_service
 
 router = APIRouter()
@@ -22,3 +22,11 @@ def login(
     db: Session = Depends(get_db)
 ):
     return auth_service.login_user(db, user_in)
+
+@router.put("/change-password/{user_id}")
+def change_password(
+    user_id: int,
+    data: ChangePassword,
+    db: Session = Depends(get_db)
+):
+    return auth_service.change_password(db, user_id, data)

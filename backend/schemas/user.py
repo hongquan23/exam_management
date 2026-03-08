@@ -20,6 +20,13 @@ class Token(BaseModel):
     token_type: str
     role: str
 
+class UpdateName(BaseModel):
+    name: str 
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
 class UserOut(UserBase):
     id: int
     created_at: Optional[datetime] = None 

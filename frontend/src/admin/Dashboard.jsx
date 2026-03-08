@@ -465,13 +465,13 @@ const AdminDashboard = ({
                     <span className="flex items-center gap-1">
                       <Clock size={14} /> {test.duration} phút
                     </span>
-                    <span className="flex items-center gap-1">
+                    {/* <span className="flex items-center gap-1">
                       <Eye size={14} />
                       {test.views > 1000
                         ? `${(test.views / 1000).toFixed(1)}k`
                         : test.views}{' '}
                       lượt thi
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* QUESTION COUNT */}
@@ -493,13 +493,13 @@ const AdminDashboard = ({
                       Xem đề
                     </button>
 
-                    <button
+                    {/* <button
                       className="p-2 rounded-xl bg-emerald-50 text-emerald-600
                                 hover:bg-emerald-100 transition-all duration-200"
                       title="Chỉnh sửa đề thi"
                     >
                       <Pencil size={16} />
-                    </button>
+                    </button> */}
 
                     <button
                       className="p-2 rounded-xl bg-red-50 text-red-600

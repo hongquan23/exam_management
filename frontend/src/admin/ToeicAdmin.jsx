@@ -1143,7 +1143,7 @@ if (activeView === 'writing') {
   );
 }
 
-return null;
-;
+// return null;
+
 
 export default ToeicAdmin;
