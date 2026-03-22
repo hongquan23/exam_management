@@ -7,6 +7,7 @@ import WritingTests from './Writing';
 import styles from './styles';
 import Profile from './Profile';
 import ContestPage from './ContestPage';
+import Course from './Course';
 import { getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8, scoreSpeakingQ1_2, scoreSpeakingQ3_4,  scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11, getUser } from "../api";
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 
@@ -185,6 +186,7 @@ useEffect(() => {
   else if (path.endsWith("/exam")) setActiveView("exam");
   else if (path.endsWith("/profile")) setActiveView("profile");
     else if (path.endsWith("/contest")) setActiveView("ContestPage");
+    else if (path.endsWith("/course")) setActiveView("course");
 
 }, [location.pathname]);
 
@@ -456,6 +458,11 @@ const handleContestClick = () => {
   setActiveView("ContestPage");
   navigate("/member/contest");
 };
+
+const handleCourseClick = () => {
+  setActiveView("course");
+  navigate("/member/course");
+}
 
   const handleTestClick = (test) => {
     resetExamState();
@@ -1567,6 +1574,7 @@ const renderQuestionResult = () => {
         loadingUser={loadingUser}
         handleProfileClick={handleProfileClick}
         handleContestClick={handleContestClick}
+        handleCourseClick={handleCourseClick}
       />
     );
   }
@@ -1619,6 +1627,13 @@ if (activeView === "ContestPage") {
       currentUser={currentUser}
       navigate={navigate}
     />
+  );
+}
+
+if (activeView === "course") {
+  return (
+    <Course 
+    navigate={navigate}/>
   );
 }
 

@@ -2,12 +2,13 @@ import React from 'react';
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
 import Profile from './Profile';
 import ContestPage from './ContestPage';
+import Course from './Course';
 
 const Dashboard = ({
   styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
   setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,      
-  loadingUser, handleProfileClick, handleContestClick
+  loadingUser, handleProfileClick, handleContestClick, handleCourseClick
 }) => {
   const getUserInitials = (name) => {
     if (!name) return "U";
@@ -57,7 +58,12 @@ const Dashboard = ({
            >
             Các cuộc thi
           </span>
-            <span className="hover:text-orange-600 cursor-pointer transition-colors">Lộ trình</span>
+            <span
+              onClick={handleCourseClick}
+              className="hover:text-orange-600 cursor-pointer transition-colors"
+            >
+              Các khóa học
+            </span>
           </nav>
 
           <button className="relative flex items-center gap-2 px-5 py-2.5 
