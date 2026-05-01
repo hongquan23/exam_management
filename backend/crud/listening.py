@@ -47,6 +47,27 @@ def create(db: Session, data: dict, section_id: int):
     return listening
 
 
+def create_bulk(db: Session, questions: list[dict], section_id: int):
+    created = []
+    for data in questions:
+        listening = ListeningQuestion(**data)
+        db.add(listening)
+        db.flush()
+
+        qb = QuestionBase(
+            section_id=section_id,
+            skill="listening",
+            listening_question_id=listening.id
+        )
+        db.add(qb)
+        created.append(listening)
+
+    db.commit()
+    for r in created:
+        db.refresh(r)
+    return created
+
+
 def delete(db: Session, question_id: int):
     """
     Xóa ListeningQuestion và QuestionBase liên quan

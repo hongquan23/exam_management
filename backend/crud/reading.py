@@ -47,6 +47,27 @@ def create(db: Session, data: dict, section_id: int):
     return reading
 
 
+def create_bulk(db: Session, questions: list[dict], section_id: int):
+    created = []
+    for data in questions:
+        reading = ReadingQuestion(**data)
+        db.add(reading)
+        db.flush()
+
+        qb = QuestionBase(
+            section_id=section_id,
+            skill="reading",
+            reading_question_id=reading.id
+        )
+        db.add(qb)
+        created.append(reading)
+
+    db.commit()
+    for r in created:
+        db.refresh(r)
+    return created
+
+
 def delete(db: Session, question_id: int):
     """
     Xóa ReadingQuestion và QuestionBase liên quan

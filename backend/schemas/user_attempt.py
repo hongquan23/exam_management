@@ -22,7 +22,32 @@ class UserAttemptUpdate(BaseModel):
 
 class UserAttemptOut(UserAttemptBase):
     id: int
-   
+    is_correct: Optional[bool] = None
+    created_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+# ── MCQ bulk submit ──────────────────────────────────────────────────────────
+
+class MCQSubmit(BaseModel):
+    user_id: int
+    section_id: int
+    skill: str                          # "listening" | "reading"
+    answers: dict[str, str]             # { "question_id": "A", ... }
+
+
+class MCQQuestionResult(BaseModel):
+    question_id: int                    # listening/reading question id
+    user_ans: str
+    correct_answer: str | None
+    is_correct: bool | None
+
+
+class MCQSubmitResult(BaseModel):
+    score: int
+    total: int
+    section_id: int
+    created_at: datetime
+    results: list[MCQQuestionResult]

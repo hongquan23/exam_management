@@ -26,3 +26,4 @@ def create_app() -> FastAPI:
     return app
 app = create_app()
 app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/audio", StaticFiles(directory="audio"), name="audio")

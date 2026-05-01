@@ -24,6 +24,18 @@ def get_by_user(db: Session, user_id: int):
     )
 
 
+def get_by_user_section(db: Session, user_id: int, section_id: int):
+    return (
+        db.query(UserAttempt)
+        .filter(
+            UserAttempt.user_id == user_id,
+            UserAttempt.section_id == section_id
+        )
+        .order_by(UserAttempt.created_at.desc())
+        .all()
+    )
+
+
 def get_by_question(db: Session, question_id: int):
     return (
         db.query(UserAttempt)
@@ -35,7 +47,6 @@ def get_by_question(db: Session, question_id: int):
 def update(db: Session, attempt: UserAttempt, data: UserAttemptUpdate):
     for field, value in data.dict(exclude_unset=True).items():
         setattr(attempt, field, value)
-
     db.commit()
     db.refresh(attempt)
     return attempt
