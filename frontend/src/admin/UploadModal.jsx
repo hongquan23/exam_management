@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image } from 'lucide-react';
-import { createSection, createWritingQuestion, createSpeakingQuestion } from '../api';
+import { Image, Upload, FileJson } from 'lucide-react';
+import {
+  createSection,
+  createWritingQuestion,
+  createSpeakingQuestion,
+  uploadListeningJson,
+  uploadListeningEtsJson,
+  uploadReadingJson,
+} from '../api';
 
 const TOEIC_PARTS = {
   Speaking: [
@@ -38,6 +45,35 @@ const getVisibleFields = (skill, part) => {
   return [];
 };
 
+const JSON_TEMPLATES = {
+  Listening: [
+    {
+      passage: "Đoạn hội thoại hoặc bài nghe (tuỳ chọn)",
+      question: "Câu hỏi nghe hiểu",
+      audio_url: "https://example.com/audio.mp3",
+      image_url: null,
+      option_a: "Đáp án A",
+      option_b: "Đáp án B",
+      option_c: "Đáp án C",
+      option_d: "Đáp án D",
+      correct_answer: "A"
+    }
+  ],
+  Reading: [
+    {
+      passage: "Đoạn văn đọc hiểu",
+      question: "Câu hỏi đọc hiểu",
+      option_a: "Đáp án A",
+      option_b: "Đáp án B",
+      option_c: "Đáp án C",
+      option_d: "Đáp án D",
+      correct_answer: "B"
+    }
+  ]
+};
+
+const isJsonSkill = (skill) => skill === 'Listening' || skill === 'Reading';
+
 const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) => {
   const [form, setForm] = useState({
     title: '',
@@ -55,7 +91,15 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
   });
 
   const [imageFile, setImageFile] = useState(null);
+  const [jsonFile, setJsonFile] = useState(null);
+  const [jsonParsed, setJsonParsed] = useState(null);   // raw parsed object
+  const [jsonPreview, setJsonPreview] = useState(null); // flat questions array for display
+  const [jsonIsEts, setJsonIsEts] = useState(false);    // true nếu là ETS format
+  const [jsonError, setJsonError] = useState('');
+  const [uploading, setUploading] = useState(false);
+
   const imageInputRef = useRef(null);
+  const jsonInputRef = useRef(null);
 
   const [sectionsByPart, setSectionsByPart] = useState({});
   const sectionsByPartRef = useRef({});
@@ -64,6 +108,11 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     if (selectedSkill) {
       setForm(prev => ({ ...prev, skill: selectedSkill, part: 1 }));
       setImageFile(null);
+      setJsonFile(null);
+      setJsonParsed(null);
+      setJsonPreview(null);
+      setJsonIsEts(false);
+      setJsonError('');
       sectionsByPartRef.current = {};
       setSectionsByPart({});
     }
@@ -78,6 +127,124 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     if (file && file.type.includes('image')) setImageFile(file);
     else alert('Vui lòng chọn file ảnh (JPG/PNG)');
   };
+
+  const handleJsonSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.json')) {
+      setJsonError('Vui lòng chọn file .json');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+
+        // Nhận diện ETS format: object có key "parts"
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.parts)) {
+          const totalQ = parsed.parts.reduce((sum, p) => {
+            const direct = p.questions?.length || 0;
+            const conv = (p.conversations || []).reduce((s, c) => s + c.questions.length, 0);
+            const talks = (p.talks || []).reduce((s, t) => s + t.questions.length, 0);
+            return sum + direct + conv + talks;
+          }, 0);
+
+          setJsonFile(file);
+          setJsonParsed(parsed);
+          setJsonPreview({ type: 'ets', parts: parsed.parts.length, total: totalQ });
+          setJsonIsEts(true);
+          setJsonError('');
+          return;
+        }
+
+        // Custom format: mảng phẳng câu hỏi
+        if (Array.isArray(parsed)) {
+          setJsonFile(file);
+          setJsonParsed(parsed);
+          setJsonPreview({ type: 'custom', questions: parsed });
+          setJsonIsEts(false);
+          setJsonError('');
+          return;
+        }
+
+        setJsonError('File JSON không hợp lệ. Phải là mảng [] hoặc định dạng ETS có key "parts".');
+        setJsonFile(null);
+        setJsonParsed(null);
+        setJsonPreview(null);
+      } catch {
+        setJsonError('File JSON không hợp lệ. Vui lòng kiểm tra lại.');
+        setJsonFile(null);
+        setJsonParsed(null);
+        setJsonPreview(null);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const downloadTemplate = () => {
+    const template = JSON_TEMPLATES[form.skill] || [];
+    const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `template_${form.skill.toLowerCase()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleUploadJson = async () => {
+    if (!form.title || !form.duration) {
+      alert('Vui lòng nhập Tên đề và Thời gian!');
+      return;
+    }
+    if (!jsonParsed) {
+      alert('Vui lòng chọn file JSON hợp lệ!');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      if (form.skill === 'Listening' && jsonIsEts) {
+        // ETS format
+        await uploadListeningEtsJson({
+          title: form.title,
+          time_limit: Number(form.duration),
+          ets_data: jsonParsed
+        });
+        alert(`Upload ETS thành công ${jsonPreview.total} câu hỏi (${jsonPreview.parts} parts)!`);
+      } else if (form.skill === 'Listening') {
+        await uploadListeningJson({
+          title: form.title,
+          time_limit: Number(form.duration),
+          questions: jsonParsed
+        });
+        alert(`Upload thành công ${jsonParsed.length} câu hỏi Listening!`);
+      } else {
+        await uploadReadingJson({
+          title: form.title,
+          time_limit: Number(form.duration),
+          questions: jsonParsed
+        });
+        alert(`Upload thành công ${jsonParsed.length} câu hỏi Reading!`);
+      }
+
+      setJsonFile(null);
+      setJsonParsed(null);
+      setJsonPreview(null);
+      setJsonIsEts(false);
+      onUploaded?.();
+      setShowUploadModal(false);
+    } catch (err) {
+      console.error('Upload JSON error:', err);
+      alert('Upload thất bại! Kiểm tra console.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // ====== Speaking / Writing form logic ======
 
   const getOrCreateSectionForPart = async (part) => {
     const partNum = Number(part);
@@ -171,6 +338,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
   };
 
   const visibleFields = getVisibleFields(form.skill, Number(form.part));
+  const useJsonUpload = isJsonSkill(form.skill);
 
   return (
     <div style={styles.modal}>
@@ -188,102 +356,224 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
           <select name="skill" value={form.skill} onChange={handleChange} style={styles.inputField}>
             <option>Speaking</option>
             <option>Writing</option>
+            <option>Listening</option>
+            <option>Reading</option>
           </select>
         </div>
 
-        <div style={styles.formGroup}>
-          <label style={styles.label}>Part TOEIC</label>
-          <select name="part" value={form.part} onChange={handleChange} style={styles.inputField}>
-            {TOEIC_PARTS[form.skill].map(p => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
-        </div>
+        {!useJsonUpload && (
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Part TOEIC</label>
+            <select name="part" value={form.part} onChange={handleChange} style={styles.inputField}>
+              {TOEIC_PARTS[form.skill].map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div style={styles.formGroup}>
           <label style={styles.label}>Time (minutes)</label>
           <input type="number" name="duration" value={form.duration} onChange={handleChange} style={styles.inputField} />
         </div>
 
-        {visibleFields.includes('direction') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Direction</label>
-            <textarea name="direction" value={form.direction} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
-        {visibleFields.includes('passage') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Passage / Email</label>
-            <textarea
-              name="passage"
-              value={form.passage || ''}
-              onChange={handleChange}
-              style={styles.inputField}
-            />
-          </div>
-        )}
+        {/* ===== JSON Upload UI cho Listening / Reading ===== */}
+        {useJsonUpload && (
+          <>
+            <div style={styles.formGroup}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <label style={styles.label}>Upload file JSON câu hỏi</label>
+                <button
+                  onClick={downloadTemplate}
+                  style={{
+                    fontSize: 12,
+                    color: '#4f46e5',
+                    background: 'none',
+                    border: '1px solid #4f46e5',
+                    borderRadius: 6,
+                    padding: '3px 10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Tải template JSON
+                </button>
+              </div>
 
-        {visibleFields.includes('question') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Question</label>
-            <textarea name="question" value={form.question || ''} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
+              <div
+                style={{
+                  border: '2px dashed #c7d2fe',
+                  borderRadius: 10,
+                  padding: '24px 16px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: jsonFile ? '#eef2ff' : '#f8fafc',
+                  transition: 'all 0.2s'
+                }}
+                onClick={() => jsonInputRef.current.click()}
+              >
+                <FileJson size={32} color={jsonFile ? '#4f46e5' : '#94a3b8'} style={{ margin: '0 auto 8px' }} />
+                {jsonFile ? (
+                  <p style={{ color: '#4f46e5', fontWeight: 600 }}>{jsonFile.name}</p>
+                ) : (
+                  <p style={{ color: '#94a3b8' }}>Click để chọn file .json</p>
+                )}
+                {jsonPreview && jsonPreview.type === 'ets' && (
+                  <p style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
+                    ✓ ETS format — {jsonPreview.parts} parts — {jsonPreview.total} câu hỏi
+                  </p>
+                )}
+                {jsonPreview && jsonPreview.type === 'custom' && (
+                  <p style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
+                    ✓ Custom format — {jsonPreview.questions.length} câu hỏi
+                  </p>
+                )}
+              </div>
+              <input
+                type="file"
+                accept=".json"
+                ref={jsonInputRef}
+                style={{ display: 'none' }}
+                onChange={handleJsonSelect}
+              />
 
-        {visibleFields.includes('information') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Information</label>
-            <textarea name="information" value={form.information || ''} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
-
-        {visibleFields.includes('sample_answer') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Sample Answer</label>
-            <textarea name="sample_answer" value={form.sample_answer} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
-
-        {visibleFields.includes('required_word_1') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Required word 1</label>
-            <input name="required_word_1" value={form.required_word_1} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
-
-        {visibleFields.includes('required_word_2') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Required word 2</label>
-            <input name="required_word_2" value={form.required_word_2} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
-
-        {visibleFields.includes('image') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Upload image</label>
-            <div style={styles.uploadArea} onClick={() => imageInputRef.current.click()}>
-              <Image size={24} />
-              <p>{imageFile ? imageFile.name : 'Click để chọn ảnh'}</p>
+              {jsonError && (
+                <p style={{ color: '#ef4444', fontSize: 13, marginTop: 6 }}>{jsonError}</p>
+              )}
             </div>
-            <input type="file" accept="image/*" ref={imageInputRef} style={{ display: 'none' }} onChange={handleImageSelect} />
-          </div>
+
+            {jsonPreview && jsonPreview.type === 'ets' && (
+              <div style={{
+                backgroundColor: '#eff6ff',
+                border: '1px solid #93c5fd',
+                borderRadius: 8,
+                padding: '10px 14px',
+                marginBottom: 12,
+                fontSize: 13
+              }}>
+                <strong style={{ color: '#1d4ed8' }}>ETS Format — Preview các parts:</strong>
+                <div style={{ marginTop: 6, color: '#374151' }}>
+                  {jsonParsed?.parts?.map(p => {
+                    const direct = p.questions?.length || 0;
+                    const conv = (p.conversations || []).reduce((s, c) => s + c.questions.length, 0);
+                    const talks = (p.talks || []).reduce((s, t) => s + t.questions.length, 0);
+                    return (
+                      <div key={p.part_number}>
+                        <b>Part {p.part_number}</b>: {p.title} — {direct + conv + talks} câu
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {jsonPreview && jsonPreview.type === 'custom' && jsonPreview.questions.length > 0 && (
+              <div style={{
+                backgroundColor: '#f0fdf4',
+                border: '1px solid #86efac',
+                borderRadius: 8,
+                padding: '10px 14px',
+                marginBottom: 12,
+                fontSize: 13
+              }}>
+                <strong style={{ color: '#166534' }}>Preview câu đầu tiên:</strong>
+                <div style={{ marginTop: 6, color: '#374151' }}>
+                  <div><b>Q:</b> {jsonPreview.questions[0].question}</div>
+                  <div><b>A:</b> {jsonPreview.questions[0].option_a} &nbsp;|&nbsp; <b>B:</b> {jsonPreview.questions[0].option_b}</div>
+                  <div><b>Correct:</b> {jsonPreview.questions[0].correct_answer}</div>
+                </div>
+              </div>
+            )}
+
+            <div style={styles.modalButtons}>
+              <button
+                style={{ ...styles.button, ...styles.buttonPrimary, opacity: uploading ? 0.6 : 1 }}
+                onClick={handleUploadJson}
+                disabled={uploading}
+              >
+                <Upload size={16} style={{ marginRight: 6 }} />
+                {uploading
+                  ? 'Đang upload...'
+                  : jsonPreview?.type === 'ets'
+                    ? `Upload ETS — ${jsonPreview.total} câu hỏi`
+                    : `Upload ${jsonPreview?.questions?.length || 0} câu hỏi`
+                }
+              </button>
+            </div>
+          </>
         )}
 
-        {visibleFields.includes('image_describe') && (
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Describe image</label>
-            <textarea name="image_describe" value={form.image_describe || ''} onChange={handleChange} style={styles.inputField} />
-          </div>
-        )}
+        {/* ===== Form fields cho Speaking / Writing ===== */}
+        {!useJsonUpload && (
+          <>
+            {visibleFields.includes('direction') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Direction</label>
+                <textarea name="direction" value={form.direction} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('passage') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Passage / Email</label>
+                <textarea name="passage" value={form.passage || ''} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('question') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Question</label>
+                <textarea name="question" value={form.question || ''} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('information') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Information</label>
+                <textarea name="information" value={form.information || ''} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('sample_answer') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Sample Answer</label>
+                <textarea name="sample_answer" value={form.sample_answer} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('required_word_1') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Required word 1</label>
+                <input name="required_word_1" value={form.required_word_1} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('required_word_2') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Required word 2</label>
+                <input name="required_word_2" value={form.required_word_2} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
+            {visibleFields.includes('image') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Upload image</label>
+                <div style={styles.uploadArea} onClick={() => imageInputRef.current.click()}>
+                  <Image size={24} />
+                  <p>{imageFile ? imageFile.name : 'Click để chọn ảnh'}</p>
+                </div>
+                <input type="file" accept="image/*" ref={imageInputRef} style={{ display: 'none' }} onChange={handleImageSelect} />
+              </div>
+            )}
+            {visibleFields.includes('image_describe') && (
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Describe image</label>
+                <textarea name="image_describe" value={form.image_describe || ''} onChange={handleChange} style={styles.inputField} />
+              </div>
+            )}
 
-        <div style={styles.modalButtons}>
-          <button style={{ ...styles.button, ...styles.buttonSecondary }} onClick={handleFinishPart}>
-            Hoàn tất Part {form.part}
-          </button>
-          <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveAndContinue}>
-            Lưu & Thêm câu tiếp
-          </button>
-        </div>
+            <div style={styles.modalButtons}>
+              <button style={{ ...styles.button, ...styles.buttonSecondary }} onClick={handleFinishPart}>
+                Hoàn tất Part {form.part}
+              </button>
+              <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleSaveAndContinue}>
+                Lưu & Thêm câu tiếp
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

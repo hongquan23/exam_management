@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./login.module.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { login, register } from "../api"; 
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { login, register } from "../api";
 import { jwtDecode } from "jwt-decode";
 
 const PasswordInput = ({ value, onChange, placeholder, show, toggleShow }) => (
@@ -35,6 +35,7 @@ const AuthForm = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const signUpButton = document.getElementById("signUp");
@@ -46,8 +47,12 @@ const AuthForm = () => {
         container.classList.add(styles.rightPanelActive);
       signInButton.onclick = () =>
         container.classList.remove(styles.rightPanelActive);
+
+      if (searchParams.get("mode") === "signup") {
+        container.classList.add(styles.rightPanelActive);
+      }
     }
-  }, []);
+  }, [searchParams]);
 
   // =========================
   // 🔹 SIGN UP (CHỈ MEMBER)
@@ -152,6 +157,10 @@ const handleSignIn = async (e) => {
 
   return (
     <div className={styles.loginWrapper}>
+      <div className={styles.topBrand}>
+        <span className={styles.brandIcon}>🎓</span>
+        <span className={styles.brandName}>StudyWithMe</span>
+      </div>
       <div className={styles.loginContainer} id="loginContainer">
 
         {/* ================= SIGN UP ================= */}

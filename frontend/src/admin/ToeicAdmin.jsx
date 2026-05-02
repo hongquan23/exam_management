@@ -3,15 +3,23 @@ import { Mic, ArrowLeft, ArrowRight } from 'lucide-react';
 import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
+import ListeningTests from './Listening';
+import ReadingTests from './Reading';
+import ExamResult from './ExamResult';
 import UploadModal from './UploadModal';
 import Users from './Users';
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from './styles';
-import { createSection, getSpeakingTests, getWritingTests, getWritingBySection, getSpeakingBySection, getUser, getUsers } from "../api";
+import {
+  createSection,
+  getSpeakingTests, getWritingTests, getListeningTests, getReadingTests,
+  getWritingBySection, getSpeakingBySection, getListeningBySection, getReadingBySection,
+  getUser, getUsers, submitMcqAnswers,
+} from "../api";
 
 const skills = [
-  { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: true },
-  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: true },
+  { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: false },
+  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: false },
   { id: 'writing', name: 'Writing', icon: '✍️', color: '#8b5cf6', disabled: false },
   { id: 'speaking', name: 'Speaking', icon: '🎤', color: '#f97316', disabled: false }
 ];
@@ -116,6 +124,36 @@ const rawImage = apiQuestion.image_url || apiQuestion.image;
     };
   }
 
+  if (skill === 'Listening') {
+    return {
+      ...baseQuestion,
+      type: 'Listening Question',
+      question: apiQuestion.question || '',
+      passage: apiQuestion.passage || '',
+      audio_url: apiQuestion.audio_url || null,
+      image_url: apiQuestion.image_url || null,
+      option_a: apiQuestion.option_a || '',
+      option_b: apiQuestion.option_b || '',
+      option_c: apiQuestion.option_c || '',
+      option_d: apiQuestion.option_d || '',
+      correct_answer: apiQuestion.correct_answer || ''
+    };
+  }
+
+  if (skill === 'Reading') {
+    return {
+      ...baseQuestion,
+      type: 'Reading Question',
+      question: apiQuestion.question || '',
+      passage: apiQuestion.passage || '',
+      option_a: apiQuestion.option_a || '',
+      option_b: apiQuestion.option_b || '',
+      option_c: apiQuestion.option_c || '',
+      option_d: apiQuestion.option_d || '',
+      correct_answer: apiQuestion.correct_answer || ''
+    };
+  }
+
   return baseQuestion;
 };
 const ToeicAdmin = () => {
@@ -141,29 +179,19 @@ const ToeicAdmin = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [speakingTestsData, setSpeakingTestsData] = useState([]);
   const [writingTestsData, setWritingTestsData] = useState([]);
-  const [mockUsers, setMockUsers] = useState([]); 
+  const [listeningTestsData, setListeningTestsData] = useState([]);
+  const [readingTestsData, setReadingTestsData] = useState([]);
+  const [examResult, setExamResult] = useState(null);   // kết quả sau khi nộp bài
+  const [mockUsers, setMockUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true)
-  const allTests = [...speakingTestsData, ...writingTestsData];
+  const allTests = [...speakingTestsData, ...writingTestsData, ...listeningTestsData, ...readingTestsData];
   const skillsWithCount = skills.map(skill => {
-  if (skill.id === 'writing') {
-    return {
-      ...skill,
-      count: writingTestsData.length
-    };
-  }
-
-  if (skill.id === 'speaking') {
-    return {
-      ...skill,
-      count: speakingTestsData.length
-    };
-  }
-
-  return {
-    ...skill,
-    count: 0  
-  };
-});
+    if (skill.id === 'writing') return { ...skill, count: writingTestsData.length };
+    if (skill.id === 'speaking') return { ...skill, count: speakingTestsData.length };
+    if (skill.id === 'listening') return { ...skill, count: listeningTestsData.length };
+    if (skill.id === 'reading') return { ...skill, count: readingTestsData.length };
+    return { ...skill, count: 0 };
+  });
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -181,6 +209,8 @@ useEffect(() => {
   if (path.endsWith("/dashboard")) setActiveView("dashboard");
   else if (path.endsWith("/speaking")) setActiveView("speaking");
   else if (path.endsWith("/writing")) setActiveView("writing");
+  else if (path.endsWith("/listening")) setActiveView("listening");
+  else if (path.endsWith("/reading")) setActiveView("reading");
   else if (path.endsWith("/exam")) setActiveView("exam");
   else if (path.endsWith("/users")) setActiveView("users");
 }, [location.pathname]);
@@ -282,11 +312,81 @@ useEffect(() => {
         }
       }
 
+      // ===== LISTENING =====
+      const listeningRes = await getListeningTests();
+      const groupedListening = {};
+
+      for (const section of listeningRes.data || []) {
+        const baseName = section.name?.trim() || 'Untitled Test';
+
+        if (!groupedListening[baseName]) {
+          groupedListening[baseName] = {
+            id: `listening-${baseName}`,
+            section_id: section.id,
+            title: baseName,
+            name: baseName,
+            skill: 'Listening',
+            type: 'TOEIC Bridge',
+            duration: section.time_limit || 45,
+            views: 0,
+            comments: 0,
+            sections: [],
+            questions: []
+          };
+        }
+
+        try {
+          const qRes = await getListeningBySection(section.id);
+          const mappedQuestions = (qRes.data || []).map(q => mapAPIQuestionToUIFormat(q, 'Listening', 1));
+          groupedListening[baseName].sections.push({ id: section.id, name: section.name, questions: mappedQuestions });
+          groupedListening[baseName].questions.push(...mappedQuestions);
+        } catch (e) {
+          console.error('Lỗi load listening section:', e);
+        }
+      }
+
+      // ===== READING =====
+      const readingRes = await getReadingTests();
+      const groupedReading = {};
+
+      for (const section of readingRes.data || []) {
+        const baseName = section.name?.trim() || 'Untitled Test';
+
+        if (!groupedReading[baseName]) {
+          groupedReading[baseName] = {
+            id: `reading-${baseName}`,
+            section_id: section.id,
+            title: baseName,
+            name: baseName,
+            skill: 'Reading',
+            type: 'TOEIC Bridge',
+            duration: section.time_limit || 75,
+            views: 0,
+            comments: 0,
+            sections: [],
+            questions: []
+          };
+        }
+
+        try {
+          const qRes = await getReadingBySection(section.id);
+          const mappedQuestions = (qRes.data || []).map(q => mapAPIQuestionToUIFormat(q, 'Reading', 1));
+          groupedReading[baseName].sections.push({ id: section.id, name: section.name, questions: mappedQuestions });
+          groupedReading[baseName].questions.push(...mappedQuestions);
+        } catch (e) {
+          console.error('Lỗi load reading section:', e);
+        }
+      }
+
       setSpeakingTestsData(Object.values(groupedSpeaking));
       setWritingTestsData(Object.values(groupedWriting));
-      
+      setListeningTestsData(Object.values(groupedListening));
+      setReadingTestsData(Object.values(groupedReading));
+
       console.log('✅ Speaking tests:', Object.values(groupedSpeaking));
       console.log('✅ Writing tests:', Object.values(groupedWriting));
+      console.log('✅ Listening tests:', Object.values(groupedListening));
+      console.log('✅ Reading tests:', Object.values(groupedReading));
     } catch (err) {
       console.error("Lỗi load test:", err);
       alert('Không thể tải dữ liệu. Vui lòng thử lại!');
@@ -435,22 +535,19 @@ useEffect(() => {
     alert(`Kỹ năng ${skill.name} đang được phát triển!`);
     return;
   }
-  
-  try {
-    setSelectedSkill(skill.name);
-    
-    if (skill.id === "speaking") {
-      setActiveView("speaking");
-      navigate("/admin/speaking");
-    }
 
-    if (skill.id === "writing") {
-      setActiveView("writing");
-      navigate("/admin/writing");
-    }
-  } catch (err) {
-    console.error('Lỗi load skill:', err);
-    alert('Không thể tải dữ liệu. Vui lòng thử lại!');
+  setSelectedSkill(skill.name);
+
+  const routes = {
+    speaking: "/admin/speaking",
+    writing: "/admin/writing",
+    listening: "/admin/listening",
+    reading: "/admin/reading"
+  };
+
+  if (routes[skill.id]) {
+    setActiveView(skill.id);
+    navigate(routes[skill.id]);
   }
 };
   const handleUsersClick = () => {
@@ -478,6 +575,7 @@ useEffect(() => {
     setAnswers({});
     setAudioURL(null);
     setIsRecording(false);
+    setExamResult(null);
     setActiveView("exam");
     navigate("/admin/exam");
   };
@@ -520,12 +618,44 @@ useEffect(() => {
     setIsRecording(false);
   };
 
+  const isMcqSkill = (skill) => skill === 'Listening' || skill === 'Reading';
+
+  const handleSubmitExam = async () => {
+    if (!selectedTest || !isMcqSkill(selectedTest.skill)) return;
+
+    const answeredCount = Object.keys(answers).length;
+    const total = selectedTest.questions.length;
+    if (answeredCount < total) {
+      const confirm = window.confirm(
+        `Bạn còn ${total - answeredCount} câu chưa trả lời. Vẫn nộp bài?`
+      );
+      if (!confirm) return;
+    }
+
+    try {
+      const userId = localStorage.getItem("user_id");
+      const payload = {
+        user_id: Number(userId),
+        section_id: selectedTest.section_id,
+        skill: selectedTest.skill.toLowerCase(),
+        answers,  // { question_id: "A", ... }
+      };
+      const res = await submitMcqAnswers(payload);
+      setExamResult({ ...res.data, questions: selectedTest.questions });
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Nộp bài thất bại! Kiểm tra console.");
+    }
+  };
+
   const renderExamQuestion = () => {
     const question = getCurrentQuestion();
     if (!question) return null;
 
     const isSpeaking = selectedTest.skill === 'Speaking';
     const isWriting = selectedTest.skill === 'Writing';
+    const isListening = selectedTest.skill === 'Listening';
+    const isReading = selectedTest.skill === 'Reading';
 
     const renderRecordControls = (responseTime) => (
       <>
@@ -836,6 +966,77 @@ useEffect(() => {
       }
     }
 
+    // Listening / Reading MCQ
+    if (isListening || isReading) {
+      const options = [
+        { key: 'A', value: question.option_a },
+        { key: 'B', value: question.option_b },
+        { key: 'C', value: question.option_c },
+        { key: 'D', value: question.option_d }
+      ].filter(o => o.value);
+      const selected = answers[question.id];
+
+      return (
+        <div style={styles.questionContent}>
+          <div style={styles.questionHeader}>
+            <span style={styles.questionType}>
+              {isListening ? '🎧 Listening' : '📖 Reading'}
+              {question.question_number ? ` — Câu ${question.question_number}` : ''}
+            </span>
+          </div>
+
+          {question.passage && (
+            <div style={{ ...styles.questionText, backgroundColor: '#eef2ff', borderColor: '#6366f1', whiteSpace: 'pre-line', marginBottom: 12 }}>
+              <strong>Transcript:</strong>
+              <div style={{ marginTop: 6 }}>{question.passage}</div>
+            </div>
+          )}
+
+          {question.graphic_url && (
+            <img src={question.graphic_url} alt="Graphic" style={styles.examImage} />
+          )}
+
+          {question.image_url && (
+            <img src={question.image_url} alt="Question" style={styles.examImage} />
+          )}
+
+          <div style={styles.questionText}>{question.question}</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+            {options.map(opt => {
+              const isSelected = selected === opt.key;
+              return (
+                <div
+                  key={opt.key}
+                  onClick={() => setAnswers({ ...answers, [question.id]: opt.key })}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: `2px solid ${isSelected ? '#3b82f6' : '#e2e8f0'}`,
+                    backgroundColor: isSelected ? '#dbeafe' : 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <span style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    backgroundColor: isSelected ? '#3b82f6' : '#f1f5f9',
+                    color: isSelected ? 'white' : '#64748b',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 700, fontSize: 13, flexShrink: 0
+                  }}>{opt.key}</span>
+                  <span style={{ fontSize: 14, color: '#334155' }}>{opt.value}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
     // Fallback cho type chưa handle
     return (
       <div style={styles.questionContent}>
@@ -877,12 +1078,40 @@ useEffect(() => {
   const renderExam = () => {
     if (!selectedTest) return null;
 
+    // Hiển thị trang kết quả sau khi nộp bài
+    if (examResult) {
+      return (
+        <ExamResult
+          result={examResult}
+          test={selectedTest}
+          onBack={() => {
+            setExamResult(null);
+            setActiveView("dashboard");
+            navigate("/admin/dashboard");
+          }}
+          onRetry={() => {
+            setExamResult(null);
+            setAnswers({});
+            setCurrentQuestionInSection(0);
+          }}
+        />
+      );
+    }
+
     return (
       <>
         <div style={styles.testExam}>
           <div style={styles.examHeader}>
             <h1 style={styles.examTitle}>{selectedTest.title}</h1>
             <div style={{ display: 'flex', gap: '12px' }}>
+              {isMcqSkill(selectedTest.skill) && (
+                <button
+                  style={{ ...styles.button, backgroundColor: '#16a34a', color: 'white' }}
+                  onClick={handleSubmitExam}
+                >
+                  Nộp bài ({Object.keys(answers).length}/{selectedTest.questions.length})
+                </button>
+              )}
               <button
                 style={{ ...styles.button, ...styles.buttonSecondary }}
                 onClick={() => {
@@ -962,6 +1191,26 @@ useEffect(() => {
             </div>
 
             <div style={styles.examRight}>
+              {/* Shared audio player cho Listening */}
+              {selectedTest.skill === 'Listening' && (() => {
+                const sharedAudio = selectedTest.questions?.find(q => q.audio_url)?.audio_url;
+                const audioSrc = sharedAudio
+                  ? (sharedAudio.startsWith('http') ? sharedAudio : `http://localhost:8000/${sharedAudio}`)
+                  : null;
+                return audioSrc ? (
+                  <div style={{
+                    marginBottom: 12, padding: '12px 14px',
+                    backgroundColor: '#dbeafe', borderRadius: 12,
+                    border: '1px solid #3b82f6'
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>
+                      🎧 Audio bài nghe
+                    </div>
+                    <audio controls src={audioSrc} style={{ width: '100%', height: 36 }} />
+                  </div>
+                ) : null;
+              })()}
+
               <div style={styles.timerBox}>
                 <div style={styles.timerLabel}>Thời gian còn lại:</div>
                 <div style={styles.timerValue}>{timeRemaining ? formatTime(timeRemaining) : '--:--'}</div>
@@ -1103,6 +1352,30 @@ if (activeView === 'writing') {
       setHoveredCard={setHoveredCard}
       writingTests={writingTestsData}
       setActiveView={setActiveView}
+      handleTestClick={handleTestClick}
+    />
+  );
+}
+
+if (activeView === 'listening') {
+  return (
+    <ListeningTests
+      styles={styles}
+      hoveredCard={hoveredCard}
+      setHoveredCard={setHoveredCard}
+      listeningTests={listeningTestsData}
+      handleTestClick={handleTestClick}
+    />
+  );
+}
+
+if (activeView === 'reading') {
+  return (
+    <ReadingTests
+      styles={styles}
+      hoveredCard={hoveredCard}
+      setHoveredCard={setHoveredCard}
+      readingTests={readingTestsData}
       handleTestClick={handleTestClick}
     />
   );
