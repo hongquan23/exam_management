@@ -8,6 +8,7 @@ import styles from './styles';
 import Profile from './Profile';
 import ContestPage from './ContestPage';
 import Course from './Course';
+import History from './History';
 import {
   getSpeakingTests, getWritingTests, getListeningTests, getReadingTests,
   getWritingBySection, getSpeakingBySection, getListeningBySection, getReadingBySection,
@@ -187,6 +188,7 @@ const ToeicMember = () => {
   const [listeningTestsData, setListeningTestsData] = useState([]);
   const [readingTestsData, setReadingTestsData] = useState([]);
   const [examResult, setExamResult] = useState(null);
+  const [examAttemptKey, setExamAttemptKey] = useState(0);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const allTests = [...speakingTestsData, ...writingTestsData, ...listeningTestsData, ...readingTestsData];
   const resetExamState = () => {
@@ -232,6 +234,7 @@ useEffect(() => {
   else if (path.endsWith("/profile")) setActiveView("profile");
   else if (path.endsWith("/contest")) setActiveView("ContestPage");
   else if (path.endsWith("/course")) setActiveView("course");
+  else if (path.endsWith("/history")) setActiveView("history");
 
 }, [location.pathname]);
 
@@ -458,7 +461,7 @@ const fetchTests = async () => {
       
       return () => clearInterval(timer);
     }
-  }, [activeView, selectedTest]);
+  }, [activeView, selectedTest, examAttemptKey]);
 
   const startRecording = async (maxDurationSec) => {
     setSubmittedQuestion(null);
@@ -547,6 +550,11 @@ const handleCourseClick = () => {
   setActiveView("course");
   navigate("/member/course");
 }
+
+const handleHistoryClick = () => {
+  setActiveView("history");
+  navigate("/member/history");
+};
 
   const handleTestClick = (test) => {
     resetExamState();
@@ -1382,6 +1390,7 @@ const renderRecordControls = (responseTime, question) => {
     // Listening / Reading MCQ
     const isListening = selectedTest.skill === 'Listening';
     const isReading = selectedTest.skill === 'Reading';
+    if (isListening) console.log('[DEBUG member] question.image_url =', question.image_url, '| id =', question.id);
     if (isListening || isReading) {
       const options = [
         { key: 'A', value: question.option_a },
@@ -1405,7 +1414,7 @@ const renderRecordControls = (responseTime, question) => {
             </div>
           )}
           {question.graphic_url && <img src={question.graphic_url} alt="Graphic" style={styles.examImage} />}
-          {question.image_url && <img src={question.image_url} alt="Question" style={styles.examImage} />}
+          {question.image_url && <img src={question.image_url.startsWith('http') ? question.image_url : `http://localhost:8000/${question.image_url}`} alt="Question" style={styles.examImage} />}
           <div style={styles.questionText}>{question.question}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
             {options.map(opt => {
@@ -1451,7 +1460,13 @@ const renderRecordControls = (responseTime, question) => {
           result={examResult}
           test={selectedTest}
           onBack={() => { setExamResult(null); setActiveView("dashboard"); navigate("/member/dashboard"); }}
-          onRetry={() => { setExamResult(null); setAnswers({}); setCurrentQuestionInSection(0); }}
+          onRetry={() => {
+            setExamResult(null);
+            setAnswers({});
+            setCurrentQuestionInSection(0);
+            setIsTimeUp(false);
+            setExamAttemptKey(k => k + 1);
+          }}
         />
       );
     }
@@ -1502,19 +1517,21 @@ const renderRecordControls = (responseTime, question) => {
         return Object.entries(groupedByPart)
           .sort(([a], [b]) => Number(a) - Number(b))
           .map(([part, partQuestions]) => {
-            const firstIdx = partQuestions[0].originalIndex;
-            const lastIdx = partQuestions[partQuestions.length - 1].originalIndex;
+            const displayNum = (q) => q.question_number || (q.originalIndex + 1);
+            const first = displayNum(partQuestions[0]);
+            const last = displayNum(partQuestions[partQuestions.length - 1]);
             const label = partQuestions.length === 1
-              ? `Question ${firstIdx + 1}`
-              : `Questions ${firstIdx + 1}-${lastIdx + 1}`;
+              ? `Câu ${first}`
+              : `Câu ${first}-${last}`;
+            const firstIdx = partQuestions[0].originalIndex;
 
             return (
               <div
                 key={part}
                 style={{
                   ...styles.navTab,
-                  ...(questions[currentQuestionInSection]?.part === Number(part) 
-                    ? styles.navTabActive 
+                  ...(questions[currentQuestionInSection]?.part === Number(part)
+                    ? styles.navTabActive
                     : {})
                 }}
                 onClick={() => {
@@ -1569,7 +1586,7 @@ const renderRecordControls = (responseTime, question) => {
                   border: '1px solid #3b82f6'
                 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>
-                    🎧 Audio bài nghe
+                    Audio bài nghe
                   </div>
                   <audio controls src={audioSrc} style={{ width: '100%', height: 36 }} />
                 </div>
@@ -1626,42 +1643,48 @@ const renderRecordControls = (responseTime, question) => {
 
               return Object.entries(groupedByPart)
                 .sort(([a], [b]) => Number(a) - Number(b))
-                .map(([part, partQuestions]) => (
-                  <div key={part} style={{ marginBottom: '16px' }}>
-                    <div style={{ 
-                      fontSize: '13px', 
-                      fontWeight: '600', 
-                      color: '#374151',
-                      marginBottom: '8px',
-                      paddingLeft: '4px'
-                    }}>
-                      {partQuestions.length === 1 
-                        ? `Question ${partQuestions[0].originalIndex + 1}`
-                        : `Questions ${partQuestions[0].originalIndex + 1}-${partQuestions[partQuestions.length - 1].originalIndex + 1}`
-                      }
-                    </div>
+                .map(([part, partQuestions]) => {
+                  const displayNum = (q) => q.question_number || (q.originalIndex + 1);
+                  const first = displayNum(partQuestions[0]);
+                  const last = displayNum(partQuestions[partQuestions.length - 1]);
+                  return (
+                    <div key={part} style={{ marginBottom: '16px' }}>
+                      <div style={{
+                        fontSize: '12px', fontWeight: '700', color: '#6b7280',
+                        marginBottom: '6px', paddingLeft: '4px',
+                        textTransform: 'uppercase', letterSpacing: '0.5px'
+                      }}>
+                        Part {part} · {partQuestions.length === 1 ? `Câu ${first}` : `Câu ${first}-${last}`}
+                      </div>
 
-                    <div style={styles.questionGrid}>
-                      {partQuestions.map((q) => (
-                        <div
-                          key={q.id}
-                          style={{
-                            ...styles.questionNumber,
-                            ...(currentQuestionInSection === q.originalIndex 
-                              ? styles.questionNumberActive 
-                              : {})
-                          }}
-                          onClick={() => {
-                            setCurrentQuestionInSection(q.originalIndex);
-                            resetAudio();
-                          }}
-                        >
-                          {q.originalIndex + 1}
-                        </div>
-                      ))}
+                      <div style={styles.questionGrid}>
+                        {partQuestions.map((q) => {
+                          const isActive = currentQuestionInSection === q.originalIndex;
+                          const isAnswered = answers[q.id] !== undefined;
+                          return (
+                            <div
+                              key={q.id}
+                              style={{
+                                ...styles.questionNumber,
+                                ...(isActive
+                                  ? styles.questionNumberActive
+                                  : isAnswered
+                                    ? { backgroundColor: '#bbf7d0', color: '#166534', border: '1.5px solid #4ade80', fontWeight: 700 }
+                                    : {})
+                              }}
+                              onClick={() => {
+                                setCurrentQuestionInSection(q.originalIndex);
+                                resetAudio();
+                              }}
+                            >
+                              {displayNum(q)}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ));
+                  );
+                });
             })()}
           </div>
             <div style={{ fontSize: '11px', color: '#f97316', textAlign: 'center', padding: '8px' }}>
@@ -1781,6 +1804,7 @@ const renderQuestionResult = () => {
         handleProfileClick={handleProfileClick}
         handleContestClick={handleContestClick}
         handleCourseClick={handleCourseClick}
+        handleHistoryClick={handleHistoryClick}
       />
     );
   }
@@ -1858,6 +1882,16 @@ const renderQuestionResult = () => {
   }
   if (activeView === "profile") {
     return <Profile currentUser={currentUser} />;
+  }
+
+  if (activeView === "history") {
+    const userId = localStorage.getItem("user_id");
+    return (
+      <History
+        userId={userId}
+        onBack={() => { setActiveView("dashboard"); navigate("/member/dashboard"); }}
+      />
+    );
   }
 
 if (activeView === "ContestPage") {

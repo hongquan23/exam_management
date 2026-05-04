@@ -60,6 +60,7 @@ class EtsQuestion(BaseModel):
     question: str | None = None
     options: EtsOptions
     correct_answer: str
+    image_url: str | None = None
 
 
 class EtsConversation(BaseModel):

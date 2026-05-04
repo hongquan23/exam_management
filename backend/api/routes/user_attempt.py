@@ -31,11 +31,12 @@ def create_attempt(data: UserAttemptCreate, db: Session = Depends(get_db)):
 def submit_mcq(data: MCQSubmit, db: Session = Depends(get_db)):
     results = []
     now = datetime.utcnow()
+    answered_qb_ids = set()
 
+    # ── Lưu câu đã trả lời ──────────────────────────────────────────────────
     for q_id_str, user_ans in data.answers.items():
         q_id = int(q_id_str)
 
-        # Tìm question_base tương ứng với question id
         if data.skill == "listening":
             qb = db.query(QuestionBase).filter(
                 QuestionBase.listening_question_id == q_id
@@ -54,6 +55,7 @@ def submit_mcq(data: MCQSubmit, db: Session = Depends(get_db)):
         if not qb:
             continue
 
+        answered_qb_ids.add(qb.id)
         is_correct = (user_ans.upper() == correct.upper()) if correct else None
 
         attempt = UserAttempt(
@@ -73,12 +75,38 @@ def submit_mcq(data: MCQSubmit, db: Session = Depends(get_db)):
             is_correct=is_correct,
         ))
 
+    # ── Lấy toàn bộ câu hỏi trong section ───────────────────────────────────
+    if data.skill == "listening":
+        all_qbs = db.query(QuestionBase).filter(
+            QuestionBase.section_id == data.section_id,
+            QuestionBase.listening_question_id.isnot(None),
+        ).all()
+    else:
+        all_qbs = db.query(QuestionBase).filter(
+            QuestionBase.section_id == data.section_id,
+            QuestionBase.reading_question_id.isnot(None),
+        ).all()
+
+    # ── Lưu câu bỏ qua (user_ans=None, is_correct=False) ────────────────────
+    for qb in all_qbs:
+        if qb.id not in answered_qb_ids:
+            attempt = UserAttempt(
+                user_id=data.user_id,
+                section_id=data.section_id,
+                question_id=qb.id,
+                user_ans=None,
+                is_correct=False,
+                created_at=now,
+            )
+            db.add(attempt)
+
     db.commit()
 
     score = sum(1 for r in results if r.is_correct)
+    total = len(all_qbs)
     return MCQSubmitResult(
         score=score,
-        total=len(results),
+        total=total,
         section_id=data.section_id,
         created_at=now,
         results=results,

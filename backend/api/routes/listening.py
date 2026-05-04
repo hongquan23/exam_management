@@ -1,3 +1,5 @@
+import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -13,6 +15,91 @@ from schemas.listening import (
 from crud import listening as listening_crud
 
 router = APIRouter()
+
+
+def _normalize_audio_url(raw: str | None) -> str | None:
+    """Chuyển full path Windows/POSIX thành relative URL: audio/file.mp3"""
+    if not raw:
+        return None
+    match = re.search(r'audio[/\\](.+)$', raw, re.IGNORECASE)
+    if match:
+        return f"audio/{match.group(1).replace(chr(92), '/')}"
+    return f"audio/{raw.replace(chr(92), '/').split('/')[-1]}"
+
+
+def _normalize_image_url(raw: str | None) -> str | None:
+    """Chuyển full path Windows/POSIX thành relative URL: images/sub/file.jpg"""
+    if not raw:
+        return None
+    match = re.search(r'images[/\\](.+)$', raw, re.IGNORECASE)
+    if match:
+        return f"images/{match.group(1).replace(chr(92), '/')}"
+    return f"images/{raw.replace(chr(92), '/').split('/')[-1]}"
+
+
+def _parse_ets_part(part: EtsPart, audio_url: str | None = None) -> list[dict]:
+    rows = []
+
+    # Part 1 (Photographs) & Part 2 (Question-Response)
+    if part.questions:
+        for q in part.questions:
+            rows.append({
+                "part": part.part_number,
+                "question_number": q.question_number,
+                "directions": part.directions,
+                "passage": None,
+                "question": q.question or "",
+                "graphic_url": None,
+                "audio_url": audio_url,
+                "image_url": _normalize_image_url(q.image_url),
+                "option_a": q.options.A,
+                "option_b": q.options.B,
+                "option_c": q.options.C or "",
+                "option_d": q.options.D or None,
+                "correct_answer": q.correct_answer,
+            })
+
+    # Part 3: Conversations
+    if part.conversations:
+        for conv in part.conversations:
+            for q in conv.questions:
+                rows.append({
+                    "part": part.part_number,
+                    "question_number": q.question_number,
+                    "directions": part.directions,
+                    "passage": conv.transcript,
+                    "question": q.question or "",
+                    "graphic_url": None,
+                    "audio_url": audio_url,
+                    "image_url": None,
+                    "option_a": q.options.A,
+                    "option_b": q.options.B,
+                    "option_c": q.options.C or "",
+                    "option_d": q.options.D or None,
+                    "correct_answer": q.correct_answer,
+                })
+
+    # Part 4: Talks
+    if part.talks:
+        for talk in part.talks:
+            for q in talk.questions:
+                rows.append({
+                    "part": part.part_number,
+                    "question_number": q.question_number,
+                    "directions": part.directions,
+                    "passage": talk.transcript,
+                    "question": q.question or "",
+                    "graphic_url": None,
+                    "audio_url": audio_url,
+                    "image_url": None,
+                    "option_a": q.options.A,
+                    "option_b": q.options.B,
+                    "option_c": q.options.C or "",
+                    "option_d": q.options.D or None,
+                    "correct_answer": q.correct_answer,
+                })
+
+    return rows
 
 
 @router.post("/section/{section_id}", response_model=ListeningQuestionOut)
@@ -46,7 +133,6 @@ def upload_listening_ets_json(
     data: ListeningEtsUpload,
     db: Session = Depends(get_db)
 ):
-    # Tạo 1 section duy nhất cho cả bộ đề
     section = Section(
         skill="listening",
         time_limit=data.time_limit,
@@ -55,11 +141,9 @@ def upload_listening_ets_json(
     db.add(section)
     db.flush()
 
-    # Lấy audio URL chung, chuẩn hóa thành relative path để serve qua static
     raw_audio = data.ets_data.audio_url.url if data.ets_data.audio_url else None
     audio_url = _normalize_audio_url(raw_audio)
 
-    # Gom câu hỏi của tất cả parts vào 1 section
     all_questions = []
     for part in data.ets_data.parts:
         all_questions.extend(_parse_ets_part(part, audio_url))
@@ -72,84 +156,6 @@ def upload_listening_ets_json(
         "total_questions": len(all_questions),
         "parts": len(data.ets_data.parts)
     }
-
-
-def _normalize_audio_url(raw: str | None) -> str | None:
-    """Chuyển full path (C:/.../.../audio/file.mp3) thành relative URL (audio/file.mp3)."""
-    if not raw:
-        return None
-    # Lấy phần sau 'audio/' hoặc 'audio\' trong đường dẫn
-    import re
-    match = re.search(r'audio[/\\](.+)$', raw, re.IGNORECASE)
-    if match:
-        return f"audio/{match.group(1).replace(chr(92), '/')}"
-    # Nếu không tìm thấy, trả về tên file
-    return f"audio/{raw.replace(chr(92), '/').split('/')[-1]}"
-
-
-def _parse_ets_part(part: EtsPart, audio_url: str | None = None) -> list[dict]:
-    rows = []
-
-    # Part 1 (Photographs) & Part 2 (Question-Response)
-    if part.questions:
-        for q in part.questions:
-            rows.append({
-                "part": part.part_number,
-                "question_number": q.question_number,
-                "directions": part.directions,
-                "passage": None,
-                "question": q.question or "",
-                "graphic_url": None,
-                "audio_url": audio_url,
-                "image_url": None,
-                "option_a": q.options.A,
-                "option_b": q.options.B,
-                "option_c": q.options.C or "",
-                "option_d": q.options.D or None,
-                "correct_answer": q.correct_answer,
-            })
-
-    # Part 3: Conversations — mỗi câu hỏi lưu kèm transcript của conversation
-    if part.conversations:
-        for conv in part.conversations:
-            for q in conv.questions:
-                rows.append({
-                    "part": part.part_number,
-                    "question_number": q.question_number,
-                    "directions": part.directions,
-                    "passage": conv.transcript,
-                    "question": q.question or "",
-                    "graphic_url": None,
-                    "audio_url": audio_url,
-                    "image_url": None,
-                    "option_a": q.options.A,
-                    "option_b": q.options.B,
-                    "option_c": q.options.C or "",
-                    "option_d": q.options.D or None,
-                    "correct_answer": q.correct_answer,
-                })
-
-    # Part 4: Talks — mỗi câu hỏi lưu kèm transcript của talk
-    if part.talks:
-        for talk in part.talks:
-            for q in talk.questions:
-                rows.append({
-                    "part": part.part_number,
-                    "question_number": q.question_number,
-                    "directions": part.directions,
-                    "passage": talk.transcript,
-                    "question": q.question or "",
-                    "graphic_url": None,
-                    "audio_url": audio_url,
-                    "image_url": None,
-                    "option_a": q.options.A,
-                    "option_b": q.options.B,
-                    "option_c": q.options.C or "",
-                    "option_d": q.options.D or None,
-                    "correct_answer": q.correct_answer,
-                })
-
-    return rows
 
 
 @router.get("/section/{section_id}", response_model=list[ListeningQuestionOut])

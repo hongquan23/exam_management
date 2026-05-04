@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import Users from './Users';
 import { useNavigate } from 'react-router-dom';
-import { deleteSection } from '../api';
+import { deleteSection, updateSection } from '../api';
 
 const AdminDashboard = ({
   activeView, styles, skills, searchQuery, setSearchQuery, showUserMenu,
@@ -46,6 +46,25 @@ const AdminDashboard = ({
         console.error('Error deleting section:', err);
         alert('Không thể xóa đề thi! Vui lòng thử lại.');
       }
+    }
+  };
+
+  // State sửa thời gian: { sectionId, value }
+  const [editingTime, setEditingTime] = React.useState(null);
+
+  const handleSaveTime = async (test) => {
+    const newTime = Number(editingTime.value);
+    if (!newTime || newTime <= 0) {
+      alert('Thời gian phải là số nguyên dương (phút)!');
+      return;
+    }
+    try {
+      await updateSection(test.section_id, { time_limit: newTime });
+      setEditingTime(null);
+      if (fetchAllTests) await fetchAllTests();
+    } catch (err) {
+      console.error(err);
+      alert('Cập nhật thất bại!');
     }
   };
 
@@ -460,18 +479,47 @@ const AdminDashboard = ({
                     {test.title || test.name}
                   </h4>
 
-                  {/* META */}
+                  {/* META — thời gian (có thể sửa) */}
                   <div className="flex items-center justify-between text-slate-500 text-xs font-semibold py-2 border-y border-slate-100">
-                    <span className="flex items-center gap-1">
-                      <Clock size={14} /> {test.duration} phút
-                    </span>
-                    {/* <span className="flex items-center gap-1">
-                      <Eye size={14} />
-                      {test.views > 1000
-                        ? `${(test.views / 1000).toFixed(1)}k`
-                        : test.views}{' '}
-                      lượt thi
-                    </span> */}
+                    {editingTime?.sectionId === test.section_id ? (
+                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                        <Clock size={14} />
+                        <input
+                          type="number"
+                          min="1"
+                          value={editingTime.value}
+                          onChange={e => setEditingTime({ ...editingTime, value: e.target.value })}
+                          className="w-16 border border-indigo-400 rounded px-1 py-0.5 text-xs text-slate-700 outline-none"
+                          autoFocus
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleSaveTime(test);
+                            if (e.key === 'Escape') setEditingTime(null);
+                          }}
+                        />
+                        <span className="text-slate-400">phút</span>
+                        <button
+                          onClick={() => handleSaveTime(test)}
+                          className="text-emerald-600 font-bold hover:text-emerald-700 text-xs"
+                        >✓</button>
+                        <button
+                          onClick={() => setEditingTime(null)}
+                          className="text-red-400 font-bold hover:text-red-600 text-xs"
+                        >✕</button>
+                      </div>
+                    ) : (
+                      <span
+                        className="flex items-center gap-1 cursor-pointer group/time hover:text-indigo-600 transition-colors"
+                        title="Click để sửa thời gian"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setEditingTime({ sectionId: test.section_id, value: test.duration });
+                        }}
+                      >
+                        <Clock size={14} />
+                        {test.duration} phút
+                        <Pencil size={10} className="opacity-0 group-hover/time:opacity-100 transition-opacity text-indigo-400" />
+                      </span>
+                    )}
                   </div>
 
                   {/* QUESTION COUNT */}
@@ -492,14 +540,6 @@ const AdminDashboard = ({
                     >
                       Xem đề
                     </button>
-
-                    {/* <button
-                      className="p-2 rounded-xl bg-emerald-50 text-emerald-600
-                                hover:bg-emerald-100 transition-all duration-200"
-                      title="Chỉnh sửa đề thi"
-                    >
-                      <Pencil size={16} />
-                    </button> */}
 
                     <button
                       className="p-2 rounded-xl bg-red-50 text-red-600

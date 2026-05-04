@@ -19,6 +19,7 @@ def get_by_section(db: Session, section_id: int):
             QuestionBase.section_id == section_id,
             QuestionBase.skill == "listening"
         )
+        .order_by(ListeningQuestion.question_number.asc(), ListeningQuestion.id.asc())
         .all()
     )
 

@@ -181,7 +181,8 @@ const ToeicAdmin = () => {
   const [writingTestsData, setWritingTestsData] = useState([]);
   const [listeningTestsData, setListeningTestsData] = useState([]);
   const [readingTestsData, setReadingTestsData] = useState([]);
-  const [examResult, setExamResult] = useState(null);   // kết quả sau khi nộp bài
+  const [examResult, setExamResult] = useState(null);
+  const [examAttemptKey, setExamAttemptKey] = useState(0); // tăng lên để restart timer
   const [mockUsers, setMockUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true)
   const allTests = [...speakingTestsData, ...writingTestsData, ...listeningTestsData, ...readingTestsData];
@@ -479,7 +480,7 @@ useEffect(() => {
 
       return () => clearInterval(timer);
     }
-  }, [activeView, selectedTest]);
+  }, [activeView, selectedTest, examAttemptKey]);
 
   const startRecording = async (maxDurationSec) => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -997,7 +998,7 @@ useEffect(() => {
           )}
 
           {question.image_url && (
-            <img src={question.image_url} alt="Question" style={styles.examImage} />
+            <img src={question.image_url.startsWith('http') ? question.image_url : `http://localhost:8000/${question.image_url}`} alt="Question" style={styles.examImage} />
           )}
 
           <div style={styles.questionText}>{question.question}</div>
@@ -1093,6 +1094,7 @@ useEffect(() => {
             setExamResult(null);
             setAnswers({});
             setCurrentQuestionInSection(0);
+            setExamAttemptKey(k => k + 1);
           }}
         />
       );
@@ -1139,11 +1141,12 @@ useEffect(() => {
               return Object.entries(groupedByPart)
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([part, partQuestions]) => {
-                  const firstIdx = partQuestions[0].originalIndex;
-                  const lastIdx = partQuestions[partQuestions.length - 1].originalIndex;
+                  const displayNum = (q) => q.question_number || (q.originalIndex + 1);
+                  const first = displayNum(partQuestions[0]);
+                  const last = displayNum(partQuestions[partQuestions.length - 1]);
                   const label = partQuestions.length === 1
-                    ? `Question ${firstIdx + 1}`
-                    : `Questions ${firstIdx + 1}-${lastIdx + 1}`;
+                    ? `Câu ${first}`
+                    : `Câu ${first}-${last}`;
 
                   return (
                     <div
@@ -1235,45 +1238,53 @@ useEffect(() => {
 
             return Object.entries(groupedByPart)
               .sort(([a], [b]) => Number(a) - Number(b))
-              .map(([part, partQuestions]) => (
-                <div key={part} style={{ marginBottom: '16px' }}>
-                  {/* Tiêu đề Part */}
-                  <div style={{ 
-                    fontSize: '13px', 
-                    fontWeight: '600', 
-                    color: '#374151',
-                    marginBottom: '8px',
-                    paddingLeft: '4px'
-                  }}>
-                    {partQuestions.length === 1 
-                      ? `Question ${partQuestions[0].originalIndex + 1}`
-                      : `Questions ${partQuestions[0].originalIndex + 1}-${partQuestions[partQuestions.length - 1].originalIndex + 1}`
-                    }
-                  </div>
+              .map(([part, partQuestions]) => {
+                const displayNum = (q) => q.question_number || (q.originalIndex + 1);
+                const first = displayNum(partQuestions[0]);
+                const last = displayNum(partQuestions[partQuestions.length - 1]);
+                const label = partQuestions.length === 1
+                  ? `Câu ${first}`
+                  : `Câu ${first} - ${last}`;
 
-                  {/* Grid câu hỏi của Part này */}
-                  <div style={styles.questionGrid}>
-                    {partQuestions.map((q) => (
-                      <div
-                        key={q.id}
-                        style={{
-                          ...styles.questionNumber,
-                          ...(currentQuestionInSection === q.originalIndex 
-                            ? styles.questionNumberActive 
-                            : {})
-                        }}
-                        onClick={() => {
-                          setCurrentQuestionInSection(q.originalIndex);
-                          setAudioURL(null);
-                          setIsRecording(false);
-                        }}
-                      >
-                        {q.originalIndex + 1}
-                      </div>
-                    ))}
+                return (
+                  <div key={part} style={{ marginBottom: '16px' }}>
+                    <div style={{
+                      fontSize: '12px', fontWeight: '700', color: '#6b7280',
+                      marginBottom: '6px', paddingLeft: '4px',
+                      textTransform: 'uppercase', letterSpacing: '0.5px'
+                    }}>
+                      Part {part} · {label}
+                    </div>
+
+                    <div style={styles.questionGrid}>
+                      {partQuestions.map((q) => {
+                        const isActive = currentQuestionInSection === q.originalIndex;
+                        const isAnswered = answers[q.id] !== undefined;
+                        return (
+                          <div
+                            key={q.id}
+                            style={{
+                              ...styles.questionNumber,
+                              ...(isActive
+                                ? styles.questionNumberActive
+                                : isAnswered
+                                  ? { backgroundColor: '#bbf7d0', color: '#166534', border: '1.5px solid #4ade80', fontWeight: 700 }
+                                  : {})
+                            }}
+                            onClick={() => {
+                              setCurrentQuestionInSection(q.originalIndex);
+                              setAudioURL(null);
+                              setIsRecording(false);
+                            }}
+                          >
+                            {displayNum(q)}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ));
+                );
+              });
           })()}
         </div>
 

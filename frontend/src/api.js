@@ -21,6 +21,7 @@ export const getWritingTests = () => api.get("api/sections?skill=writing");
 export const getListeningTests = () => api.get("api/sections?skill=listening");
 export const getReadingTests = () => api.get("api/sections?skill=reading");
 export const deleteSection = (sectionId) => api.delete(`api/sections/${sectionId}`);
+export const updateSection = (sectionId, data) => api.put(`api/sections/${sectionId}`, data);
 
 // 👉 Writing
 export const createWritingQuestion = (formData) => api.post("api/writing/", formData);

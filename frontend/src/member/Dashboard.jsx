@@ -7,8 +7,8 @@ import Course from './Course';
 const Dashboard = ({
   styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
-  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,      
-  loadingUser, handleProfileClick, handleContestClick, handleCourseClick
+  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,
+  loadingUser, handleProfileClick, handleContestClick, handleCourseClick, handleHistoryClick
 }) => {
   const getUserInitials = (name) => {
     if (!name) return "U";
@@ -162,18 +162,20 @@ const Dashboard = ({
                     Hồ sơ cá nhân
                   </button>
 
-                  <button className="group w-full text-left px-3 py-2.5 
-                                    text-sm font-medium text-slate-700 
-                                    hover:bg-orange-50 
-                                    hover:text-orange-600 
-                                    rounded-xl transition-all duration-200 
+                  <button
+                    onClick={handleHistoryClick}
+                    className="group w-full text-left px-3 py-2.5
+                                    text-sm font-medium text-slate-700
+                                    hover:bg-orange-50
+                                    hover:text-orange-600
+                                    rounded-xl transition-all duration-200
                                     flex items-center gap-3">
 
-                    <div className="w-8 h-8 rounded-lg 
-                                    bg-slate-100 
-                                    flex items-center justify-center 
-                                    group-hover:bg-white 
-                                    group-hover:shadow-sm 
+                    <div className="w-8 h-8 rounded-lg
+                                    bg-slate-100
+                                    flex items-center justify-center
+                                    group-hover:bg-white
+                                    group-hover:shadow-sm
                                     transition-all">
                       📊
                     </div>
