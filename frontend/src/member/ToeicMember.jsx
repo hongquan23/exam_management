@@ -4,6 +4,8 @@ import { Mic, ArrowLeft, ArrowRight } from 'lucide-react';
 import Dashboard from './Dashboard';
 import SpeakingTests from './Speaking';
 import WritingTests from './Writing';
+import ListeningTests from './Listening';
+import ReadingTests from './Reading';
 import styles from './styles';
 import Profile from './Profile';
 import ContestPage from './ContestPage';
@@ -1841,39 +1843,31 @@ const renderQuestionResult = () => {
 
   if (activeView === 'listening') {
     return (
-      <div style={{ padding: 32 }}>
-        <h2>Listening Tests ({listeningTestsData.length})</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16 }}>
-          {listeningTestsData.map(test => (
-            <div key={test.id} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, width: 240, cursor: 'pointer', backgroundColor: 'white' }}
-              onClick={() => handleTestClick(test)}>
-              <div style={{ fontWeight: 700, marginBottom: 8 }}>{test.title}</div>
-              <div style={{ fontSize: 13, color: '#64748b' }}>{test.questions?.length || 0} câu · {test.duration} phút</div>
-            </div>
-          ))}
-          {listeningTestsData.length === 0 && <p style={{ color: '#94a3b8' }}>Chưa có đề Listening.</p>}
-        </div>
-        <button onClick={() => navigate('/member/dashboard')} style={{ marginTop: 24, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}>← Quay lại</button>
-      </div>
+      <ListeningTests
+        styles={styles}
+        hoveredCard={hoveredCard}
+        setHoveredCard={setHoveredCard}
+        listeningTests={listeningTestsData}
+        setActiveView={setActiveView}
+        handleTestClick={handleTestClick}
+        currentUser={currentUser}
+        loadingUser={loadingUser}
+      />
     );
   }
 
   if (activeView === 'reading') {
     return (
-      <div style={{ padding: 32 }}>
-        <h2>Reading Tests ({readingTestsData.length})</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16 }}>
-          {readingTestsData.map(test => (
-            <div key={test.id} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, width: 240, cursor: 'pointer', backgroundColor: 'white' }}
-              onClick={() => handleTestClick(test)}>
-              <div style={{ fontWeight: 700, marginBottom: 8 }}>{test.title}</div>
-              <div style={{ fontSize: 13, color: '#64748b' }}>{test.questions?.length || 0} câu · {test.duration} phút</div>
-            </div>
-          ))}
-          {readingTestsData.length === 0 && <p style={{ color: '#94a3b8' }}>Chưa có đề Reading.</p>}
-        </div>
-        <button onClick={() => navigate('/member/dashboard')} style={{ marginTop: 24, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}>← Quay lại</button>
-      </div>
+      <ReadingTests
+        styles={styles}
+        hoveredCard={hoveredCard}
+        setHoveredCard={setHoveredCard}
+        readingTests={readingTestsData}
+        setActiveView={setActiveView}
+        handleTestClick={handleTestClick}
+        currentUser={currentUser}
+        loadingUser={loadingUser}
+      />
     );
   }
 

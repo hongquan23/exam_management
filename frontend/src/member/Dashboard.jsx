@@ -150,14 +150,7 @@ const Dashboard = ({
                                     rounded-xl transition-all duration-200 
                                     flex items-center gap-3">
 
-                    <div className="w-8 h-8 rounded-lg 
-                                    bg-slate-100 
-                                    flex items-center justify-center 
-                                    group-hover:bg-white 
-                                    group-hover:shadow-sm 
-                                    transition-all">
-                      👤
-                    </div>
+                   
 
                     Hồ sơ cá nhân
                   </button>
@@ -171,14 +164,7 @@ const Dashboard = ({
                                     rounded-xl transition-all duration-200
                                     flex items-center gap-3">
 
-                    <div className="w-8 h-8 rounded-lg
-                                    bg-slate-100
-                                    flex items-center justify-center
-                                    group-hover:bg-white
-                                    group-hover:shadow-sm
-                                    transition-all">
-                      📊
-                    </div>
+                   
 
                     Lịch sử bài làm
                   </button>
@@ -193,13 +179,7 @@ const Dashboard = ({
                               rounded-xl transition-all duration-200 
                               flex items-center gap-3">
 
-                    <div className="w-8 h-8 rounded-lg 
-                                    bg-red-100/70 
-                                    flex items-center justify-center 
-                                    group-hover:bg-white 
-                                    transition-all">
-                      🚪
-                    </div>
+                   
 
                     Đăng xuất
                   </button>
@@ -277,7 +257,7 @@ const Dashboard = ({
               }}
               className="active:scale-95"
             >
-              🔍 Tìm kiếm
+              Tìm kiếm
             </button>
           </div>
         </div>
@@ -345,9 +325,9 @@ const Dashboard = ({
         <div id="member-tests">
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-              <Star size={24} className="text-yellow-400 fill-yellow-400" /> Đề Thi Tiêu Biểu
+               Đề Thi Tiêu Biểu
             </h3>
-            <span className="text-orange-600 font-bold text-sm cursor-pointer hover:underline">Xem tất cả →</span>
+            
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -377,11 +357,9 @@ const Dashboard = ({
 
                   {/* TAGS */}
                   <div className="flex gap-2">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
-                      #{test.type}
-                    </span>
+                   
                     <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-600">
-                      #{test.skill}
+                      {test.skill}
                     </span>
                   </div>
 
