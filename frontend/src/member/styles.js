@@ -166,84 +166,105 @@ const styles = {
     transition: 'color 0.2s',
     cursor: 'pointer'
   },
+  // ─── EXAM PAGE ──────────────────────────────────────────────────────────────
   testExam: {
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f0f4f8',
     fontFamily: "'Inter', sans-serif",
+    overflow: 'hidden',
   },
-    examHeader: {
-    height: '64px',
+
+  examHeader: {
+    height: '56px',
     backgroundColor: '#ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '0 24px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    padding: '0 20px',
+    borderBottom: '1px solid #e8edf4',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+    flexShrink: 0,
+    gap: '12px',
   },
+
   examTitle: {
-    fontSize: '20px',
-    fontWeight: '800',
+    fontSize: '16px',
+    fontWeight: '700',
     color: '#1e293b',
+    flex: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    marginRight: '12px',
   },
 
   examNav: {
-    backgroundColor: '#f8fafc',
-    padding: '12px 24px',
+    backgroundColor: '#ffffff',
+    padding: '0 20px',
     display: 'flex',
-    gap: '8px',
-    borderBottom: '1px solid #e2e8f0',
+    alignItems: 'center',
+    gap: '6px',
+    borderBottom: '1px solid #e8edf4',
     overflowX: 'auto',
+    flexShrink: 0,
+    minHeight: '44px',
   },
 
- navTab: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    backgroundColor: '#ffffff',
+  navTab: {
+    padding: '5px 14px',
+    borderRadius: '6px',
+    backgroundColor: 'transparent',
     color: '#64748b',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
-    border: '1px solid #e2e8f0',
+    border: '1.5px solid #e2e8f0',
     whiteSpace: 'nowrap',
-    transition: 'all 0.2s',
+    transition: 'all 0.15s',
+    flexShrink: 0,
   },
 
   navTabActive: {
     backgroundColor: '#eff6ff',
     color: '#2563eb',
-    borderColor: '#3b82f6',
-    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
+    borderColor: '#93c5fd',
   },
 
   examContent: {
     display: 'flex',
     flex: 1,
     overflow: 'hidden',
-    padding: '24px',
-    gap: '24px',
+    padding: '14px 16px',
+    gap: '14px',
   },
 
+  // Cột trái: nội dung câu hỏi
   examLeft: {
     flex: 1,
+    minWidth: 0,
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    padding: '32px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+    borderRadius: '14px',
+    padding: '28px 32px',
+    boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
+    border: '1px solid #e8edf4',
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
   },
 
+  // Cột phải: timer + danh sách câu
   examRight: {
-    width: '320px',
+    width: '250px',
+    flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '10px',
+    overflowY: 'auto',
   },
 
-  // --- NỘI DUNG CÂU HỎI ---
+  // ─── NỘI DUNG CÂU HỎI ───────────────────────────────────────────────────────
   questionContent: {
     flex: 1,
     display: 'flex',
@@ -254,119 +275,124 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '24px',
-    paddingBottom: '16px',
-    borderBottom: '1px solid #f1f5f9',
+    marginBottom: '20px',
+    paddingBottom: '14px',
+    borderBottom: '2px solid #f1f5f9',
   },
 
   questionType: {
-    fontSize: '18px',
-    fontWeight: '800',
+    fontSize: '12px',
+    fontWeight: '700',
     color: '#2563eb',
     textTransform: 'uppercase',
+    letterSpacing: '0.6px',
+    padding: '4px 10px',
+    backgroundColor: '#eff6ff',
+    borderRadius: '6px',
+    border: '1px solid #bfdbfe',
   },
 
   questionText: {
-    fontSize: '17px',
-    lineHeight: '1.7',
+    fontSize: '15px',
+    lineHeight: '1.75',
     color: '#334155',
-    marginBottom: '24px',
-    padding: '20px',
-    borderRadius: '12px',
+    marginBottom: '16px',
+    padding: '16px 20px',
+    borderRadius: '10px',
     backgroundColor: '#f8fafc',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #e8edf4',
   },
 
   examImage: {
     maxWidth: '100%',
-    maxHeight: '380px',
+    maxHeight: '300px',
     objectFit: 'contain',
-    borderRadius: '12px',
-    marginBottom: '24px',
+    borderRadius: '10px',
+    marginBottom: '18px',
     alignSelf: 'center',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+    border: '1px solid #e8edf4',
   },
 
-  // --- PHẦN NHẬP LIỆU (WRITING) ---
+  // ─── WRITING ────────────────────────────────────────────────────────────────
   textarea: {
     width: '100%',
-    minHeight: '220px',
-    padding: '20px',
-    borderRadius: '12px',
+    minHeight: '200px',
+    padding: '16px 18px',
+    borderRadius: '10px',
     border: '2px solid #e2e8f0',
-    fontSize: '16px',
-    lineHeight: '1.6',
+    fontSize: '15px',
+    lineHeight: '1.7',
     fontFamily: 'inherit',
-    transition: 'all 0.2s',
     outline: 'none',
     backgroundColor: '#fff',
     resize: 'vertical',
     boxSizing: 'border-box',
-    '&:focus': {
-      border: '1px solid #2563eb',
-      boxShadow: '0 0 0 4px rgba(37, 99, 235, 0.1)',
-    }
+    transition: 'border-color 0.2s',
   },
 
   wordCount: {
-    fontSize: '14px',
-    color: '#64748b',
-    marginTop: '10px',
+    fontSize: '12px',
+    color: '#94a3b8',
+    marginTop: '6px',
     textAlign: 'right',
     fontWeight: '600',
     fontVariantNumeric: 'tabular-nums',
   },
 
-  // --- TIỆN ÍCH BÊN PHẢI (TIMER & GRID) ---
+  // ─── SIDEBAR: TIMER ─────────────────────────────────────────────────────────
   timerBox: {
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    padding: '24px',
+    borderRadius: '12px',
+    padding: '16px 14px',
     textAlign: 'center',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+    border: '1px solid #e8edf4',
+    flexShrink: 0,
   },
 
   timerLabel: {
-    fontSize: '12px',
+    fontSize: '10px',
     color: '#94a3b8',
     marginBottom: '4px',
     textTransform: 'uppercase',
     fontWeight: '700',
-    letterSpacing: '0.5px',
+    letterSpacing: '0.8px',
   },
 
-timerValue: {
-  fontSize: "32px",
-  fontWeight: 800,
-  color: "#ef4444",
-  letterSpacing: "2px"
-},
+  timerValue: {
+    fontSize: '28px',
+    fontWeight: '800',
+    color: '#1e293b',
+    letterSpacing: '2px',
+    fontVariantNumeric: 'tabular-nums',
+  },
 
+  // ─── SIDEBAR: DANH SÁCH CÂU ─────────────────────────────────────────────────
   questionsBox: {
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-    border: '1px solid #e2e8f0',
+    borderRadius: '12px',
+    padding: '16px 14px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+    border: '1px solid #e8edf4',
     flex: 1,
     overflowY: 'auto',
+    minHeight: 0,
   },
 
   questionsTitle: {
-    fontSize: '16px',
+    fontSize: '11px',
     fontWeight: '700',
-    marginBottom: '16px',
-    color: '#1e293b',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
+    marginBottom: '10px',
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.6px',
   },
 
   questionGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(5, 1fr)',
-    gap: '10px',
+    gap: '5px',
   },
 
   questionNumber: {
@@ -374,24 +400,206 @@ timerValue: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: '10px',
+    borderRadius: '7px',
     backgroundColor: '#f1f5f9',
     color: '#475569',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '700',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    border: '2px solid transparent',
+    transition: 'all 0.15s ease',
+    border: '1.5px solid transparent',
   },
 
   questionNumberActive: {
     backgroundColor: '#2563eb',
     color: '#ffffff',
-    boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)',
-    transform: 'scale(1.05)',
+    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.35)',
+    border: '1.5px solid #1d4ed8',
   },
 
-  // --- KẾT QUẢ AI & MODAL ---
+  // ─── BUTTONS ────────────────────────────────────────────────────────────────
+  button: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '8px 16px',
+    borderRadius: '8px',
+    fontWeight: '600',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+    border: 'none',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+  },
+
+  buttonPrimary: {
+    backgroundColor: '#2563eb',
+    color: '#ffffff',
+  },
+
+  buttonSecondary: {
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    border: '1.5px solid #e2e8f0',
+  },
+
+  // ─── SPEAKING: RECORD ───────────────────────────────────────────────────────
+  recordButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    padding: '11px 28px',
+    width: 'fit-content',
+    minWidth: '150px',
+    margin: '16px auto',
+    borderRadius: '50px',
+    border: 'none',
+    fontWeight: '700',
+    fontSize: '13px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    color: '#ffffff',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+
+  recordActive: {
+    boxShadow: '0 0 0 4px rgba(220, 38, 38, 0.15), 0 4px 14px rgba(220, 38, 38, 0.35)',
+  },
+
+  // ─── SUBMIT (WRITING/SPEAKING) ───────────────────────────────────────────────
+  submitBtn: {
+    background: 'linear-gradient(135deg, #16a34a, #15803d)',
+    color: '#fff',
+    border: 'none',
+    padding: '10px 22px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 8px rgba(22, 163, 74, 0.2)',
+    position: 'relative',
+  },
+
+  submitBtnHover: {
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)',
+  },
+
+  submitBtnActive: {
+    transform: 'translateY(0)',
+  },
+
+  submitBtnDisabled: {
+    background: '#cbd5e1',
+    cursor: 'not-allowed',
+    boxShadow: 'none',
+    transform: 'none',
+  },
+
+  submitBtnLoading: {
+    paddingLeft: '40px',
+  },
+
+  spinner: {
+    position: 'absolute',
+    left: '13px',
+    top: '50%',
+    width: '15px',
+    height: '15px',
+    border: '2.5px solid rgba(255,255,255,0.4)',
+    borderTop: '2.5px solid #fff',
+    borderRadius: '50%',
+    transform: 'translateY(-50%)',
+    animation: 'spin 0.8s linear infinite',
+  },
+
+  // ─── RESULT MODAL (SPEAKING/WRITING) ────────────────────────────────────────
+  resultModalOverlay: {
+    position: 'fixed',
+    top: 0, left: 0,
+    width: '100vw', height: '100vh',
+    background: 'rgba(15, 23, 42, 0.45)',
+    backdropFilter: 'blur(3px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9999,
+    padding: '20px',
+  },
+
+  resultModal: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: '700px',
+    background: '#fff',
+    borderRadius: '16px',
+    boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+    padding: '28px 32px',
+    maxHeight: '88vh',
+    overflowY: 'auto',
+  },
+
+  resultHeader: {
+    fontSize: '17px',
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: '16px',
+    paddingBottom: '14px',
+    borderBottom: '1px solid #f1f5f9',
+  },
+
+  resultAudio: {
+    margin: '12px 0',
+    padding: '12px 14px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '10px',
+    border: '1px solid #e8edf4',
+  },
+
+  resultAIBox: {
+    background: '#f0f9ff',
+    border: '1px solid #bae6fd',
+    borderRadius: '10px',
+    padding: '14px 16px',
+    marginTop: '12px',
+    fontSize: '14px',
+    lineHeight: '1.75',
+    color: '#0c4a6e',
+  },
+
+  resultActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+    marginTop: '20px',
+    paddingTop: '16px',
+    borderTop: '1px solid #f1f5f9',
+  },
+
+  closeBtn: {
+    position: 'absolute',
+    top: '14px',
+    right: '16px',
+    border: 'none',
+    background: '#f1f5f9',
+    borderRadius: '8px',
+    width: '32px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '18px',
+    cursor: 'pointer',
+    color: '#64748b',
+    fontWeight: '700',
+    transition: 'all 0.15s',
+  },
+
+  // legacy aliases (kept for compatibility)
   aiBox: {
     backgroundColor: '#f0fdf4',
     border: '1px solid #bbf7d0',
@@ -401,215 +609,10 @@ timerValue: {
     color: '#166534',
     fontSize: '15px',
     lineHeight: '1.6',
-    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
   },
-
-  resultOverlay: {
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
-    backdropFilter: 'blur(4px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    animation: 'fadeIn 0.3s ease',
-  },
-
-  resultModal: {
-    backgroundColor: '#ffffff',
-    borderRadius: '20px',
-    width: '560px',
-    maxWidth: '90%',
-    maxHeight: '85vh',
-    padding: '32px',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    overflowY: 'auto',
-  },
-
-  // --- NÚT BẤM ---
-  button: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '12px 20px',
-    borderRadius: '10px',
-    fontWeight: '600',
-    fontSize: '15px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    border: 'none',
-  },
-
-  primaryBtn: {
-    backgroundColor: '#2563eb',
-    color: '#ffffff',
-    '&:hover': {
-      backgroundColor: '#1d4ed8',
-      transform: 'translateY(-1px)',
-    }
-  },
-
-  secondaryBtn: {
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    '&:hover': {
-      backgroundColor: '#e2e8f0',
-    }
-  },
-
-  submitButton: {
-    backgroundColor: '#10b981',
-    color: 'white',
-    padding: '14px 28px',
-    borderRadius: '10px',
-    border: 'none',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2)',
-    '&:hover': {
-      backgroundColor: '#059669',
-      boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.2)',
-    }
-  },
-  recordButton: {
-    display: 'flex',          // Chuyển về flex để căn chỉnh icon và chữ bên trong
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',               // Khoảng cách giữa icon và chữ
-    
-    // Kích thước ngắn lại
-    padding: '10px 24px', 
-    width: 'fit-content',     // Nút chỉ dài bằng nội dung bên trong
-    minWidth: '160px',        // Đảm bảo nút không quá ngắn khi đổi chữ
-    
-    // Căn giữa nút
-    margin: '20px auto',      // 20px cách trên dưới, 'auto' để căn giữa trái phải
-    
-    borderRadius: '50px',     // Bo tròn kiểu capsule
-    border: 'none',
-    fontWeight: '700',
-    fontSize: '14px',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
-    color: '#ffffff',
-    textTransform: 'uppercase',
-  },
-  // Tạo class riêng cho trạng thái đang ghi âm
-  recordActive: {
-    backgroundColor: '#dc2626',
-    boxShadow: '0 0 0 4px rgba(220, 38, 38, 0.2), 0 4px 15px rgba(220, 38, 38, 0.4)',
-    animation: 'pulse 1.5s infinite', // Nếu bạn dùng CSS keyframes
-  },
-submitBtn: {
-  background: "#4CAF50",
-  color: "#fff",
-  border: "none",
-  padding: "12px 26px",
-  borderRadius: "8px",
-  fontSize: "15px",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.25s ease",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-  position: "relative",
-},
-
-submitBtnHover: {
-  background: "#43a047",
-  transform: "translateY(-1px)",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-},
-
-submitBtnActive: {
-  transform: "translateY(0)",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-},
-
-submitBtnDisabled: {
-  background: "#9e9e9e",
-  cursor: "not-allowed",
-  boxShadow: "none",
-  transform: "none",
-},
-
-submitBtnLoading: {
-  paddingLeft: "42px",
-},
-
-spinner: {
-  position: "absolute",
-  left: "14px",
-  top: "50%",
-  width: "16px",
-  height: "16px",
-  border: "3px solid #fff",
-  borderTop: "3px solid transparent",
-  borderRadius: "50%",
-  transform: "translateY(-50%)",
-  animation: "spin 0.8s linear infinite",
-},
-resultModalOverlay: {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100vw",
-  height: "100vh",
-  background: "rgba(0,0,0,0.35)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 9999,
-  overflowY: "auto"   
-},
-resultModal: {
-  position: "relative",
-  width: "80vw",      
-  maxWidth: "1100px",
-  background: "#fff",
-  borderRadius: "14px",
-  boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
-  padding: "22px",
-  maxHeight: "90vh",   
-  overflowY: "auto"   
-},
-resultHeader: {
-  fontSize: "18px",
-  fontWeight: 700,
-  marginBottom: "10px"
-},
-
-resultAudio: {
-  margin: "10px 0"
-},
-
-resultAIBox: {
-  background: "#ecfeff",
-  border: "1px solid #67e8f9",
-  borderRadius: "8px",
-  padding: "10px",
-  marginTop: "10px"
-},
-
-resultActions: {
-  display: "flex",
-  justifyContent: "flex-end",
-  gap: "10px",
-  marginTop: "14px"
-},
-closeBtn: {
-  position: "absolute",
-  top: "10px",
-  right: "12px",
-  border: "none",
-  background: "transparent",
-  fontSize: "22px",
-  cursor: "pointer",
-  color: "#666",
-  fontWeight: "bold"
-}
+  primaryBtn: { backgroundColor: '#2563eb', color: '#ffffff' },
+  secondaryBtn: { backgroundColor: '#f1f5f9', color: '#475569' },
+  submitButton: { backgroundColor: '#10b981', color: 'white', padding: '14px 28px', borderRadius: '10px', border: 'none', fontWeight: '700', cursor: 'pointer' }
 
 };
 

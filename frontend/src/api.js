@@ -7,6 +7,7 @@ const api = axios.create({
 
 export const register = (data) => api.post("api/auth/register", data);
 export const login = (data) => api.post("api/auth/login", data);
+export const changePassword = (userId, data) => api.put(`api/auth/change-password/${userId}`, data);
 
 // 👉 Users
 export const getUsers = () => api.get("api/users");
@@ -62,5 +63,6 @@ export const getSessionDetail = (userId, sectionId, attemptedAt) =>
   api.get(`api/user-attempts/user/${userId}/session-detail`, {
     params: { section_id: sectionId, attempted_at: attemptedAt }
   });
+export const getWeakAreas = (userId) => api.get(`api/user-attempts/user/${userId}/weak-areas`);
 
 export default api;

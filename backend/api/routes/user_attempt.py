@@ -222,6 +222,12 @@ def get_session_detail(
     return results
 
 
+@router.get("/user/{user_id}/weak-areas")
+def get_weak_areas(user_id: int, db: Session = Depends(get_db)):
+    """Phân tích điểm yếu của user theo từng part/kỹ năng."""
+    return crud.get_weak_areas(db, user_id)
+
+
 @router.get("/user/{user_id}", response_model=list[UserAttemptOut])
 def get_attempts_by_user(user_id: int, db: Session = Depends(get_db)):
     return crud.get_by_user(db, user_id)

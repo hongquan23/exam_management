@@ -1,15 +1,62 @@
-import React from 'react';
-import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone, AlertTriangle, Zap, ChevronRight, Target } from 'lucide-react';
 import Profile from './Profile';
 import ContestPage from './ContestPage';
 import Course from './Course';
 
+const SKILL_META = {
+  listening: { icon: '🎧', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', label: 'Listening' },
+  reading:   { icon: '📖', color: '#10b981', bg: '#f0fdf4', border: '#a7f3d0', label: 'Reading' },
+};
+
+const LEVEL_META = {
+  weak: { text: 'Yếu',       bg: '#fef2f2', border: '#fecaca', bar: '#ef4444', badge: 'bg-red-100 text-red-600' },
+  fair: { text: 'Cần cải thiện', bg: '#fffbeb', border: '#fde68a', bar: '#f59e0b', badge: 'bg-amber-100 text-amber-600' },
+};
+
+const WeakAreaCard = ({ area, onClick }) => {
+  const skill  = SKILL_META[area.skill] || SKILL_META.listening;
+  const level  = LEVEL_META[area.level] || LEVEL_META.fair;
+  const pct    = Math.round(area.accuracy * 100);
+
+  return (
+    <div
+      onClick={onClick}
+      className="cursor-pointer rounded-2xl border p-4 transition-all duration-200 hover:shadow-md hover:scale-[1.02] active:scale-95"
+      style={{ background: level.bg, borderColor: level.border }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-2xl">{skill.icon}</span>
+        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${level.badge}`}>
+          {level.text}
+        </span>
+      </div>
+      <div className="font-bold text-slate-800 text-sm mb-1">{area.part_label}</div>
+      <div className="text-xs text-slate-500 mb-3">
+        {area.correct}/{area.total_attempts} câu đúng
+      </div>
+      <div className="w-full bg-slate-200 rounded-full h-1.5">
+        <div
+          className="h-1.5 rounded-full transition-all"
+          style={{ width: `${pct}%`, backgroundColor: level.bar }}
+        />
+      </div>
+      <div className="text-right text-xs font-bold mt-1" style={{ color: level.bar }}>
+        {pct}%
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = ({
   styles, skills, searchQuery, setSearchQuery, showUserMenu,
   setShowUserMenu, handleSkillClick, handleLogout, hoveredSkill,
-  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick,  currentUser,
-  loadingUser, handleProfileClick, handleContestClick, handleCourseClick, handleHistoryClick
+  setHoveredSkill, hoveredCard, setHoveredCard, allTests, handleTestClick, currentUser,
+  loadingUser, handleProfileClick, handleContestClick, handleCourseClick, handleHistoryClick,
+  weakAreas,
 }) => {
+  const [recHovered, setRecHovered] = useState(null);
+  const [showAll, setShowAll] = useState(false);
   const getUserInitials = (name) => {
     if (!name) return "U";
     const words = name.trim().split(" ");
@@ -25,18 +72,24 @@ const Dashboard = ({
     }
   };
 
-  const filteredTests = allTests?.filter(test => {
-  if (!searchQuery.trim()) return true;
-
-  const keyword = searchQuery.toLowerCase();
-
-  return (
-    test.title?.toLowerCase().includes(keyword) ||
-    test.name?.toLowerCase().includes(keyword) ||
-    test.skill?.toLowerCase().includes(keyword) ||
-    test.type?.toLowerCase().includes(keyword)
+  const sortedTests = [...(allTests || [])].sort(
+    (a, b) => (b.attempt_count || 0) - (a.attempt_count || 0)
   );
-});
+
+  const filteredTests = searchQuery.trim()
+    ? sortedTests.filter(test => {
+        const keyword = searchQuery.toLowerCase();
+        return (
+          test.title?.toLowerCase().includes(keyword) ||
+          test.name?.toLowerCase().includes(keyword) ||
+          test.skill?.toLowerCase().includes(keyword) ||
+          test.type?.toLowerCase().includes(keyword)
+        );
+      })
+    : (showAll ? sortedTests : sortedTests.slice(0, 8));
+
+  const maxAttempts = sortedTests[0]?.attempt_count || 0;
+  const hotThreshold = maxAttempts >= 3 ? Math.max(3, Math.floor(maxAttempts * 0.5)) : Infinity;
 
   return (
     <div style={styles.container}>
@@ -262,6 +315,148 @@ const Dashboard = ({
           </div>
         </div>
 
+        {/* ── GỢI Ý CÁ NHÂN HÓA ── */}
+        {weakAreas && weakAreas.total_mcq_attempts >= 3 && (
+          <div className="mb-16">
+            {weakAreas.weak_areas.length === 0 ? (
+              <div className="flex items-center gap-4 p-5 bg-green-50 border border-green-200 rounded-2xl">
+                <span className="text-3xl">🎉</span>
+                <div>
+                  <div className="font-bold text-green-800 text-base">Bạn đang làm rất tốt!</div>
+                  <div className="text-green-600 text-sm mt-0.5">
+                    Tất cả các phần đều trên {60}% — tiếp tục duy trì nhé.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Tiêu đề */}
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                    <span className="w-2 h-8 bg-red-500 rounded-full"></span>
+                    Phần cần ôn tập của bạn
+                    <span className="text-sm font-semibold text-slate-400">
+                      (dựa trên {weakAreas.total_mcq_attempts} lần làm)
+                    </span>
+                  </h3>
+                  <button
+                    onClick={handleHistoryClick}
+                    className="text-sm text-orange-500 font-semibold hover:underline flex items-center gap-1"
+                  >
+                    Xem lịch sử <ChevronRight size={14} />
+                  </button>
+                </div>
+
+                {/* Weak area cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-10">
+                  {weakAreas.weak_areas.map((area, i) => (
+                    <WeakAreaCard
+                      key={i}
+                      area={area}
+                      onClick={() => handleSkillClick(skills.find(s => s.id === area.skill) || skills[0])}
+                    />
+                  ))}
+
+                  {/* Tổng quan accuracy các skill */}
+                  {Object.entries(weakAreas.skill_accuracy || {}).map(([skill, stat]) => {
+                    const isWeak = weakAreas.weak_areas.some(w => w.skill === skill);
+                    if (isWeak) return null;
+                    const meta = SKILL_META[skill];
+                    if (!meta) return null;
+                    return (
+                      <div
+                        key={skill}
+                        className="rounded-2xl border p-4 bg-slate-50 border-slate-200"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-2xl">{meta.icon}</span>
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                            Tốt
+                          </span>
+                        </div>
+                        <div className="font-bold text-slate-800 text-sm mb-1">{meta.label}</div>
+                        <div className="text-xs text-slate-500 mb-3">
+                          {stat.correct}/{stat.total} câu đúng
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full bg-green-500"
+                            style={{ width: `${Math.round(stat.accuracy * 100)}%` }}
+                          />
+                        </div>
+                        <div className="text-right text-xs font-bold mt-1 text-green-600">
+                          {Math.round(stat.accuracy * 100)}%
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Đề thi gợi ý */}
+                {(() => {
+                  const weakSkills = new Set(weakAreas.weak_areas.map(w => w.skill));
+                  const suggested = allTests.filter(t => weakSkills.has(t.skill?.toLowerCase())).slice(0, 4);
+                  if (!suggested.length) return null;
+                  return (
+                    <div>
+                      <h4 className="text-lg font-extrabold text-slate-700 mb-4 flex items-center gap-2">
+                        <Target size={18} className="text-orange-500" />
+                        Đề thi gợi ý cho bạn
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {suggested.map(test => {
+                          const meta = SKILL_META[test.skill?.toLowerCase()] || {};
+                          return (
+                            <div
+                              key={test.id}
+                              className="group bg-white rounded-2xl border transition-all duration-300 cursor-pointer"
+                              style={{
+                                borderColor: recHovered === test.id ? (meta.color || '#ff8a00') : '#f1f5f9',
+                                boxShadow: recHovered === test.id ? '0 20px 40px rgba(0,0,0,0.10)' : '0 4px 12px rgba(0,0,0,0.04)',
+                                transform: recHovered === test.id ? 'scale(1.02)' : 'scale(1)',
+                              }}
+                              onMouseEnter={() => setRecHovered(test.id)}
+                              onMouseLeave={() => setRecHovered(null)}
+                            >
+                              <div className="p-4 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{meta.icon}</span>
+                                  <span
+                                    className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                                    style={{ background: meta.bg || '#f1f5f9', color: meta.color || '#64748b' }}
+                                  >
+                                    {test.skill}
+                                  </span>
+                                  <span className="ml-auto text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Zap size={10} /> Gợi ý
+                                  </span>
+                                </div>
+                                <h4 className="text-sm font-bold text-slate-800 line-clamp-2 min-h-[2.5rem] leading-snug group-hover:text-orange-600 transition-colors">
+                                  {test.title || test.name}
+                                </h4>
+                                <div className="text-xs text-slate-400 flex items-center gap-1">
+                                  <Clock size={12} /> {test.duration} phút
+                                </div>
+                                <button
+                                  className="w-full py-2 rounded-xl text-white text-xs font-semibold transition-all active:scale-95"
+                                  style={{ background: `linear-gradient(135deg, ${meta.color || '#f97316'}, ${meta.color || '#ea580c'})` }}
+                                  onClick={() => handleTestClick(test)}
+                                >
+                                  Luyện ngay →
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            )}
+          </div>
+        )}
+
         {/* SKILLS SECTION - MEMBER */}
         <div className="mb-20">
           <h3 className="text-2xl font-extrabold text-slate-800 mb-8 flex items-center gap-3">
@@ -325,9 +520,21 @@ const Dashboard = ({
         <div id="member-tests">
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-               Đề Thi Tiêu Biểu
+              {searchQuery.trim() ? 'Kết quả tìm kiếm' : 'Đề Thi Phổ Biến Nhất'}
+              {!searchQuery.trim() && (
+                <span className="text-sm font-semibold text-slate-400 flex items-center gap-1">
+                  <TrendingUp size={14} /> Top {filteredTests.length}
+                </span>
+              )}
             </h3>
-            
+            {!searchQuery.trim() && !showAll && sortedTests.length > 8 && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="text-sm text-orange-500 font-semibold hover:underline flex items-center gap-1"
+              >
+                Xem tất cả ({sortedTests.length}) <ChevronRight size={14} />
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -346,8 +553,8 @@ const Dashboard = ({
                 onMouseEnter={() => setHoveredCard(test.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                {/* BADGE HOT / NEW */}
-                {test.views > 2000 && (
+                {/* BADGE HOT */}
+                {(test.attempt_count || 0) >= hotThreshold && hotThreshold !== Infinity && (
                   <div className="absolute -top-3 left-4 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md">
                     🔥 HOT
                   </div>
@@ -387,9 +594,6 @@ const Dashboard = ({
                   <div className="flex items-center justify-between">
                     <div className="text-[11px] font-semibold text-slate-600">
                       {(test.questions?.length ?? test.question_count ?? 0)} câu hỏi
-                    </div>
-                    <div className="text-[11px] text-orange-500 font-bold">
-                      Free
                     </div>
                   </div>
 

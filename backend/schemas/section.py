@@ -7,6 +7,7 @@ class SectionBase(BaseModel):
 
 class SectionOut(SectionBase):
     id: int
+    attempt_count: int = 0
 
     class Config:
         from_attributes = True

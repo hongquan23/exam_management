@@ -11,12 +11,13 @@ import Profile from './Profile';
 import ContestPage from './ContestPage';
 import Course from './Course';
 import History from './History';
+import ChatBot from './ChatBot';
 import {
   getSpeakingTests, getWritingTests, getListeningTests, getReadingTests,
   getWritingBySection, getSpeakingBySection, getListeningBySection, getReadingBySection,
   scoreWritingQ1_5, scoreWritingQ6_7, scoreWritingQ8,
   scoreSpeakingQ1_2, scoreSpeakingQ3_4, scoreSpeakingQ5_7, scoreSpeakingQ8_10, scoreSpeakingQ11,
-  submitMcqAnswers, getUser,
+  submitMcqAnswers, getUser, getWeakAreas,
 } from "../api";
 import ExamResult from '../admin/ExamResult';
 import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Facebook, Youtube, Mail, Phone } from 'lucide-react';
@@ -202,8 +203,9 @@ const ToeicMember = () => {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audioURL, setAudioURL] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null); 
+  const [currentUser, setCurrentUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [weakAreas, setWeakAreas] = useState(null);
   const resetAudio = () => {
   setAudioBlob(null);
   setAudioURL(null);
@@ -218,8 +220,16 @@ const ToeicMember = () => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 useEffect(() => {
+  const userId = localStorage.getItem("user_id");
+  if (!userId) return;
+  getWeakAreas(userId)
+    .then(res => setWeakAreas(res.data))
+    .catch(() => {});
+}, []);
 
-  
+useEffect(() => {
+
+
   const path = location.pathname;
 
   if (path === "/member") {
@@ -316,6 +326,7 @@ const fetchTests = async () => {
           duration: section.time_limit || 15,
           views: 0,
           comments: 0,
+          attempt_count: section.attempt_count || 0,
           sections: [],
           questions: []
         };
@@ -360,6 +371,7 @@ const fetchTests = async () => {
           duration: section.time_limit || 37,
           views: 0,
           comments: 0,
+          attempt_count: section.attempt_count || 0,
           sections: [],
           questions: []
         };
@@ -397,6 +409,7 @@ const fetchTests = async () => {
           id: `listening-${baseName}`, section_id: section.id,
           title: baseName, name: baseName, skill: 'Listening',
           duration: section.time_limit || 45, views: 0, comments: 0,
+          attempt_count: section.attempt_count || 0,
           sections: [], questions: []
         };
       }
@@ -418,6 +431,7 @@ const fetchTests = async () => {
           id: `reading-${baseName}`, section_id: section.id,
           title: baseName, name: baseName, skill: 'Reading',
           duration: section.time_limit || 75, views: 0, comments: 0,
+          attempt_count: section.attempt_count || 0,
           sections: [], questions: []
         };
       }
@@ -1480,7 +1494,12 @@ const renderRecordControls = (responseTime, question) => {
           <div style={{ display: 'flex', gap: '12px' }}>
           {isMcqSkill(selectedTest.skill) && !isTimeUp && (
             <button
-              style={{ ...styles.button, backgroundColor: '#16a34a', color: 'white' }}
+              style={{
+                ...styles.button,
+                background: 'linear-gradient(135deg, #16a34a, #15803d)',
+                color: 'white',
+                boxShadow: '0 2px 8px rgba(22,163,74,0.25)',
+              }}
               onClick={handleSubmitExam}
             >
               Nộp bài ({Object.keys(answers).length}/{selectedTest.questions.length})
@@ -1650,13 +1669,13 @@ const renderRecordControls = (responseTime, question) => {
                   const first = displayNum(partQuestions[0]);
                   const last = displayNum(partQuestions[partQuestions.length - 1]);
                   return (
-                    <div key={part} style={{ marginBottom: '16px' }}>
+                    <div key={part} style={{ marginBottom: '12px' }}>
                       <div style={{
-                        fontSize: '12px', fontWeight: '700', color: '#6b7280',
-                        marginBottom: '6px', paddingLeft: '4px',
-                        textTransform: 'uppercase', letterSpacing: '0.5px'
+                        fontSize: '10px', fontWeight: '700', color: '#94a3b8',
+                        marginBottom: '5px', paddingLeft: '2px',
+                        textTransform: 'uppercase', letterSpacing: '0.6px'
                       }}>
-                        Part {part} · {partQuestions.length === 1 ? `Câu ${first}` : `Câu ${first}-${last}`}
+                        Part {part} · {partQuestions.length === 1 ? `Q${first}` : `Q${first}–${last}`}
                       </div>
 
                       <div style={styles.questionGrid}>
@@ -1689,10 +1708,8 @@ const renderRecordControls = (responseTime, question) => {
                 });
             })()}
           </div>
-            <div style={{ fontSize: '11px', color: '#f97316', textAlign: 'center', padding: '8px' }}>
-              
-              <br />
-              Chú ý: Bạn có thể click vào số thứ tự câu hỏi trong bảng để chuyển nhanh đến câu đó. Hãy đảm bảo nộp bài trước khi chuyển câu!
+            <div style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '8px 4px', lineHeight: '1.5', marginTop: '6px' }}>
+              Click số câu để chuyển nhanh. Nhớ nộp bài trước khi thoát.
             </div>
           </div>
         </div>
@@ -1784,8 +1801,11 @@ const renderQuestionResult = () => {
   );
 };
 
+  const historyUserId = localStorage.getItem("user_id");
+
+  let viewContent = null;
   if (activeView === 'dashboard') {
-    return (
+    viewContent = (
       <Dashboard
         styles={styles}
         skills={skills}
@@ -1801,18 +1821,17 @@ const renderQuestionResult = () => {
         setHoveredCard={setHoveredCard}
         allTests={allTests}
         handleTestClick={handleTestClick}
-        currentUser={currentUser}      
+        currentUser={currentUser}
         loadingUser={loadingUser}
         handleProfileClick={handleProfileClick}
         handleContestClick={handleContestClick}
         handleCourseClick={handleCourseClick}
         handleHistoryClick={handleHistoryClick}
+        weakAreas={weakAreas}
       />
     );
-  }
-
-  if (activeView === 'speaking') {
-    return (
+  } else if (activeView === 'speaking') {
+    viewContent = (
       <SpeakingTests
         styles={styles}
         hoveredCard={hoveredCard}
@@ -1820,14 +1839,12 @@ const renderQuestionResult = () => {
         speakingTests={speakingTestsData}
         setActiveView={setActiveView}
         handleTestClick={handleTestClick}
-        currentUser={currentUser}      
+        currentUser={currentUser}
         loadingUser={loadingUser}
       />
     );
-  }
-
-  if (activeView === 'writing') {
-    return (
+  } else if (activeView === 'writing') {
+    viewContent = (
       <WritingTests
         styles={styles}
         hoveredCard={hoveredCard}
@@ -1835,14 +1852,12 @@ const renderQuestionResult = () => {
         writingTests={writingTestsData}
         setActiveView={setActiveView}
         handleTestClick={handleTestClick}
-        currentUser={currentUser}      
+        currentUser={currentUser}
         loadingUser={loadingUser}
       />
     );
-  }
-
-  if (activeView === 'listening') {
-    return (
+  } else if (activeView === 'listening') {
+    viewContent = (
       <ListeningTests
         styles={styles}
         hoveredCard={hoveredCard}
@@ -1854,10 +1869,8 @@ const renderQuestionResult = () => {
         loadingUser={loadingUser}
       />
     );
-  }
-
-  if (activeView === 'reading') {
-    return (
+  } else if (activeView === 'reading') {
+    viewContent = (
       <ReadingTests
         styles={styles}
         hoveredCard={hoveredCard}
@@ -1869,42 +1882,29 @@ const renderQuestionResult = () => {
         loadingUser={loadingUser}
       />
     );
-  }
-
-  if (activeView === 'exam') {
-    return renderExam();
-  }
-  if (activeView === "profile") {
-    return <Profile currentUser={currentUser} />;
-  }
-
-  if (activeView === "history") {
-    const userId = localStorage.getItem("user_id");
-    return (
+  } else if (activeView === 'exam') {
+    viewContent = renderExam();
+  } else if (activeView === 'profile') {
+    viewContent = <Profile currentUser={currentUser} />;
+  } else if (activeView === 'history') {
+    viewContent = (
       <History
-        userId={userId}
+        userId={historyUserId}
         onBack={() => { setActiveView("dashboard"); navigate("/member/dashboard"); }}
       />
     );
+  } else if (activeView === 'ContestPage') {
+    viewContent = <ContestPage currentUser={currentUser} navigate={navigate} />;
+  } else if (activeView === 'course') {
+    viewContent = <Course navigate={navigate} />;
   }
 
-if (activeView === "ContestPage") {
   return (
-    <ContestPage  
-      currentUser={currentUser}
-      navigate={navigate}
-    />
+    <>
+      {viewContent}
+      <ChatBot currentUser={currentUser} weakAreas={weakAreas} />
+    </>
   );
-}
-
-if (activeView === "course") {
-  return (
-    <Course 
-    navigate={navigate}/>
-  );
-}
-
-  return null;
 };
 
 export default ToeicMember;

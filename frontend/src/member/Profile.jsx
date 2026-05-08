@@ -1,19 +1,48 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, User, Mail, Lock, ShieldCheck, Camera, Save,
+  ArrowLeft, User, Mail, Lock, ShieldCheck, Camera, Save, CheckCircle, XCircle,
 } from "lucide-react";
+import { changePassword } from "../api";
 
 const Profile = ({ currentUser }) => {
   const navigate = useNavigate();
   const [name, setName] = useState(currentUser?.name || "Người dùng");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwMsg, setPwMsg] = useState(null); // { type: 'success'|'error', text: string }
+  const [pwLoading, setPwLoading] = useState(false);
 
   const handleUpdateName = () => alert("Tên mới: " + name);
-  const handleUpdatePassword = () => {
-    if (newPassword !== confirmPassword) { alert("Mật khẩu xác nhận không khớp"); return; }
-    alert("Đã cập nhật mật khẩu");
+
+  const handleUpdatePassword = async () => {
+    setPwMsg(null);
+    if (!currentPassword) { setPwMsg({ type: "error", text: "Vui lòng nhập mật khẩu hiện tại" }); return; }
+    if (!newPassword) { setPwMsg({ type: "error", text: "Vui lòng nhập mật khẩu mới" }); return; }
+    if (newPassword !== confirmPassword) { setPwMsg({ type: "error", text: "Mật khẩu xác nhận không khớp" }); return; }
+    if (newPassword.length < 6) { setPwMsg({ type: "error", text: "Mật khẩu mới phải có ít nhất 6 ký tự" }); return; }
+
+    setPwLoading(true);
+    try {
+      await changePassword(currentUser.id, {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      setPwMsg({ type: "success", text: "Đổi mật khẩu thành công!" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      const detail = err.response?.data?.detail;
+      if (detail === "Current password incorrect") {
+        setPwMsg({ type: "error", text: "Mật khẩu hiện tại không đúng" });
+      } else {
+        setPwMsg({ type: "error", text: detail || "Có lỗi xảy ra, vui lòng thử lại" });
+      }
+    } finally {
+      setPwLoading(false);
+    }
   };
 
   return (
@@ -108,6 +137,15 @@ const Profile = ({ currentUser }) => {
                 <h3 className="text-xl font-bold">Bảo mật tài khoản</h3>
               </div>
               <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Mật khẩu hiện tại</label>
+                  <div className="relative">
+                    <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-rose-500/50 outline-none transition-all focus:bg-white/10"
+                      placeholder="••••••••" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Mật khẩu mới</label>
@@ -119,7 +157,7 @@ const Profile = ({ currentUser }) => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Xác nhận mật khẩu</label>
+                    <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Xác nhận mật khẩu mới</label>
                     <div className="relative">
                       <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-rose-500/50 outline-none transition-all focus:bg-white/10"
@@ -128,9 +166,23 @@ const Profile = ({ currentUser }) => {
                     </div>
                   </div>
                 </div>
-                <button onClick={handleUpdatePassword}
-                  className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-4 px-10 rounded-2xl transition-all active:scale-[0.98]">
-                  Cập nhật mật khẩu
+
+                {pwMsg && (
+                  <div className={`flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium ${
+                    pwMsg.type === "success"
+                      ? "bg-green-500/15 border border-green-500/30 text-green-400"
+                      : "bg-rose-500/15 border border-rose-500/30 text-rose-400"
+                  }`}>
+                    {pwMsg.type === "success"
+                      ? <CheckCircle size={16} />
+                      : <XCircle size={16} />}
+                    {pwMsg.text}
+                  </div>
+                )}
+
+                <button onClick={handleUpdatePassword} disabled={pwLoading}
+                  className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-4 px-10 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+                  {pwLoading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
                 </button>
               </div>
             </div>
