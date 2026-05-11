@@ -1,209 +1,517 @@
-import React, { useState } from 'react';
-import { CheckCircle, XCircle, ArrowLeft, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import React from "react";
 
-const ExamResult = ({ result, test, onBack, onRetry }) => {
-  const [expandedQ, setExpandedQ] = useState(null);
-
-  const { score, total, results, created_at } = result;
-  const percent = total > 0 ? Math.round((score / total) * 100) : 0;
-
-  // Map question_id → full question data từ test
-  const questionMap = {};
-  (test?.questions || []).forEach(q => { questionMap[q.id] = q; });
-
-  const getScoreColor = () => {
-    if (percent >= 80) return '#16a34a';
-    if (percent >= 60) return '#d97706';
-    return '#dc2626';
-  };
-
-  const getScoreBg = () => {
-    if (percent >= 80) return '#dcfce7';
-    if (percent >= 60) return '#fef3c7';
-    return '#fee2e2';
-  };
-
+const ExamResult = () => {
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', padding: '24px 16px' }}>
-      {/* Header */}
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-          <button
-            onClick={onBack}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: 8,
-              border: '1px solid #e2e8f0', backgroundColor: 'white',
-              cursor: 'pointer', fontWeight: 600, color: '#475569'
-            }}
-          >
-            <ArrowLeft size={16} /> Về trang chủ
-          </button>
-          <button
-            onClick={onRetry}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 16px', borderRadius: 8,
-              border: '1px solid #6366f1', backgroundColor: '#eef2ff',
-              cursor: 'pointer', fontWeight: 600, color: '#4f46e5'
-            }}
-          >
-            <RotateCcw size={16} /> Làm lại
-          </button>
+    <div style={styles.page}>
+      {/* TOP BUTTONS */}
+      <div style={styles.topButtons}>
+        <button style={styles.button}>
+          ← Về trang chủ
+        </button>
+
+        <button style={styles.button}>
+          ↻ Làm lại
+        </button>
+      </div>
+
+      {/* MAIN CARD */}
+      <div style={styles.mainCard}>
+        {/* HEADER */}
+        <div style={styles.header}>
+          {/* DATE */}
+          <div style={styles.dateBox}>
+            ⏰ 11/05/2026 • 05:17
+          </div>
+
+          <h1 style={styles.title}>vit</h1>
         </div>
 
-        {/* Score card */}
-        <div style={{
-          backgroundColor: 'white', borderRadius: 16, padding: 32,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.06)', marginBottom: 24,
-          textAlign: 'center'
-        }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1e293b', marginBottom: 4 }}>
-            {test?.title}
-          </h2>
-          <p style={{ color: '#94a3b8', fontSize: 13, marginBottom: 24 }}>
-            {test?.skill} · {created_at ? new Date(created_at).toLocaleString('vi-VN') : ''}
-          </p>
+        {/* TOP GRID */}
+        <div style={styles.topGrid}>
+          {/* LEFT CARD */}
+          <div style={styles.motivationCard}>
+            <div style={styles.icon}>🏆</div>
 
-          <div style={{
-            display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
-            backgroundColor: getScoreBg(), borderRadius: 16, padding: '20px 48px',
-            marginBottom: 20
-          }}>
-            <span style={{ fontSize: 52, fontWeight: 900, color: getScoreColor(), lineHeight: 1 }}>
-              {score}/{total}
-            </span>
-            <span style={{ fontSize: 28, fontWeight: 700, color: getScoreColor() }}>
-              {percent}%
+            <h2 style={styles.motivationTitle}>
+              Cần cố gắng 📚
+            </h2>
+
+            <p style={styles.motivationText}>
+              Hãy luyện tập thêm nhé.
+            </p>
+          </div>
+
+          {/* RESULT */}
+          <div style={styles.resultCard}>
+            <div style={styles.resultIcon}>
+              🎯
+            </div>
+
+            <h2 style={styles.resultScore}>
+              0/1
+            </h2>
+
+            <p style={styles.resultPercent}>
+              0%
+            </p>
+
+            <span style={styles.resultLabel}>
+              Kết quả bài làm
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#16a34a' }}>{score}</div>
-              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Đúng</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#dc2626' }}>{total - score}</div>
-              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Sai</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#94a3b8' }}>
-                {total - results.length}
+          {/* RIGHT STATS */}
+          <div style={styles.statsGrid}>
+            <div
+              style={{
+                ...styles.smallCard,
+                ...styles.blueCard,
+              }}
+            >
+              <div style={styles.smallTitle}>
+                ⏱ Thời gian
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Bỏ qua</div>
+
+              <div style={styles.smallValue}>
+                00:00
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...styles.smallCard,
+                ...styles.orangeCard,
+              }}
+            >
+              <div style={styles.smallTitle}>
+                🎯 Tổng câu
+              </div>
+
+              <div style={styles.smallValue}>
+                1
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...styles.smallCard,
+                ...styles.purpleCard,
+              }}
+            >
+              <div style={styles.smallTitle}>
+                🔥 Hiệu suất
+              </div>
+
+              <div
+                style={{
+                  ...styles.smallValue,
+                  fontSize: "22px",
+                }}
+              >
+                Cần cải thiện
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...styles.smallCard,
+                ...styles.lightCard,
+              }}
+            >
+              <div style={styles.smallTitle}>
+                ❌ Sai
+              </div>
+
+              <div style={styles.smallValue}>
+                1
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Chi tiết từng câu */}
-        <div style={{ backgroundColor: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9' }}>
-            <h3 style={{ fontWeight: 700, color: '#1e293b', margin: 0 }}>Chi tiết đáp án</h3>
+        {/* ANSWER SECTION */}
+        <div style={styles.answerSection}>
+          <div style={styles.answerHeader}>
+            📘 Chi tiết đáp án
           </div>
 
-          {results.map((r, idx) => {
-            const q = questionMap[r.question_id];
-            const isOpen = expandedQ === r.question_id;
-            const options = q ? [
-              { key: 'A', value: q.option_a },
-              { key: 'B', value: q.option_b },
-              { key: 'C', value: q.option_c },
-              { key: 'D', value: q.option_d },
-            ].filter(o => o.value) : [];
-
-            return (
-              <div key={r.question_id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                {/* Row tóm tắt */}
-                <div
-                  onClick={() => setExpandedQ(isOpen ? null : r.question_id)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '14px 24px', cursor: 'pointer',
-                    backgroundColor: isOpen ? '#f8fafc' : 'white',
-                    transition: 'background 0.15s'
-                  }}
-                >
-                  {r.is_correct
-                    ? <CheckCircle size={20} color="#16a34a" />
-                    : <XCircle size={20} color="#dc2626" />
-                  }
-                  <span style={{ fontWeight: 600, color: '#475569', minWidth: 24 }}>
-                    {q?.question_number || idx + 1}
-                  </span>
-                  <span style={{ flex: 1, fontSize: 14, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {q?.question || `Câu ${idx + 1}`}
-                  </span>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-                    <span style={{
-                      padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-                      backgroundColor: r.is_correct ? '#dcfce7' : '#fee2e2',
-                      color: r.is_correct ? '#166534' : '#991b1b'
-                    }}>
-                      Bạn: {r.user_ans || '—'}
-                    </span>
-                    {!r.is_correct && (
-                      <span style={{
-                        padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-                        backgroundColor: '#dcfce7', color: '#166534'
-                      }}>
-                        Đúng: {r.correct_answer}
-                      </span>
-                    )}
-                    {isOpen ? <ChevronUp size={16} color="#94a3b8" /> : <ChevronDown size={16} color="#94a3b8" />}
-                  </div>
+          {/* QUESTION */}
+          <div style={styles.questionBox}>
+            {/* LEFT */}
+            <div style={styles.questionLeft}>
+              <div style={styles.questionInfo}>
+                <div style={styles.questionNumber}>
+                  1
                 </div>
 
-                {/* Expand: hiển thị passage + options */}
-                {isOpen && q && (
-                  <div style={{ padding: '0 24px 16px 56px', backgroundColor: '#f8fafc' }}>
-                    {q.passage && (
-                      <div style={{
-                        backgroundColor: '#eef2ff', border: '1px solid #c7d2fe',
-                        borderRadius: 8, padding: '10px 14px', marginBottom: 12,
-                        fontSize: 13, color: '#3730a3', whiteSpace: 'pre-line'
-                      }}>
-                        <strong>Transcript:</strong>
-                        <div style={{ marginTop: 4 }}>{q.passage}</div>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {options.map(opt => {
-                        const isUserAns = r.user_ans === opt.key;
-                        const isCorrectAns = r.correct_answer === opt.key;
-                        let bg = 'white'; let border = '#e2e8f0'; let color = '#334155';
-                        if (isCorrectAns) { bg = '#dcfce7'; border = '#22c55e'; color = '#166534'; }
-                        else if (isUserAns) { bg = '#fee2e2'; border = '#fca5a5'; color = '#991b1b'; }
+                <div>
+                  <h3 style={styles.questionTitle}>
+                    Câu hỏi đọc hiểu
+                  </h3>
 
-                        return (
-                          <div key={opt.key} style={{
-                            display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '8px 12px', borderRadius: 8,
-                            border: `1.5px solid ${border}`, backgroundColor: bg
-                          }}>
-                            <span style={{
-                              width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
-                              backgroundColor: isCorrectAns ? '#22c55e' : isUserAns ? '#f87171' : '#f1f5f9',
-                              color: (isCorrectAns || isUserAns) ? 'white' : '#64748b',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontWeight: 700, fontSize: 12
-                            }}>{opt.key}</span>
-                            <span style={{ fontSize: 13, color }}>{opt.value}</span>
-                            {isCorrectAns && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#16a34a', fontWeight: 700 }}>✓ Đúng</span>}
-                            {isUserAns && !isCorrectAns && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#dc2626', fontWeight: 700 }}>✗ Bạn chọn</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                  <p style={styles.questionSub}>
+                    Đáp án đúng: B
+                  </p>
+                </div>
               </div>
-            );
-          })}
+
+              {/* OPTIONS */}
+              <div style={styles.option}>
+                <div style={styles.optionLetter}>
+                  A
+                </div>
+
+                <span>Lựa chọn A</span>
+              </div>
+
+              <div
+                style={{
+                  ...styles.option,
+                  ...styles.correctOption,
+                }}
+              >
+                <div style={styles.optionLetter}>
+                  B
+                </div>
+
+                <span>
+                  Lựa chọn B (Đúng)
+                </span>
+              </div>
+
+              <div style={styles.option}>
+                <div style={styles.optionLetter}>
+                  C
+                </div>
+
+                <span>Lựa chọn C</span>
+              </div>
+
+              <div style={styles.option}>
+                <div style={styles.optionLetter}>
+                  D
+                </div>
+
+                <span>Lựa chọn D</span>
+              </div>
+            </div>
+
+            {/* RIGHT */}
+            <div style={styles.explainBox}>
+              <h3 style={styles.explainTitle}>
+                💡 Giải thích
+              </h3>
+
+              <p style={styles.explainText}>
+                Đáp án B là đáp án chính xác vì
+                nội dung trong đoạn văn đã nhấn
+                mạnh ý nghĩa của lựa chọn này.
+              </p>
+
+              <br />
+
+              <p style={styles.explainText}>
+                Dựa trên thông tin được cung cấp,
+                ta có thể xác định rằng đáp án B
+                phù hợp nhất với yêu cầu câu hỏi.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
+};
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    padding: "30px",
+    background:
+      "linear-gradient(135deg,#4b6bff 0%, #6d42c8 50%, #e84393 100%)",
+    fontFamily: "Inter, sans-serif",
+    color: "white",
+  },
+
+  /* BUTTONS */
+
+  topButtons: {
+    display: "flex",
+    gap: "16px",
+    marginBottom: "24px",
+  },
+
+  button: {
+    border: "none",
+    padding: "14px 26px",
+    borderRadius: "18px",
+    fontSize: "17px",
+    fontWeight: "700",
+    color: "white",
+    cursor: "pointer",
+    background:
+      "linear-gradient(135deg,#a64dff,#ff4fa3)",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.18)",
+  },
+
+  /* MAIN */
+
+  mainCard: {
+    background: "rgba(255,255,255,0.12)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "35px",
+    padding: "30px",
+    border: "1px solid rgba(255,255,255,0.15)",
+  },
+
+  /* HEADER */
+
+  header: {
+    position: "relative",
+    textAlign: "center",
+    marginBottom: "30px",
+  },
+
+  dateBox: {
+    position: "absolute",
+    top: "0",
+    right: "0",
+    background: "rgba(255,255,255,0.12)",
+    padding: "10px 18px",
+    borderRadius: "14px",
+    fontSize: "14px",
+    fontWeight: "600",
+    border: "1px solid rgba(255,255,255,0.15)",
+    backdropFilter: "blur(10px)",
+  },
+
+  title: {
+    fontSize: "60px",
+    fontWeight: "800",
+  },
+
+  /* GRID */
+
+  topGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 1fr 1fr",
+    gap: "22px",
+    marginBottom: "30px",
+  },
+
+  /* LEFT */
+
+  motivationCard: {
+    background:
+      "linear-gradient(135deg,#8e44ff,#ff4fa3)",
+    borderRadius: "28px",
+    padding: "28px",
+    minHeight: "240px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.14)",
+  },
+
+  icon: {
+    fontSize: "58px",
+    marginBottom: "20px",
+  },
+
+  motivationTitle: {
+    fontSize: "44px",
+    marginBottom: "12px",
+  },
+
+  motivationText: {
+    fontSize: "22px",
+    opacity: 0.95,
+  },
+
+  /* RESULT */
+
+  resultCard: {
+    background: "#fff0f2",
+    border: "3px solid #ff5c77",
+    borderRadius: "28px",
+    minHeight: "240px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#ff2d55",
+  },
+
+  resultIcon: {
+    fontSize: "55px",
+    marginBottom: "10px",
+  },
+
+  resultScore: {
+    fontSize: "82px",
+    lineHeight: 1,
+    marginBottom: "8px",
+  },
+
+  resultPercent: {
+    fontSize: "48px",
+    fontWeight: "800",
+    marginBottom: "8px",
+  },
+
+  resultLabel: {
+    fontSize: "22px",
+    fontWeight: "600",
+  },
+
+  /* STATS */
+
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "18px",
+  },
+
+  smallCard: {
+    borderRadius: "24px",
+    padding: "20px",
+    minHeight: "110px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    boxShadow: "0 10px 20px rgba(0,0,0,0.12)",
+  },
+
+  blueCard: {
+    background:
+      "linear-gradient(135deg,#42a5ff,#2962ff)",
+  },
+
+  orangeCard: {
+    background:
+      "linear-gradient(135deg,#ffb300,#ff7b00)",
+  },
+
+  purpleCard: {
+    background:
+      "linear-gradient(135deg,#8e44ff,#c86cff)",
+  },
+
+  lightCard: {
+    background: "rgba(255,255,255,0.14)",
+  },
+
+  smallTitle: {
+    fontSize: "18px",
+    marginBottom: "10px",
+  },
+
+  smallValue: {
+    fontSize: "34px",
+    fontWeight: "800",
+  },
+
+  /* ANSWER */
+
+  answerSection: {
+    background: "rgba(255,255,255,0.12)",
+    borderRadius: "30px",
+    padding: "28px",
+  },
+
+  answerHeader: {
+    fontSize: "34px",
+    fontWeight: "800",
+    marginBottom: "24px",
+  },
+
+  questionBox: {
+    display: "grid",
+    gridTemplateColumns: "1.4fr 1fr",
+    gap: "22px",
+  },
+
+  questionLeft: {
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "24px",
+    padding: "24px",
+  },
+
+  questionInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    marginBottom: "20px",
+  },
+
+  questionNumber: {
+    width: "56px",
+    height: "56px",
+    borderRadius: "50%",
+    background: "#16c95f",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "26px",
+    fontWeight: "800",
+  },
+
+  questionTitle: {
+    fontSize: "28px",
+    marginBottom: "5px",
+  },
+
+  questionSub: {
+    fontSize: "18px",
+    opacity: 0.9,
+  },
+
+  /* OPTIONS */
+
+  option: {
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "18px",
+    padding: "16px 18px",
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+    marginBottom: "14px",
+    fontSize: "20px",
+  },
+
+  correctOption: {
+    background: "#dff7e8",
+    color: "#16a34a",
+    fontWeight: "700",
+  },
+
+  optionLetter: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    background: "white",
+    color: "#444",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "800",
+  },
+
+  /* EXPLAIN */
+
+  explainBox: {
+    background: "rgba(255,255,255,0.08)",
+    borderRadius: "24px",
+    padding: "26px",
+  },
+
+  explainTitle: {
+    fontSize: "30px",
+    marginBottom: "18px",
+  },
+
+  explainText: {
+    fontSize: "20px",
+    lineHeight: 1.8,
+    opacity: 0.95,
+  },
 };
 
 export default ExamResult;
