@@ -24,7 +24,7 @@ import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Fac
 
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: false },
-  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: false },
+  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: true },
   { id: 'writing', name: 'Writing', icon: '✍️', color: '#8b5cf6', disabled: false },
   { id: 'speaking', name: 'Speaking', icon: '🎤', color: '#f97316', disabled: false }
 ];

@@ -58,7 +58,7 @@ const Dashboard = ({
   const [recHovered, setRecHovered] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const getUserInitials = (name) => {
-    if (!name) return "U";
+    if (!name) return "User";
     const words = name.trim().split(" ");
     if (words.length === 1) return words[0][0].toUpperCase();
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();

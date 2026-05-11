@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import settings
+from core.middleware import JWTAuthMiddleware
 from api.api_router import api_router
 from fastapi.staticfiles import StaticFiles
 
@@ -11,6 +12,10 @@ def create_app() -> FastAPI:
         version = "1.0.0",
         description = "An API for managing TOEIC exam data",
 )
+
+    # FastAPI builds middleware as LIFO stack: last added = outermost layer.
+    # JWTAuthMiddleware must be added first so CORS runs before it.
+    app.add_middleware(JWTAuthMiddleware)
 
     app.add_middleware(
         CORSMiddleware,

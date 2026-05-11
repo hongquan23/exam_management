@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, TrendingUp, RotateCcw, TrendingDown } from 'lucide-react';
+import { sendChatMessage } from '../api';
 
 const API_BASE = 'http://127.0.0.1:8000';
 
@@ -48,7 +49,7 @@ const renderInline = (text, key) => {
 };
 
 const renderMarkdown = (text) => {
-  const lines = text.split('\n');
+  const lines = (text || "").split("\n");
   const result = [];
   let listItems = [];
 
@@ -127,53 +128,41 @@ const ChatBot = ({ currentUser, weakAreas }) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/chatbot/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: currentUser?.id ?? null,
-          message: text,
-          history: history.slice(-10),
-        }),
-      });
+  const res = await sendChatMessage({
+    user_id: currentUser?.id ?? null,
+    message: text,
+    history: history.slice(-10),
+  });
 
-      if (!res.ok) throw new Error('Server error');
+    console.log("CHAT RESPONSE:", res.data);
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+  setMessages((prev) => {
+    const updated = [...prev];
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = { ...updated[updated.length - 1] };
-          last.content += chunk;
-          updated[updated.length - 1] = last;
-          return updated;
-        });
-      }
-    } catch {
-      setMessages((prev) => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: 'assistant',
-          content: '❌ Có lỗi xảy ra. Vui lòng thử lại sau.',
-          streaming: false,
-        };
-        return updated;
-      });
-    } finally {
-      setMessages((prev) => {
-        const updated = [...prev];
-        const last = { ...updated[updated.length - 1] };
-        last.streaming = false;
-        updated[updated.length - 1] = last;
-        return updated;
-      });
-      setLoading(false);
-    }
+    updated[updated.length - 1] = {
+      role: "assistant",
+      content: res.data,
+      streaming: false,
+    };
+
+    return updated;
+  });
+
+} catch (err) {
+  setMessages((prev) => {
+    const updated = [...prev];
+
+    updated[updated.length - 1] = {
+      role: "assistant",
+      content: "❌ Có lỗi xảy ra. Vui lòng thử lại sau.",
+      streaming: false,
+    };
+
+    return updated;
+  });
+} finally {
+  setLoading(false);
+}
   };
 
   const handleReset = () => {

@@ -2,12 +2,38 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "http://127.0.0.1:8000",
-
 });
 
+// Gắn JWT token vào mọi request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Khi nhận 401, xóa session và chuyển về trang đăng nhập
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("user_id");
+      window.location.replace("/auth");
+    }
+    return Promise.reject(error);
+  }
+);
+//chatbot
+export const sendChatMessage = (data) => api.post("api/chatbot/chat", data);
+
+ // auth
 export const register = (data) => api.post("api/auth/register", data);
 export const login = (data) => api.post("api/auth/login", data);
 export const changePassword = (userId, data) => api.put(`api/auth/change-password/${userId}`, data);
+
 
 // 👉 Users
 export const getUsers = () => api.get("api/users");
