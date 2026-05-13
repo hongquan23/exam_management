@@ -1,122 +1,291 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Play, Ticket, Users, FileText, Smile } from "lucide-react"; // Cài lucide-react để có icon đẹp
+import { ArrowLeft, Calendar, Ticket, Users, FileText, Smile, Play } from "lucide-react";
 import InfoModal from "./InfoModal";
 
 const ContestPage = () => {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const [showInfo, setShowInfo] = useState(false);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#0a192f] text-white font-sans">
-      
-      {/* 1. NÚT QUAY LẠI - Thiết kế Glassmorphism hiện đại */}
-      <button
-        onClick={() => navigate(-1)}
-        className="absolute z-30 top-8 left-8 flex items-center gap-2 
-        bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 
-        transition-all duration-300 px-5 py-2.5 rounded-2xl shadow-2xl group"
-      >
-        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-        <span className="font-medium">Quay lại</span>
-      </button>
+    <div style={S.page}>
 
-      {/* BACKGROUND DECORATION (Các quầng sáng mờ tạo chiều sâu) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[40%] w-[30%] h-[30%] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
+      {/* ── HEADER BAR ── */}
+      <div style={S.headerBar}>
+        <button style={S.backBtn} onClick={() => navigate(-1)}>
+          <ArrowLeft size={16} style={{ marginRight: 6 }} />
+          Quay lại
+        </button>
+      </div>
 
-      <div className="grid md:grid-cols-2 min-h-screen relative z-10">
-        
-        {/* 2. CỘT BÊN TRÁI - Nội dung chính */}
-        <div className="flex items-center px-12 lg:px-24 py-20 bg-gradient-to-br from-blue-900/40 to-transparent">
-          <div className="max-w-xl animate-fade-in-up">
-            
-            {/* TAG THỜI GIAN */}
-            <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium text-blue-200 mb-8 shadow-inner">
-              <Calendar size={16} />
-              Đăng ký mở đến <span className="text-white ml-1">31/03/2026</span>
+      {/* ── HERO ── */}
+      <div style={S.hero}>
+        <div style={S.heroInner}>
+
+          {/* Left */}
+          <div style={S.heroLeft}>
+            <div style={S.dateBadge}>
+              <Calendar size={14} style={{ marginRight: 6 }} />
+              Đăng ký mở đến&nbsp;<strong>31/03/2026</strong>
             </div>
 
-            {/* TIÊU ĐỀ - Typography mạnh mẽ */}
-            <h1 className="text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-              English <br />
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                Contest 2026
-              </span>
+            <h1 style={S.heroTitle}>
+              English<br />
+              <span style={S.heroAccent}>Contest 2026</span>
             </h1>
 
-            {/* MÔ TẢ */}
-            <p className="text-xl text-blue-100/80 mb-10 leading-relaxed">
-              Cuộc thi tiếng Anh toàn quốc kiến tạo tương lai. 
+            <p style={S.heroDesc}>
+              Cuộc thi tiếng Anh toàn quốc kiến tạo tương lai.
               Hãy sẵn sàng tỏa sáng và chinh phục những giải thưởng giá trị nhất!
             </p>
 
-            {/* NÚT BẤM (CTA) */}
-            <div className="flex flex-wrap gap-5 mb-12">
-              <button className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 px-8 py-4 rounded-2xl font-bold shadow-[0_10px_20px_-5px_rgba(249,115,22,0.4)] transition-all hover:scale-105 active:scale-95">
-                <Ticket size={20} />
-                Register Now
+            <div style={S.ctaRow}>
+              <button style={S.ctaPrimary}>
+                <Ticket size={18} style={{ marginRight: 8 }} />
+                Đăng ký ngay
               </button>
-
-              <button
-                onClick={() => setShowInfo(true)}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 px-8 py-4 rounded-2xl font-semibold transition-all"
-              >
-                <Play size={18} fill="white" />
+              <button style={S.ctaSecondary} onClick={() => setShowInfo(true)}>
+                <Play size={16} fill="#6366f1" color="#6366f1" style={{ marginRight: 8 }} />
                 Xem thông tin
               </button>
             </div>
 
-            {/* THỐNG KÊ (STATS) - Layout chia ngăn tinh tế */}
-            <div className="grid grid-cols-3 gap-0 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-1 overflow-hidden w-full max-w-md shadow-2xl">
-              <div className="py-6 flex flex-col items-center justify-center hover:bg-white/5 transition-colors">
-                <Users size={20} className="text-blue-400 mb-2" />
-                <h3 className="text-2xl font-bold">12,480</h3>
-                <p className="text-[12px] uppercase tracking-wider text-blue-300/60 font-medium">Thí sinh</p>
-              </div>
+            {/* Stats */}
+            <div style={S.statsRow}>
+              {[
+                { icon: <Users size={18} color="#6366f1" />, val: "12,480", lbl: "Thí sinh" },
+                { icon: <FileText size={18} color="#0891b2" />, val: "50+",    lbl: "Đề thi" },
+                { icon: <Smile size={18} color="#16a34a" />,  val: "98%",    lbl: "Hài lòng" },
+              ].map(s => (
+                <div key={s.lbl} style={S.statItem}>
+                  <div style={S.statIcon}>{s.icon}</div>
+                  <div style={S.statVal}>{s.val}</div>
+                  <div style={S.statLbl}>{s.lbl}</div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-              <div className="py-6 flex flex-col items-center justify-center border-x border-white/10 hover:bg-white/5 transition-colors">
-                <FileText size={20} className="text-blue-400 mb-2" />
-                
-                <p className="text-[12px] uppercase tracking-wider text-blue-300/60 font-medium">Đề thi sáng tạo</p>
-              </div>
-
-              <div className="py-6 flex flex-col items-center justify-center hover:bg-white/5 transition-colors">
-                <Smile size={20} className="text-blue-400 mb-2" />
-                <h3 className="text-2xl font-bold">98%</h3>
-                <p className="text-[12px] uppercase tracking-wider text-blue-300/60 font-medium">Hài lòng</p>
+          {/* Right — image */}
+          <div style={S.heroRight}>
+            <div style={S.imgFrame}>
+              <img
+                src="https://haycafe.vn/wp-content/uploads/2022/04/Hinh-nen-anh-quyet-tam-on-thi-cute.jpg"
+                alt="Contest"
+                style={S.heroImg}
+              />
+              <div style={S.imgOverlay} />
+              <div style={S.imgCaption}>
+                "Education is the most powerful weapon..."
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 3. CỘT BÊN PHẢI - Hình ảnh học sinh (Layout 3D ẩn hiện) */}
-        <div className="relative h-screen hidden md:flex items-center justify-center p-12">
-          {/* Một khung ảnh bo cong mềm mại với viền phát sáng */}
-          <div className="relative w-full h-[85%] rounded-[40px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-white/10">
-            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent z-10" />
-            <img
-              src="https://haycafe.vn/wp-content/uploads/2022/04/Hinh-nen-anh-quyet-tam-on-thi-cute.jpg"
-              alt="Students learning"
-              className="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700"
-            />
-            {/* Overlay text nhẹ trên ảnh nếu cần */}
-            <div className="absolute bottom-10 left-10 z-20">
-              <p className="text-white/70 italic text-lg font-light">"Education is the most powerful weapon..."</p>
-            </div>
-          </div>
         </div>
-
       </div>
 
-      {/* MODAL */}
-      <InfoModal
-        isOpen={showInfo}
-        onClose={() => setShowInfo(false)}
-      />
+      {/* ── INFO CARDS ── */}
+      <div style={S.infoSection}>
+        {[
+          { emoji: "🏆", title: "Giải thưởng hấp dẫn", desc: "Tổng giá trị giải thưởng lên đến 500 triệu đồng cùng học bổng du học." },
+          { emoji: "📝", title: "Hình thức thi", desc: "Thi trực tuyến, gồm các phần Listening, Reading, Writing và Speaking." },
+          { emoji: "📅", title: "Lịch thi", desc: "Vòng sơ khảo: 15/02 · Bán kết: 01/03 · Chung kết: 20/03/2026." },
+          { emoji: "🎯", title: "Đối tượng tham gia", desc: "Học sinh, sinh viên và người đi làm từ 15 tuổi trở lên trên toàn quốc." },
+        ].map(card => (
+          <div key={card.title} style={S.infoCard}>
+            <div style={S.infoEmoji}>{card.emoji}</div>
+            <div style={S.infoTitle}>{card.title}</div>
+            <div style={S.infoDesc}>{card.desc}</div>
+          </div>
+        ))}
+      </div>
 
+      <InfoModal isOpen={showInfo} onClose={() => setShowInfo(false)} />
     </div>
   );
+};
+
+const S = {
+  page: {
+    minHeight: "100vh",
+    backgroundColor: "#f1f5f9",
+    fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
+    color: "#0f172a",
+  },
+
+  /* Header bar */
+  headerBar: {
+    backgroundColor: "white",
+    borderBottom: "1px solid #e2e8f0",
+    padding: "0 24px",
+    height: 56,
+    display: "flex",
+    alignItems: "center",
+  },
+  backBtn: {
+    display: "flex",
+    alignItems: "center",
+    padding: "7px 16px",
+    borderRadius: 10,
+    border: "1px solid #e2e8f0",
+    background: "white",
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#475569",
+    cursor: "pointer",
+  },
+
+  /* Hero */
+  hero: {
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a78bfa 100%)",
+    padding: "48px 24px",
+  },
+  heroInner: {
+    maxWidth: 1100,
+    margin: "0 auto",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 48,
+    alignItems: "center",
+  },
+  heroLeft: {},
+
+  dateBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#c7d2fe",
+    background: "rgba(255,255,255,0.15)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    padding: "6px 16px",
+    borderRadius: 20,
+    marginBottom: 24,
+  },
+
+  heroTitle: {
+    fontSize: 52,
+    fontWeight: 900,
+    color: "white",
+    lineHeight: 1.1,
+    margin: "0 0 18px",
+    letterSpacing: "-1px",
+  },
+  heroAccent: {
+    background: "linear-gradient(135deg, #fbbf24, #f97316)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  },
+  heroDesc: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+    lineHeight: 1.7,
+    marginBottom: 32,
+  },
+
+  ctaRow: {
+    display: "flex",
+    gap: 12,
+    flexWrap: "wrap",
+    marginBottom: 36,
+  },
+  ctaPrimary: {
+    display: "flex",
+    alignItems: "center",
+    background: "linear-gradient(135deg, #f97316, #ef4444)",
+    color: "white",
+    border: "none",
+    padding: "13px 28px",
+    borderRadius: 14,
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: "pointer",
+    boxShadow: "0 8px 20px rgba(249,115,22,0.35)",
+  },
+  ctaSecondary: {
+    display: "flex",
+    alignItems: "center",
+    background: "white",
+    color: "#6366f1",
+    border: "none",
+    padding: "13px 24px",
+    borderRadius: 14,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+  },
+
+  /* Stats */
+  statsRow: {
+    display: "flex",
+    gap: 0,
+    background: "rgba(255,255,255,0.15)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  statItem: {
+    flex: 1,
+    padding: "18px 12px",
+    textAlign: "center",
+    borderRight: "1px solid rgba(255,255,255,0.15)",
+  },
+  statIcon: { marginBottom: 6 },
+  statVal: { fontSize: 22, fontWeight: 900, color: "white", marginBottom: 4 },
+  statLbl: { fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" },
+
+  /* Right image */
+  heroRight: {},
+  imgFrame: {
+    position: "relative",
+    borderRadius: 24,
+    overflow: "hidden",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+    aspectRatio: "4/3",
+  },
+  heroImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+  imgOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "linear-gradient(to top, rgba(99,102,241,0.5) 0%, transparent 60%)",
+  },
+  imgCaption: {
+    position: "absolute",
+    bottom: 16,
+    left: 20,
+    right: 20,
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 13,
+    fontStyle: "italic",
+    fontWeight: 500,
+  },
+
+  /* Info cards */
+  infoSection: {
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "32px 24px 48px",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+    gap: 16,
+  },
+  infoCard: {
+    background: "white",
+    borderRadius: 18,
+    padding: "24px 20px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    border: "1px solid #f1f5f9",
+  },
+  infoEmoji: { fontSize: 28, marginBottom: 12 },
+  infoTitle: { fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 8 },
+  infoDesc:  { fontSize: 13, color: "#64748b", lineHeight: 1.65 },
 };
 
 export default ContestPage;

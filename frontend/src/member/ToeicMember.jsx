@@ -704,7 +704,8 @@ const submitSpeaking = async (question) => {
         skill: selectedTest.skill.toLowerCase(),
         answers,
       });
-      setExamResult({ ...res.data, questions: selectedTest.questions });
+      const timeTaken = selectedTest.duration * 60 - (timeRemaining ?? 0);
+      setExamResult({ ...res.data, questions: selectedTest.questions, timeTaken });
     } catch (err) {
       console.error("Submit error:", err);
       alert("Nộp bài thất bại!");
