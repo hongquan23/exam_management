@@ -78,6 +78,7 @@ export const uploadListeningEtsJson = (data) => api.post("api/listening/upload-e
 // 👉 Reading
 export const getReadingBySection = (sectionId) => api.get(`api/reading/section/${sectionId}`);
 export const uploadReadingJson = (data) => api.post("api/reading/upload-json", data);
+export const uploadReadingEtsRcJson = (data) => api.post("api/reading/upload-ets-rc-json", data);
 
 // 👉 User Attempts
 export const submitMcqAnswers = (data) => api.post("api/user-attempts/submit-mcq", data);

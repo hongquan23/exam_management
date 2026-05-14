@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, BookOpen, Star, Clock, Globe, Filter, ChevronRight, PlayCircle, Sparkles } from "lucide-react";
+import { Search, BookOpen, Star, Clock, Globe, Filter, ChevronRight, Sparkles } from "lucide-react";
 
 const englishCourses = [
   {
@@ -11,7 +11,9 @@ const englishCourses = [
     rating: "4.9",
     students: "8.5k",
     duration: "45h",
-    tag: "Exam Prep"
+    tag: "Exam Prep",
+    tagColor: "#6366f1",
+    tagBg: "#eef2ff",
   },
   {
     id: 2,
@@ -22,7 +24,9 @@ const englishCourses = [
     rating: "4.8",
     students: "12k",
     duration: "30h",
-    tag: "Business"
+    tag: "Business",
+    tagColor: "#0369a1",
+    tagBg: "#e0f2fe",
   },
   {
     id: 3,
@@ -33,7 +37,9 @@ const englishCourses = [
     rating: "4.7",
     students: "25k",
     duration: "12h",
-    tag: "Speaking"
+    tag: "Speaking",
+    tagColor: "#15803d",
+    tagBg: "#dcfce7",
   },
   {
     id: 4,
@@ -44,74 +50,105 @@ const englishCourses = [
     rating: "4.9",
     students: "5.2k",
     duration: "60h",
-    tag: "Exam Prep"
+    tag: "Exam Prep",
+    tagColor: "#6366f1",
+    tagBg: "#eef2ff",
   },
 ];
 
+const TABS = ["Tất cả", "Miễn phí", "Trả phí"];
+
 const Course = () => {
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState("Tất cả");
+  const [search, setSearch] = useState("");
+
+  const filtered = englishCourses.filter(c => {
+    const matchTab =
+      activeTab === "Tất cả" ||
+      (activeTab === "Miễn phí" && c.price === "Free") ||
+      (activeTab === "Trả phí" && c.price !== "Free");
+    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
+    return matchTab && matchSearch;
+  });
 
   return (
-    <div className="bg-[#0f172a] min-h-screen text-slate-200 font-sans pb-20 selection:bg-blue-500/30">
-      
-      {/* --- HERO SECTION --- */}
-      <div className="relative overflow-hidden bg-slate-900 py-16 px-6 border-b border-white/5">
-        <div className="absolute top-0 left-0 w-full h-full opacity-20">
-            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600 rounded-full blur-[120px]"></div>
-        </div>
+    <div style={S.page}>
 
-        <div className="max-w-6xl mx-auto relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-[10px] font-bold tracking-[0.2em] text-blue-400 uppercase bg-blue-400/10 border border-blue-400/20 rounded-full">
-            <Sparkles size={12} /> The Future of Learning
+      {/* ── HERO ── */}
+      <div style={S.hero}>
+        <div style={S.heroInner}>
+          <div style={S.heroChip}>
+            <Sparkles size={12} style={{ marginRight: 6 }} />
+            Khóa học tiếng Anh
           </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter text-white">
-            LÀM CHỦ TIẾNG ANH, MỞ RA THẾ GIỚI. 
-          </h1>
-          <p className="text-base text-slate-400 mb-8 max-w-xl mx-auto">
-            Học tiếng Anh theo lộ trình chuẩn quốc tế. Tự tin chinh phục chứng chỉ và giao tiếp như người bản xứ ngay hôm nay.
+          <h1 style={S.heroTitle}>Làm chủ tiếng Anh,<br />mở ra thế giới</h1>
+          <p style={S.heroSub}>
+            Học theo lộ trình chuẩn quốc tế. Tự tin chinh phục chứng chỉ và giao tiếp như người bản xứ.
           </p>
         </div>
       </div>
 
-      {/* --- MAIN CONTENT --- */}
-      <main className="max-w-7xl mx-auto px-6 -mt-8">
-        <div className="grid lg:grid-cols-4 gap-6">
-          
-          {/* SIDEBAR - Nhỏ gọn hơn */}
-          <aside className="lg:col-span-1">
-            <div className="bg-slate-800/80 backdrop-blur-2xl border border-white/10 rounded-[24px] p-6 sticky top-6 shadow-2xl">
-              <h2 className="text-white font-black text-[10px] tracking-[0.2em] mb-6 flex items-center gap-2">
-                <Filter size={14} className="text-blue-400" /> BỘ LỌC
-              </h2>
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-                <input 
-                  type="text" 
+      {/* ── MAIN ── */}
+      <div style={S.main}>
+        <div style={S.layout}>
+
+          {/* SIDEBAR */}
+          <aside style={S.sidebar}>
+            <div style={S.sideCard}>
+              <div style={S.sideTitle}>
+                <Filter size={14} style={{ marginRight: 6, color: "#6366f1" }} />
+                Bộ lọc
+              </div>
+
+              <div style={S.searchWrap}>
+                <Search size={15} style={S.searchIcon} />
+                <input
+                  type="text"
                   placeholder="Tìm khóa học..."
-                  className="w-full bg-slate-950/50 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 focus:border-blue-500 outline-none text-xs"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={S.searchInput}
                 />
               </div>
-              <div className="space-y-4">
-                {["IELTS", "TOEIC", "Speaking"].map((cat) => (
-                  <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-blue-600" />
-                    <span className="text-xs font-medium text-slate-400 group-hover:text-blue-400 transition-colors">{cat}</span>
+
+              <div style={S.filterGroup}>
+                <div style={S.filterLabel}>Danh mục</div>
+                {["IELTS", "TOEIC", "Speaking", "Business"].map(cat => (
+                  <label key={cat} style={S.checkRow}>
+                    <input type="checkbox" style={{ accentColor: "#6366f1" }} />
+                    <span style={S.checkLabel}>{cat}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div style={S.filterGroup}>
+                <div style={S.filterLabel}>Trình độ</div>
+                {["Beginner", "Intermediate", "Advanced"].map(lv => (
+                  <label key={lv} style={S.checkRow}>
+                    <input type="checkbox" style={{ accentColor: "#6366f1" }} />
+                    <span style={S.checkLabel}>{lv}</span>
                   </label>
                 ))}
               </div>
             </div>
           </aside>
 
-          {/* COURSE LIST - Chuyển sang grid 3 cột */}
-          <div className="lg:col-span-3">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-black text-white uppercase tracking-tight">Khóa học Hot</h2>
-              <div className="flex bg-slate-800/50 p-1 rounded-xl border border-white/5">
-                {["All", "Free", "Pro"].map(tab => (
-                  <button 
+          {/* COURSE LIST */}
+          <div style={S.courseArea}>
+            <div style={S.courseHeader}>
+              <h2 style={S.courseHeading}>
+                Khóa học nổi bật
+                <span style={S.courseCount}>{filtered.length} khóa</span>
+              </h2>
+              <div style={S.tabs}>
+                {TABS.map(tab => (
+                  <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${activeTab === tab ? 'bg-blue-600 text-white' : 'text-slate-500'}`}
+                    style={{
+                      ...S.tab,
+                      ...(activeTab === tab ? S.tabActive : {}),
+                    }}
                   >
                     {tab}
                   </button>
@@ -119,52 +156,327 @@ const Course = () => {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {englishCourses.map((course) => (
-                <div key={course.id} className="group bg-slate-800/30 border border-white/5 rounded-[24px] overflow-hidden hover:bg-slate-800/50 transition-all duration-300 hover:translate-y-[-5px]">
-                  {/* Image - Giảm chiều cao */}
-                  <div className="relative h-44 overflow-hidden">
-                    <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-3 left-3 bg-blue-600/90 text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest">
-                      {course.tag}
+            {filtered.length === 0 ? (
+              <div style={S.empty}>Không tìm thấy khóa học phù hợp.</div>
+            ) : (
+              <div style={S.grid}>
+                {filtered.map(course => (
+                  <div key={course.id} style={S.card}>
+                    {/* Image */}
+                    <div style={S.imgWrap}>
+                      <img src={course.image} alt={course.title} style={S.img} />
+                      <span style={{ ...S.imgTag, color: course.tagColor, background: course.tagBg }}>
+                        {course.tag}
+                      </span>
+                    </div>
+
+                    {/* Body */}
+                    <div style={S.cardBody}>
+                      <div style={S.cardMeta}>
+                        <span style={S.metaItem}><Clock size={12} style={{ marginRight: 4 }} />{course.duration}</span>
+                        <span style={S.metaItem}><Globe size={12} style={{ marginRight: 4 }} />{course.level}</span>
+                      </div>
+
+                      <h3 style={S.cardTitle}>{course.title}</h3>
+
+                      <div style={S.ratingRow}>
+                        <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                        <span style={S.ratingVal}>{course.rating}</span>
+                        <span style={S.ratingCount}>({course.students} học viên)</span>
+                      </div>
+
+                      <div style={S.cardFooter}>
+                        <span style={S.price}>
+                          {course.price === "Free"
+                            ? <span style={{ color: "#16a34a", fontWeight: 800 }}>Miễn phí</span>
+                            : course.price}
+                        </span>
+                        <button style={S.joinBtn}>
+                          Tham gia <ChevronRight size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Content - Thu nhỏ padding và font */}
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3 text-slate-500 text-[9px] font-bold uppercase tracking-wider">
-                      <span className="flex items-center gap-1"><Clock size={12} /> {course.duration}</span>
-                      <span className="flex items-center gap-1"><Globe size={12} /> {course.level}</span>
-                    </div>
-
-                    <h3 className="text-base font-bold text-white mb-3 group-hover:text-blue-400 transition-colors leading-snug h-12 line-clamp-2">
-                      {course.title}
-                    </h3>
-
-                    <div className="flex items-center gap-2 mb-6 text-[10px]">
-                        <div className="flex items-center gap-0.5 text-yellow-500">
-                          <Star size={12} fill="currentColor" />
-                          <span className="font-bold">{course.rating}</span>
-                        </div>
-                        <span className="text-slate-500">({course.students})</span>
-                    </div>
-
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-700/50">
-                      <span className="text-lg font-black text-white">{course.price}</span>
-                      <button className="bg-white text-slate-950 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition-all flex items-center gap-1">
-                        JOIN <ChevronRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
-      </main>
+      </div>
     </div>
   );
+};
+
+const S = {
+  page: {
+    minHeight: "100vh",
+    backgroundColor: "#f1f5f9",
+    fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
+    color: "#0f172a",
+  },
+
+  /* Hero */
+  hero: {
+    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+    padding: "52px 24px 64px",
+  },
+  heroInner: {
+    maxWidth: 640,
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  heroChip: {
+    display: "inline-flex",
+    alignItems: "center",
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.12em",
+    color: "#c7d2fe",
+    background: "rgba(255,255,255,0.15)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    padding: "5px 14px",
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  heroTitle: {
+    fontSize: 36,
+    fontWeight: 900,
+    color: "white",
+    margin: "0 0 14px",
+    lineHeight: 1.2,
+    letterSpacing: "-0.5px",
+  },
+  heroSub: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.8)",
+    lineHeight: 1.7,
+    margin: 0,
+  },
+
+  /* Main layout */
+  main: {
+    maxWidth: 1200,
+    margin: "-28px auto 0",
+    padding: "0 24px 48px",
+  },
+  layout: {
+    display: "grid",
+    gridTemplateColumns: "220px 1fr",
+    gap: 24,
+    alignItems: "start",
+  },
+
+  /* Sidebar */
+  sidebar: { position: "sticky", top: 16 },
+  sideCard: {
+    background: "white",
+    borderRadius: 20,
+    padding: "20px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+    border: "1px solid #f1f5f9",
+  },
+  sideTitle: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: 13,
+    fontWeight: 700,
+    color: "#0f172a",
+    marginBottom: 16,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  },
+  searchWrap: {
+    position: "relative",
+    marginBottom: 20,
+  },
+  searchIcon: {
+    position: "absolute",
+    left: 10,
+    top: "50%",
+    transform: "translateY(-50%)",
+    color: "#94a3b8",
+  },
+  searchInput: {
+    width: "100%",
+    boxSizing: "border-box",
+    border: "1px solid #e2e8f0",
+    borderRadius: 10,
+    padding: "8px 10px 8px 34px",
+    fontSize: 13,
+    outline: "none",
+    color: "#334155",
+    background: "#f8fafc",
+  },
+  filterGroup: { marginBottom: 16 },
+  filterLabel: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#94a3b8",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    marginBottom: 10,
+  },
+  checkRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+    cursor: "pointer",
+  },
+  checkLabel: { fontSize: 13, color: "#475569", fontWeight: 500 },
+
+  /* Course area */
+  courseArea: {},
+  courseHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  courseHeading: {
+    fontSize: 18,
+    fontWeight: 800,
+    color: "#0f172a",
+    margin: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  courseCount: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#6366f1",
+    background: "#eef2ff",
+    border: "1px solid #c7d2fe",
+    padding: "2px 10px",
+    borderRadius: 20,
+  },
+  tabs: {
+    display: "flex",
+    background: "white",
+    borderRadius: 12,
+    padding: 4,
+    border: "1px solid #e2e8f0",
+    gap: 2,
+  },
+  tab: {
+    padding: "6px 16px",
+    borderRadius: 9,
+    fontSize: 12,
+    fontWeight: 700,
+    border: "none",
+    cursor: "pointer",
+    background: "transparent",
+    color: "#64748b",
+    transition: "all 0.15s",
+  },
+  tabActive: {
+    background: "#6366f1",
+    color: "white",
+  },
+  empty: {
+    textAlign: "center",
+    padding: 60,
+    color: "#94a3b8",
+    fontSize: 14,
+    background: "white",
+    borderRadius: 16,
+  },
+
+  /* Grid */
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+    gap: 20,
+  },
+
+  /* Card */
+  card: {
+    background: "white",
+    borderRadius: 18,
+    overflow: "hidden",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+    border: "1px solid #f1f5f9",
+    transition: "box-shadow 0.2s, transform 0.2s",
+  },
+  imgWrap: {
+    position: "relative",
+    height: 160,
+    overflow: "hidden",
+    background: "#e2e8f0",
+  },
+  img: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  imgTag: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    fontSize: 10,
+    fontWeight: 700,
+    padding: "3px 10px",
+    borderRadius: 20,
+    letterSpacing: "0.04em",
+  },
+  cardBody: { padding: "16px 18px" },
+  cardMeta: {
+    display: "flex",
+    gap: 14,
+    marginBottom: 10,
+    color: "#94a3b8",
+    fontSize: 12,
+  },
+  metaItem: {
+    display: "flex",
+    alignItems: "center",
+    fontWeight: 600,
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "#0f172a",
+    lineHeight: 1.45,
+    marginBottom: 10,
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  },
+  ratingRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    marginBottom: 14,
+  },
+  ratingVal: { fontSize: 13, fontWeight: 700, color: "#0f172a" },
+  ratingCount: { fontSize: 12, color: "#94a3b8" },
+  cardFooter: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 12,
+    borderTop: "1px solid #f1f5f9",
+  },
+  price: { fontSize: 16, fontWeight: 800, color: "#0f172a" },
+  joinBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+    background: "#6366f1",
+    color: "white",
+    border: "none",
+    padding: "7px 14px",
+    borderRadius: 10,
+    fontSize: 12,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
 };
 
 export default Course;

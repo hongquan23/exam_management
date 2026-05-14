@@ -1,17 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from core.config import settings
 from core.middleware import JWTAuthMiddleware
 from api.api_router import api_router
 from fastapi.staticfiles import StaticFiles
+from db.init_db import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title = "toeic exam",
-        version = "1.0.0",
-        description = "An API for managing TOEIC exam data",
-)
+        title="toeic exam",
+        version="1.0.0",
+        description="An API for managing TOEIC exam data",
+        lifespan=lifespan,
+    )
 
     # FastAPI builds middleware as LIFO stack: last added = outermost layer.
     # JWTAuthMiddleware must be added first so CORS runs before it.
