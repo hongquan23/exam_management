@@ -26,4 +26,3 @@ api_router.include_router(speaking.router, prefix="/speaking", tags=["Speaking"]
 api_router.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 
-print("API router initialized with all routes.")

@@ -24,7 +24,7 @@ import { Search, Star, Eye, Clock, ChevronDown, BookOpen, Crown, TrendingUp, Fac
 
 const skills = [
   { id: 'listening', name: 'Listening', icon: '🎧', color: '#3b82f6', disabled: false },
-  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: true },
+  { id: 'reading', name: 'Reading', icon: '📖', color: '#10b981', disabled: false },
   { id: 'writing', name: 'Writing', icon: '✍️', color: '#8b5cf6', disabled: false },
   { id: 'speaking', name: 'Speaking', icon: '🎤', color: '#f97316', disabled: false }
 ];
@@ -156,6 +156,10 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
       question: apiQuestion.question || '',
       passage: apiQuestion.passage || '',
       question_number: apiQuestion.question_number || null,
+      part_number: apiQuestion.part_number || null,
+      passage_id: apiQuestion.passage_id || null,
+      passage_title: apiQuestion.passage_title || '',
+      sentence: apiQuestion.sentence || '',
       option_a: apiQuestion.option_a || '',
       option_b: apiQuestion.option_b || '',
       option_c: apiQuestion.option_c || '',
@@ -437,7 +441,8 @@ const fetchTests = async () => {
       }
       try {
         const qRes = await getReadingBySection(section.id);
-        const mapped = (qRes.data || []).map(q => mapAPIQuestionToUIFormat(q, 'Reading', 1));
+        // Use part_number from question itself if available (RC format), else default 1
+        const mapped = (qRes.data || []).map(q => mapAPIQuestionToUIFormat(q, 'Reading', q.part_number || 1));
         groupedReading[baseName].sections.push({ id: section.id, name: section.name, questions: mapped });
         groupedReading[baseName].questions.push(...mapped);
       } catch (e) { console.error('Lỗi load reading section:', e); }
@@ -1404,11 +1409,11 @@ const renderRecordControls = (responseTime, question) => {
       }
     }
 
-    // Listening / Reading MCQ
+    // ──────────────────────────── Listening MCQ ────────────────────────────
     const isListening = selectedTest.skill === 'Listening';
-    const isReading = selectedTest.skill === 'Reading';
-    if (isListening) console.log('[DEBUG member] question.image_url =', question.image_url, '| id =', question.id);
-    if (isListening || isReading) {
+    const isReading   = selectedTest.skill === 'Reading';
+
+    if (isListening) {
       const options = [
         { key: 'A', value: question.option_a },
         { key: 'B', value: question.option_b },
@@ -1420,8 +1425,7 @@ const renderRecordControls = (responseTime, question) => {
         <div style={styles.questionContent}>
           <div style={styles.questionHeader}>
             <span style={styles.questionType}>
-              {isListening ? '🎧 Listening' : '📖 Reading'}
-              {question.question_number ? ` — Câu ${question.question_number}` : ''}
+              🎧 Listening{question.question_number ? ` — Câu ${question.question_number}` : ''}
             </span>
           </div>
           {question.passage && (
@@ -1437,8 +1441,7 @@ const renderRecordControls = (responseTime, question) => {
             {options.map(opt => {
               const isSelected = selected === opt.key;
               return (
-                <div
-                  key={opt.key}
+                <div key={opt.key}
                   onClick={() => !isTimeUp && setAnswers({ ...answers, [question.id]: opt.key })}
                   style={{
                     padding: '12px 16px', borderRadius: 8, cursor: isTimeUp ? 'not-allowed' : 'pointer',
@@ -1459,6 +1462,238 @@ const renderRecordControls = (responseTime, question) => {
               );
             })}
           </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────── Reading MCQ (TOEIC RC) ───────────────────
+    if (isReading) {
+      const options = [
+        { key: 'A', value: question.option_a },
+        { key: 'B', value: question.option_b },
+        { key: 'C', value: question.option_c },
+        { key: 'D', value: question.option_d },
+      ].filter(o => o.value);
+      const selected = answers[question.id];
+      const partNum  = question.part_number;
+
+      const renderOptions = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+          {options.map(opt => {
+            const isSelected = selected === opt.key;
+            return (
+              <div key={opt.key}
+                onClick={() => !isTimeUp && setAnswers({ ...answers, [question.id]: opt.key })}
+                style={{
+                  padding: '12px 16px', borderRadius: 8, cursor: isTimeUp ? 'not-allowed' : 'pointer',
+                  border: `2px solid ${isSelected ? '#10b981' : '#e2e8f0'}`,
+                  backgroundColor: isSelected ? '#ecfdf5' : 'white',
+                  display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.15s'
+                }}
+              >
+                <span style={{
+                  width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                  backgroundColor: isSelected ? '#10b981' : '#f1f5f9',
+                  color: isSelected ? 'white' : '#64748b',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: 13
+                }}>{opt.key}</span>
+                <span style={{ fontSize: 14, color: '#334155' }}>{opt.value}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+      // ── Part 5: Incomplete Sentences ──────────────────────────────────────
+      if (partNum === 5) {
+        const sentence = question.sentence || question.question || '';
+        // highlight "-------" blank
+        const parts = sentence.split('-------');
+        return (
+          <div style={styles.questionContent}>
+            <div style={styles.questionHeader}>
+              <span style={{ ...styles.questionType, background: '#fef3c7', color: '#92400e' }}>
+                📖 Part 5 — Incomplete Sentences
+                {question.question_number ? ` — Câu ${question.question_number}` : ''}
+              </span>
+            </div>
+            <div style={{
+              fontSize: 16, lineHeight: 1.8, color: '#1e293b',
+              background: '#f8fafc', borderRadius: 10, padding: '16px 20px',
+              border: '1px solid #e2e8f0', marginBottom: 16
+            }}>
+              {parts.length > 1
+                ? parts.map((p, i) => (
+                    <span key={i}>
+                      {p}
+                      {i < parts.length - 1 && (
+                        <span style={{
+                          display: 'inline-block', borderBottom: '2px solid #f97316',
+                          minWidth: 80, marginLeft: 2, marginRight: 2
+                        }}>{'        '}</span>
+                      )}
+                    </span>
+                  ))
+                : sentence}
+            </div>
+            {renderOptions()}
+          </div>
+        );
+      }
+
+      // ── Part 6: Text Completion ────────────────────────────────────────────
+      if (partNum === 6) {
+        // Find sibling questions with same passage_id for mini navigator
+        const siblings = selectedTest.questions.filter(q => q.passage_id === question.passage_id);
+        const siblingNums = siblings.map(q => q.question_number);
+
+        // Render passage with blanks highlighted
+        const passageText = question.passage || '';
+        const renderPassageWithBlanks = () => {
+          let result = passageText;
+          siblingNums.forEach(num => {
+            result = result.replace(`[${num}]`,
+              `<mark style="background:#fed7aa;padding:1px 6px;border-radius:4px;font-weight:700">[${num}]</mark>`
+            );
+          });
+          return <div dangerouslySetInnerHTML={{ __html: result.replace(/\n/g, '<br/>') }} />;
+        };
+
+        return (
+          <div style={{ display: 'flex', gap: 0, minHeight: 500 }}>
+            {/* Passage panel */}
+            <div style={{
+              flex: '0 0 50%', overflowY: 'auto', padding: '20px 20px 20px 0',
+              borderRight: '1px solid #e2e8f0', maxHeight: 600
+            }}>
+              {question.passage_title && (
+                <div style={{ fontWeight: 700, color: '#f97316', marginBottom: 10, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {question.passage_title}
+                </div>
+              )}
+              <div style={{
+                fontSize: 14, lineHeight: 1.8, color: '#334155',
+                background: '#f8fafc', borderRadius: 10, padding: '16px',
+                border: '1px solid #e2e8f0'
+              }}>
+                {renderPassageWithBlanks()}
+              </div>
+              {/* Mini navigator */}
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {siblings.map(q => (
+                  <button key={q.id}
+                    onClick={() => {
+                      const idx = selectedTest.questions.findIndex(x => x.id === q.id);
+                      if (idx >= 0) setCurrentQuestionInSection(idx);
+                    }}
+                    style={{
+                      padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      border: `2px solid ${q.id === question.id ? '#f97316' : '#e2e8f0'}`,
+                      background: q.id === question.id ? '#fff7ed' : answers[q.id] ? '#ecfdf5' : '#f8fafc',
+                      color: q.id === question.id ? '#f97316' : '#64748b'
+                    }}
+                  >
+                    {q.question_number}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Question panel */}
+            <div style={{ flex: 1, padding: '20px 0 20px 20px', overflowY: 'auto' }}>
+              <div style={styles.questionHeader}>
+                <span style={{ ...styles.questionType, background: '#fff7ed', color: '#c2410c' }}>
+                  📖 Part 6 — Text Completion
+                  {question.question_number ? ` — Câu ${question.question_number}` : ''}
+                </span>
+              </div>
+              <div style={{ fontSize: 14, color: '#64748b', marginBottom: 12 }}>
+                Chọn từ/cụm từ phù hợp để điền vào ô trống <strong style={{ color: '#f97316' }}>[{question.question_number}]</strong>:
+              </div>
+              {renderOptions()}
+            </div>
+          </div>
+        );
+      }
+
+      // ── Part 7: Reading Comprehension ─────────────────────────────────────
+      if (partNum === 7) {
+        const siblings = selectedTest.questions.filter(q => q.passage_id === question.passage_id);
+
+        return (
+          <div style={{ display: 'flex', gap: 0, minHeight: 500 }}>
+            {/* Passage panel */}
+            <div style={{
+              flex: '0 0 52%', overflowY: 'auto', padding: '20px 20px 20px 0',
+              borderRight: '1px solid #e2e8f0', maxHeight: 600
+            }}>
+              {question.passage_title && (
+                <div style={{ fontWeight: 700, color: '#10b981', marginBottom: 10, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {question.passage_title}
+                </div>
+              )}
+              <div style={{
+                fontSize: 14, lineHeight: 1.8, color: '#334155',
+                background: '#f8fafc', borderRadius: 10, padding: '16px',
+                border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap'
+              }}>
+                {question.passage}
+              </div>
+              {/* Mini navigator */}
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {siblings.map(q => (
+                  <button key={q.id}
+                    onClick={() => {
+                      const idx = selectedTest.questions.findIndex(x => x.id === q.id);
+                      if (idx >= 0) setCurrentQuestionInSection(idx);
+                    }}
+                    style={{
+                      padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      border: `2px solid ${q.id === question.id ? '#10b981' : '#e2e8f0'}`,
+                      background: q.id === question.id ? '#ecfdf5' : answers[q.id] ? '#ecfdf5' : '#f8fafc',
+                      color: q.id === question.id ? '#10b981' : '#64748b'
+                    }}
+                  >
+                    {q.question_number}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Question panel */}
+            <div style={{ flex: 1, padding: '20px 0 20px 20px', overflowY: 'auto' }}>
+              <div style={styles.questionHeader}>
+                <span style={{ ...styles.questionType, background: '#f0fdf4', color: '#15803d' }}>
+                  📖 Part 7 — Reading Comprehension
+                  {question.question_number ? ` — Câu ${question.question_number}` : ''}
+                </span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#1e293b', marginBottom: 14, lineHeight: 1.5 }}>
+                {question.question}
+              </div>
+              {renderOptions()}
+            </div>
+          </div>
+        );
+      }
+
+      // ── Legacy format (no part_number) ────────────────────────────────────
+      return (
+        <div style={styles.questionContent}>
+          <div style={styles.questionHeader}>
+            <span style={styles.questionType}>
+              📖 Reading{question.question_number ? ` — Câu ${question.question_number}` : ''}
+            </span>
+          </div>
+          {question.passage && (
+            <div style={{ ...styles.questionText, backgroundColor: '#f0fdf4', borderColor: '#86efac', whiteSpace: 'pre-line', marginBottom: 12 }}>
+              <strong>Passage:</strong>
+              <div style={{ marginTop: 6 }}>{question.passage}</div>
+            </div>
+          )}
+          <div style={styles.questionText}>{question.question}</div>
+          {renderOptions()}
         </div>
       );
     }
@@ -1527,11 +1762,10 @@ const renderRecordControls = (responseTime, question) => {
     <div style={styles.examNav}>
       {(() => {
         const questions = selectedTest.questions || [];
+        const isRcFormat = questions.some(q => q.part_number === 5 || q.part_number === 6 || q.part_number === 7);
         const groupedByPart = questions.reduce((acc, q, index) => {
-          const part = q.part || 1;
-          if (!acc[part]) {
-            acc[part] = [];
-          }
+          const part = isRcFormat ? (q.part_number || q.part || 1) : (q.part || 1);
+          if (!acc[part]) acc[part] = [];
           acc[part].push({ ...q, originalIndex: index });
           return acc;
         }, {});
@@ -1542,9 +1776,8 @@ const renderRecordControls = (responseTime, question) => {
             const displayNum = (q) => q.question_number || (q.originalIndex + 1);
             const first = displayNum(partQuestions[0]);
             const last = displayNum(partQuestions[partQuestions.length - 1]);
-            const label = partQuestions.length === 1
-              ? `Câu ${first}`
-              : `Câu ${first}-${last}`;
+            const rcLabel = isRcFormat ? `Part ${part}` : null;
+            const label = rcLabel || (partQuestions.length === 1 ? `Câu ${first}` : `Câu ${first}-${last}`);
             const firstIdx = partQuestions[0].originalIndex;
 
             return (
@@ -1578,7 +1811,7 @@ const renderRecordControls = (responseTime, question) => {
               <button
                 style={{ ...styles.button, ...styles.buttonSecondary }}
                 onClick={handlePrevQuestion}
-                disabled={isTimeUp || (currentSection === 0 && currentQuestionInSection === 0)}
+                disabled={isTimeUp || currentQuestionInSection === 0}
               >
                 <ArrowLeft size={16} />
                 Câu trước
@@ -1586,7 +1819,7 @@ const renderRecordControls = (responseTime, question) => {
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary }}
                 onClick={handleNextQuestion}
-                disabled={isTimeUp || (currentSection === selectedTest.sections.length - 1 && currentQuestionInSection === selectedTest.sections[currentSection].questions.length - 1)}
+                disabled={isTimeUp || currentQuestionInSection === (selectedTest.questions?.length ?? 1) - 1}
               >
                 Câu sau
                 <ArrowRight size={16} />
@@ -1654,11 +1887,10 @@ const renderRecordControls = (responseTime, question) => {
             
             {(() => {
               const questions = selectedTest.questions || [];
+              const isRcFmt = questions.some(q => q.part_number === 5 || q.part_number === 6 || q.part_number === 7);
               const groupedByPart = questions.reduce((acc, q, index) => {
-                const part = q.part || 1;
-                if (!acc[part]) {
-                  acc[part] = [];
-                }
+                const part = isRcFmt ? (q.part_number || q.part || 1) : (q.part || 1);
+                if (!acc[part]) acc[part] = [];
                 acc[part].push({ ...q, originalIndex: index });
                 return acc;
               }, {});
@@ -1676,7 +1908,7 @@ const renderRecordControls = (responseTime, question) => {
                         marginBottom: '5px', paddingLeft: '2px',
                         textTransform: 'uppercase', letterSpacing: '0.6px'
                       }}>
-                        Part {part} · {partQuestions.length === 1 ? `Q${first}` : `Q${first}–${last}`}
+                        Part {part} · {`Q${first}${partQuestions.length > 1 ? `–${last}` : ''}`}
                       </div>
 
                       <div style={styles.questionGrid}>

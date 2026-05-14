@@ -7,6 +7,8 @@ import Course from './Course';
 const SKILL_META = {
   listening: { icon: '🎧', color: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe', label: 'Listening' },
   reading:   { icon: '📖', color: '#10b981', bg: '#f0fdf4', border: '#a7f3d0', label: 'Reading' },
+  writing:   { icon: '✍️', color: '#8b5cf6', bg: '#faf5ff', border: '#e9d5ff', label: 'Writing' },
+  speaking:  { icon: '🎤', color: '#f97316', bg: '#fff7ed', border: '#fed7aa', label: 'Speaking' },
 };
 
 const LEVEL_META = {
@@ -405,44 +407,53 @@ const Dashboard = ({
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                         {suggested.map(test => {
-                          const meta = SKILL_META[test.skill?.toLowerCase()] || {};
                           return (
                             <div
                               key={test.id}
                               className="group bg-white rounded-2xl border transition-all duration-300 cursor-pointer"
                               style={{
-                                borderColor: recHovered === test.id ? (meta.color || '#ff8a00') : '#f1f5f9',
-                                boxShadow: recHovered === test.id ? '0 20px 40px rgba(0,0,0,0.10)' : '0 4px 12px rgba(0,0,0,0.04)',
+                                borderColor: recHovered === test.id ? '#ff8a00' : '#f1f5f9',
+                                boxShadow: recHovered === test.id ? '0 25px 50px rgba(0,0,0,0.12)' : '0 8px 20px rgba(0,0,0,0.04)',
                                 transform: recHovered === test.id ? 'scale(1.02)' : 'scale(1)',
                               }}
                               onMouseEnter={() => setRecHovered(test.id)}
                               onMouseLeave={() => setRecHovered(null)}
                             >
-                              <div className="p-4 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-lg">{meta.icon}</span>
-                                  <span
-                                    className="px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                                    style={{ background: meta.bg || '#f1f5f9', color: meta.color || '#64748b' }}
-                                  >
+                              <div className="p-5 space-y-3 relative">
+                                <div className="flex gap-2">
+                                  <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-600">
                                     {test.skill}
                                   </span>
                                   <span className="ml-auto text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full flex items-center gap-1">
                                     <Zap size={10} /> Gợi ý
                                   </span>
                                 </div>
-                                <h4 className="text-sm font-bold text-slate-800 line-clamp-2 min-h-[2.5rem] leading-snug group-hover:text-orange-600 transition-colors">
+                                <h4 className="text-lg font-bold text-slate-800 line-clamp-2 min-h-[3.5rem] leading-tight group-hover:text-orange-600 transition-colors">
                                   {test.title || test.name}
                                 </h4>
-                                <div className="text-xs text-slate-400 flex items-center gap-1">
-                                  <Clock size={12} /> {test.duration} phút
+                                <div className="flex items-center justify-between text-slate-500 text-xs font-semibold py-2 border-y border-slate-100">
+                                  <span className="flex items-center gap-1">
+                                    <Clock size={14} /> {test.duration} phút
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="text-[11px] font-semibold text-slate-600">
+                                    {(test.questions?.length ?? test.question_count ?? 0)} câu hỏi
+                                  </div>
                                 </div>
                                 <button
-                                  className="w-full py-2 rounded-xl text-white text-xs font-semibold transition-all active:scale-95"
-                                  style={{ background: `linear-gradient(135deg, ${meta.color || '#f97316'}, ${meta.color || '#ea580c'})` }}
+                                  className="w-full mt-3 py-3 rounded-xl font-semibold text-sm text-white
+                                            bg-gradient-to-r from-orange-500 to-orange-600
+                                            shadow-lg shadow-orange-200
+                                            group-hover:shadow-orange-300
+                                            group-hover:brightness-110
+                                            transition-all duration-300
+                                            active:scale-95
+                                            flex items-center justify-center gap-2"
                                   onClick={() => handleTestClick(test)}
                                 >
-                                  Luyện ngay →
+                                  Làm bài ngay
+                                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                                 </button>
                               </div>
                             </div>

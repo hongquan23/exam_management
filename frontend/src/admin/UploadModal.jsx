@@ -7,6 +7,7 @@ import {
   uploadListeningJson,
   uploadListeningEtsJson,
   uploadReadingJson,
+  uploadReadingEtsRcJson,
 } from '../api';
 
 const TOEIC_PARTS = {
@@ -95,6 +96,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
   const [jsonParsed, setJsonParsed] = useState(null);   // raw parsed object
   const [jsonPreview, setJsonPreview] = useState(null); // flat questions array for display
   const [jsonIsEts, setJsonIsEts] = useState(false);    // true nếu là ETS format
+  const [jsonIsEtsRc, setJsonIsEtsRc] = useState(false); // true nếu là ETS RC (Part 5/6/7)
   const [jsonError, setJsonError] = useState('');
   const [uploading, setUploading] = useState(false);
 
@@ -112,6 +114,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
       setJsonParsed(null);
       setJsonPreview(null);
       setJsonIsEts(false);
+      setJsonIsEtsRc(false);
       setJsonError('');
       sectionsByPartRef.current = {};
       setSectionsByPart({});
@@ -144,17 +147,35 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
 
         // Nhận diện ETS format: object có key "parts"
         if (parsed && typeof parsed === 'object' && Array.isArray(parsed.parts)) {
-          const totalQ = parsed.parts.reduce((sum, p) => {
-            const direct = p.questions?.length || 0;
-            const conv = (p.conversations || []).reduce((s, c) => s + c.questions.length, 0);
-            const talks = (p.talks || []).reduce((s, t) => s + t.questions.length, 0);
-            return sum + direct + conv + talks;
-          }, 0);
+          const partNumbers = parsed.parts.map(p => p.part_number);
+          const isRcFormat = partNumbers.some(n => n === 5 || n === 6 || n === 7);
+
+          // Đếm tổng câu hỏi
+          let totalQ = 0;
+          if (isRcFormat) {
+            // Part 5: flat questions; Part 6/7: passages → questions
+            for (const p of parsed.parts) {
+              if (p.part_number === 5) totalQ += p.questions?.length || 0;
+              else {
+                for (const passage of p.passages || []) {
+                  totalQ += passage.questions?.length || 0;
+                }
+              }
+            }
+          } else {
+            totalQ = parsed.parts.reduce((sum, p) => {
+              const direct = p.questions?.length || 0;
+              const conv = (p.conversations || []).reduce((s, c) => s + c.questions.length, 0);
+              const talks = (p.talks || []).reduce((s, t) => s + t.questions.length, 0);
+              return sum + direct + conv + talks;
+            }, 0);
+          }
 
           setJsonFile(file);
           setJsonParsed(parsed);
-          setJsonPreview({ type: 'ets', parts: parsed.parts.length, total: totalQ });
-          setJsonIsEts(true);
+          setJsonPreview({ type: 'ets', parts: parsed.parts.length, total: totalQ, isRc: isRcFormat });
+          setJsonIsEts(!isRcFormat);
+          setJsonIsEtsRc(isRcFormat);
           setJsonError('');
           return;
         }
@@ -165,6 +186,7 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
           setJsonParsed(parsed);
           setJsonPreview({ type: 'custom', questions: parsed });
           setJsonIsEts(false);
+          setJsonIsEtsRc(false);
           setJsonError('');
           return;
         }
@@ -207,13 +229,12 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
     setUploading(true);
     try {
       if (form.skill === 'Listening' && jsonIsEts) {
-        // ETS format
         await uploadListeningEtsJson({
           title: form.title,
           time_limit: Number(form.duration),
           ets_data: jsonParsed
         });
-        alert(`Upload ETS thành công ${jsonPreview.total} câu hỏi (${jsonPreview.parts} parts)!`);
+        alert(`Upload ETS Listening thành công ${jsonPreview.total} câu hỏi (${jsonPreview.parts} parts)!`);
       } else if (form.skill === 'Listening') {
         await uploadListeningJson({
           title: form.title,
@@ -221,19 +242,28 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
           questions: jsonParsed
         });
         alert(`Upload thành công ${jsonParsed.length} câu hỏi Listening!`);
+      } else if (form.skill === 'Reading' && jsonIsEtsRc) {
+        // TOEIC RC format (Part 5/6/7)
+        await uploadReadingEtsRcJson({
+          title: form.title,
+          time_limit: Number(form.duration),
+          parts: jsonParsed.parts
+        });
+        alert(`Upload ETS RC thành công ${jsonPreview.total} câu hỏi (${jsonPreview.parts} parts)!`);
       } else {
         await uploadReadingJson({
           title: form.title,
           time_limit: Number(form.duration),
-          questions: jsonParsed
+          questions: Array.isArray(jsonParsed) ? jsonParsed : []
         });
-        alert(`Upload thành công ${jsonParsed.length} câu hỏi Reading!`);
+        alert(`Upload thành công ${Array.isArray(jsonParsed) ? jsonParsed.length : 0} câu hỏi Reading!`);
       }
 
       setJsonFile(null);
       setJsonParsed(null);
       setJsonPreview(null);
       setJsonIsEts(false);
+      setJsonIsEtsRc(false);
       onUploaded?.();
       setShowUploadModal(false);
     } catch (err) {
@@ -417,7 +447,12 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
                 ) : (
                   <p style={{ color: '#94a3b8' }}>Click để chọn file .json</p>
                 )}
-                {jsonPreview && jsonPreview.type === 'ets' && (
+                {jsonPreview && jsonPreview.type === 'ets' && jsonPreview.isRc && (
+                  <p style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
+                    ✓ TOEIC RC format — {jsonPreview.parts} parts — {jsonPreview.total} câu hỏi
+                  </p>
+                )}
+                {jsonPreview && jsonPreview.type === 'ets' && !jsonPreview.isRc && (
                   <p style={{ color: '#10b981', fontSize: 13, marginTop: 4 }}>
                     ✓ ETS format — {jsonPreview.parts} parts — {jsonPreview.total} câu hỏi
                   </p>
@@ -441,16 +476,12 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
               )}
             </div>
 
-            {jsonPreview && jsonPreview.type === 'ets' && (
+            {jsonPreview && jsonPreview.type === 'ets' && !jsonPreview.isRc && (
               <div style={{
-                backgroundColor: '#eff6ff',
-                border: '1px solid #93c5fd',
-                borderRadius: 8,
-                padding: '10px 14px',
-                marginBottom: 12,
-                fontSize: 13
+                backgroundColor: '#eff6ff', border: '1px solid #93c5fd',
+                borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13
               }}>
-                <strong style={{ color: '#1d4ed8' }}>ETS Format — Preview các parts:</strong>
+                <strong style={{ color: '#1d4ed8' }}>ETS Listening — Preview các parts:</strong>
                 <div style={{ marginTop: 6, color: '#374151' }}>
                   {jsonParsed?.parts?.map(p => {
                     const direct = p.questions?.length || 0;
@@ -459,6 +490,27 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
                     return (
                       <div key={p.part_number}>
                         <b>Part {p.part_number}</b>: {p.title} — {direct + conv + talks} câu
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {jsonPreview && jsonPreview.type === 'ets' && jsonPreview.isRc && (
+              <div style={{
+                backgroundColor: '#f0fdf4', border: '1px solid #86efac',
+                borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13
+              }}>
+                <strong style={{ color: '#166534' }}>ETS Reading RC — Preview các parts:</strong>
+                <div style={{ marginTop: 6, color: '#374151' }}>
+                  {jsonParsed?.parts?.map(p => {
+                    let count = 0;
+                    if (p.part_number === 5) count = p.questions?.length || 0;
+                    else count = (p.passages || []).reduce((s, ps) => s + (ps.questions?.length || 0), 0);
+                    return (
+                      <div key={p.part_number}>
+                        <b>Part {p.part_number}</b>: {p.title} — {count} câu
                       </div>
                     );
                   })}
@@ -493,9 +545,11 @@ const UploadModal = ({ styles, setShowUploadModal, selectedSkill, onUploaded }) 
                 <Upload size={16} style={{ marginRight: 6 }} />
                 {uploading
                   ? 'Đang upload...'
-                  : jsonPreview?.type === 'ets'
-                    ? `Upload ETS — ${jsonPreview.total} câu hỏi`
-                    : `Upload ${jsonPreview?.questions?.length || 0} câu hỏi`
+                  : jsonPreview?.type === 'ets' && jsonPreview?.isRc
+                    ? `Upload TOEIC RC — ${jsonPreview.total} câu hỏi`
+                    : jsonPreview?.type === 'ets'
+                      ? `Upload ETS — ${jsonPreview.total} câu hỏi`
+                      : `Upload ${jsonPreview?.questions?.length || 0} câu hỏi`
                 }
               </button>
             </div>

@@ -43,13 +43,14 @@ const ExamResult = ({ result, test, onBack, onRetry }) => {
   });
 
   allItems.sort((a, b) => {
-    const pa = a.part ?? 1, pb = b.part ?? 1;
+    const pa = a.part_number ?? a.part ?? 1;
+    const pb = b.part_number ?? b.part ?? 1;
     if (pa !== pb) return pa - pb;
     return (a.question_number ?? 9999) - (b.question_number ?? 9999);
   });
 
   const partGroups = allItems.reduce((acc, item) => {
-    const p = item.part ?? 1;
+    const p = item.part_number ?? item.part ?? 1;
     if (!acc[p]) acc[p] = [];
     acc[p].push(item);
     return acc;
@@ -146,7 +147,9 @@ const ExamResult = ({ result, test, onBack, onRetry }) => {
 
                               <div style={S.qMeta}>
                                 <div style={S.qText}>
-                                  {item.question || `Câu ${idx + 1}`}
+                                  {item.sentence
+                                    ? item.sentence.replace('-------', '______')
+                                    : (item.question || `Câu ${idx + 1}`)}
                                 </div>
                                 <div style={S.qSub}>
                                   <span>Đáp án đúng:&nbsp;
@@ -166,10 +169,12 @@ const ExamResult = ({ result, test, onBack, onRetry }) => {
                               </span>
                             </div>
 
-                            {/* Passage */}
-                            {item.passage && (
+                            {/* Passage - only show for non-RC (passage too long for result view) */}
+                            {item.passage && !item.part_number && (
                               <div style={S.passage}>
-                                <span style={S.passageLabel}>Transcript</span>
+                                <span style={S.passageLabel}>
+                                  {test?.skill === 'Reading' ? 'Passage' : 'Transcript'}
+                                </span>
                                 <p style={S.passageText}>{item.passage}</p>
                               </div>
                             )}
