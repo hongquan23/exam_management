@@ -26,3 +26,4 @@ api_router.include_router(speaking.router, prefix="/speaking", tags=["Speaking"]
 api_router.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot"])
 
 
+print("API router initialized with routes: auth, users, user_attempt, sections, listening, reading, writing, speaking, chatbot")
