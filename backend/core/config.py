@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from typing import List
 
 
@@ -14,6 +15,14 @@ class Settings(BaseSettings):
     # ==============================
     DATABASE_URL: str
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def fix_postgres_url(cls, v: str) -> str:
+        # SQLAlchemy 2.x requires "postgresql://" not "postgres://"
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+        return v
+
     # ==============================
     # SECURITY / JWT
     # ==============================
@@ -25,6 +34,15 @@ class Settings(BaseSettings):
     # AI / GROQ
     # ==============================
     GROQ_API_KEY: str  # 👈 THÊM DÒNG NÀY
+
+    # ==============================
+    # SMTP / EMAIL
+    # ==============================
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str
+    SMTP_PASSWORD: str
+    SMTP_FROM_EMAIL: str
 
     # ==============================
     # CORS
