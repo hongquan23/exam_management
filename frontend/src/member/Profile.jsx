@@ -5,13 +5,57 @@ import {
 } from "lucide-react";
 import { changePassword } from "../api";
 
+const card = {
+  background: "white",
+  borderRadius: 24,
+  padding: 32,
+  boxShadow: "0 1px 3px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.05)",
+  position: "relative",
+  overflow: "hidden",
+};
+
+const inputWrap = { position: "relative" };
+
+const inputStyle = {
+  width: "100%",
+  background: "#f8fafc",
+  border: "1.5px solid #e2e8f0",
+  borderRadius: 14,
+  padding: "14px 16px 14px 44px",
+  fontSize: 16,
+  color: "#0f172a",
+  outline: "none",
+  boxSizing: "border-box",
+  transition: "border-color 0.2s",
+};
+
+const labelStyle = {
+  display: "block",
+  fontSize: 13,
+  fontWeight: 700,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "#475569",
+  marginBottom: 8,
+  marginLeft: 4,
+};
+
+const iconStyle = {
+  position: "absolute",
+  left: 14,
+  top: "50%",
+  transform: "translateY(-50%)",
+  color: "#64748b",
+  pointerEvents: "none",
+};
+
 const Profile = ({ currentUser }) => {
   const navigate = useNavigate();
   const [name, setName] = useState(currentUser?.name || "Người dùng");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [pwMsg, setPwMsg] = useState(null); // { type: 'success'|'error', text: string }
+  const [pwMsg, setPwMsg] = useState(null);
   const [pwLoading, setPwLoading] = useState(false);
 
   const handleUpdateName = () => alert("Tên mới: " + name);
@@ -46,150 +90,249 @@ const Profile = ({ currentUser }) => {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#0a192f] text-white flex justify-center items-start pt-12 px-4 pb-12 relative overflow-hidden"
-      style={{ backgroundImage: "radial-gradient(circle at 20% 30%, rgba(37,99,235,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(79,70,229,0.15) 0%, transparent 40%)" }}
-    >
-      <div className="absolute inset-0 opacity-20 pointer-events-none bg-cover bg-center"
-           style={{ backgroundImage: "url('https://cdn.bhdw.net/im/landscape-minimalist-wallpaper-81021_w635.webp')" }} />
-
-      <div className="w-full max-w-5xl relative z-10">
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "#f1f5f9",
+      fontFamily: "'Plus Jakarta Sans','Inter',sans-serif",
+      color: "#0f172a",
+      padding: "48px 16px",
+    }}>
+      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
 
         {/* TOP BAR */}
-        <div className="flex justify-between items-center mb-8">
-          <button onClick={() => navigate(-1)}
-            className="group flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 px-5 py-2.5 rounded-2xl transition-all">
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span>Quay lại</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              background: "white", border: "1.5px solid #e2e8f0",
+              borderRadius: 14, padding: "10px 20px",
+              color: "#1e293b", fontWeight: 600, fontSize: 14,
+              cursor: "pointer", transition: "all 0.2s",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"}
+            onMouseLeave={e => e.currentTarget.style.background = "white"}
+          >
+            <ArrowLeft size={16} /> Quay lại
           </button>
-          <h1 className="text-2xl font-bold tracking-tight">Tài khoản</h1>
-          <div className="w-24" />
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0f172a" }}>Tài khoản</h1>
+          <div style={{ width: 96 }} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}
+             className="profile-grid">
 
           {/* LEFT: Avatar card */}
-          <div className="lg:col-span-1">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 text-center shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600" />
-              <div className="relative inline-block mb-6">
-                <img src="https://i.pravatar.cc/150" alt="avatar"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white/10 shadow-xl group-hover:scale-105 transition-transform duration-500" />
-                <button className="absolute bottom-0 right-0 p-2 bg-blue-500 rounded-full border-4 border-[#0a192f] hover:bg-blue-600 transition-colors">
-                  <Camera size={16} />
-                </button>
-              </div>
-              <h2 className="text-2xl font-bold mb-1">{currentUser?.name || name}</h2>
-              <p className="text-blue-300/60 text-sm mb-6 flex items-center justify-center gap-2">
-                <Mail size={14} /> {currentUser?.email || "user@example.com"}
-              </p>
-              <div className="pt-6 border-t border-white/5 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Thành viên từ</span>
-                  <span className="text-white/80">Tháng 03, 2026</span>
+          <div style={{ gridColumn: "span 1" }}>
+            <div style={card}>
+              <div style={{
+                position: "absolute", top: 0, left: 0, right: 0, height: 4,
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              }} />
+              <div style={{ textAlign: "center", paddingTop: 8 }}>
+                <div style={{ position: "relative", display: "inline-block", marginBottom: 20 }}>
+                  <img
+                    src="https://i.pravatar.cc/150"
+                    alt="avatar"
+                    style={{ width: 112, height: 112, borderRadius: "50%", objectFit: "cover", border: "3px solid #e2e8f0" }}
+                  />
+                  <button style={{
+                    position: "absolute", bottom: 0, right: 0,
+                    padding: 7, background: "#6366f1", borderRadius: "50%",
+                    border: "3px solid #f1f5f9", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <Camera size={14} color="white" />
+                  </button>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Vai trò</span>
-                  <span className="text-blue-400 font-medium">Thí sinh</span>
+
+                <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
+                  {currentUser?.name || name}
+                </h2>
+                <p style={{ fontSize: 14, color: "#475569", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 24 }}>
+                  <Mail size={13} /> {currentUser?.email || "user@example.com"}
+                </p>
+
+                <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                    <span style={{ color: "#475569" }}>Thành viên từ</span>
+                    <span style={{ color: "#1e293b", fontWeight: 600 }}>Tháng 03, 2026</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
+                    <span style={{ color: "#475569" }}>Vai trò</span>
+                    <span style={{ color: "#6366f1", fontWeight: 700 }}>Thí sinh</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* RIGHT: Profile content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: 24 }}>
 
             {/* Thông tin cơ bản */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 shadow-2xl">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400"><User size={20} /></div>
-                <h3 className="text-xl font-bold">Thông tin cơ bản</h3>
+            <div style={card}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
+                <div style={{ padding: 8, background: "#ede9fe", borderRadius: 10 }}>
+                  <User size={18} color="#6366f1" />
+                </div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Thông tin cơ bản</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="space-y-2">
-                  <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Họ và Tên</label>
-                  <div className="relative">
-                    <input type="text" value={name} onChange={e => setName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-blue-500/50 outline-none transition-all focus:bg-white/10"
-                      placeholder="Nhập tên của bạn" />
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}
+                   className="info-grid">
+                <div>
+                  <label style={labelStyle}>Họ và Tên</label>
+                  <div style={inputWrap}>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      style={inputStyle}
+                      placeholder="Nhập tên của bạn"
+                      onFocus={e => e.target.style.borderColor = "#6366f1"}
+                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                    <User style={iconStyle} size={16} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Địa chỉ Email</label>
-                  <div className="relative">
-                    <input type="email" value={currentUser?.email || ""} disabled
-                      className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 pl-12 text-white/30 cursor-not-allowed outline-none" />
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/10" size={18} />
+                <div>
+                  <label style={labelStyle}>Địa chỉ Email</label>
+                  <div style={inputWrap}>
+                    <input
+                      type="email"
+                      value={currentUser?.email || ""}
+                      disabled
+                      style={{ ...inputStyle, background: "#f1f5f9", color: "#94a3b8", cursor: "not-allowed" }}
+                    />
+                    <Mail style={iconStyle} size={16} />
                   </div>
                 </div>
               </div>
-              <button onClick={handleUpdateName}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                <Save size={18} /> Lưu thay đổi
+
+              <button
+                onClick={handleUpdateName}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  color: "white", fontWeight: 700, fontSize: 15,
+                  padding: "12px 28px", borderRadius: 14, border: "none",
+                  cursor: "pointer", boxShadow: "0 4px 14px rgba(99,102,241,0.3)",
+                  transition: "opacity 0.2s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+                onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+              >
+                <Save size={16} /> Lưu thay đổi
               </button>
             </div>
 
             {/* Bảo mật */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 shadow-2xl">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400"><Lock size={20} /></div>
-                <h3 className="text-xl font-bold">Bảo mật tài khoản</h3>
+            <div style={card}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
+                <div style={{ padding: 8, background: "#fee2e2", borderRadius: 10 }}>
+                  <Lock size={18} color="#ef4444" />
+                </div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Bảo mật tài khoản</h3>
               </div>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Mật khẩu hiện tại</label>
-                  <div className="relative">
-                    <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-rose-500/50 outline-none transition-all focus:bg-white/10"
-                      placeholder="••••••••" />
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div>
+                  <label style={labelStyle}>Mật khẩu hiện tại</label>
+                  <div style={inputWrap}>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      style={inputStyle}
+                      placeholder="••••••••"
+                      onFocus={e => e.target.style.borderColor = "#ef4444"}
+                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                    <Lock style={iconStyle} size={16} />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Mật khẩu mới</label>
-                    <div className="relative">
-                      <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-rose-500/50 outline-none transition-all focus:bg-white/10"
-                        placeholder="••••••••" />
-                      <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}
+                     className="pw-grid">
+                  <div>
+                    <label style={labelStyle}>Mật khẩu mới</label>
+                    <div style={inputWrap}>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                        style={inputStyle}
+                        placeholder="••••••••"
+                        onFocus={e => e.target.style.borderColor = "#ef4444"}
+                        onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                      />
+                      <ShieldCheck style={iconStyle} size={16} />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-white/50 text-xs uppercase tracking-widest font-bold ml-1">Xác nhận mật khẩu mới</label>
-                    <div className="relative">
-                      <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 focus:border-rose-500/50 outline-none transition-all focus:bg-white/10"
-                        placeholder="••••••••" />
-                      <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                  <div>
+                    <label style={labelStyle}>Xác nhận mật khẩu mới</label>
+                    <div style={inputWrap}>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        style={inputStyle}
+                        placeholder="••••••••"
+                        onFocus={e => e.target.style.borderColor = "#ef4444"}
+                        onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                      />
+                      <ShieldCheck style={iconStyle} size={16} />
                     </div>
                   </div>
                 </div>
 
                 {pwMsg && (
-                  <div className={`flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium ${
-                    pwMsg.type === "success"
-                      ? "bg-green-500/15 border border-green-500/30 text-green-400"
-                      : "bg-rose-500/15 border border-rose-500/30 text-rose-400"
-                  }`}>
-                    {pwMsg.type === "success"
-                      ? <CheckCircle size={16} />
-                      : <XCircle size={16} />}
+                  <div style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    padding: "12px 16px", borderRadius: 12, fontSize: 14, fontWeight: 500,
+                    ...(pwMsg.type === "success"
+                      ? { background: "#f0fdf4", border: "1.5px solid #bbf7d0", color: "#16a34a" }
+                      : { background: "#fff1f2", border: "1.5px solid #fecdd3", color: "#dc2626" }),
+                  }}>
+                    {pwMsg.type === "success" ? <CheckCircle size={16} /> : <XCircle size={16} />}
                     {pwMsg.text}
                   </div>
                 )}
 
-                <button onClick={handleUpdatePassword} disabled={pwLoading}
-                  className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-4 px-10 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
-                  {pwLoading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
-                </button>
+                <div>
+                  <button
+                    onClick={handleUpdatePassword}
+                    disabled={pwLoading}
+                    style={{
+                      background: pwLoading ? "#f1f5f9" : "white",
+                      border: "1.5px solid #e2e8f0",
+                      color: pwLoading ? "#94a3b8" : "#0f172a",
+                      fontWeight: 700, fontSize: 15,
+                      padding: "12px 28px", borderRadius: 14,
+                      cursor: pwLoading ? "not-allowed" : "pointer",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={e => { if (!pwLoading) e.currentTarget.style.background = "#f8fafc"; }}
+                    onMouseLeave={e => { if (!pwLoading) e.currentTarget.style.background = "white"; }}
+                  >
+                    {pwLoading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
+                  </button>
+                </div>
               </div>
             </div>
 
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .profile-grid { grid-template-columns: 1fr !important; }
+          .profile-grid > div { grid-column: span 1 !important; }
+          .info-grid, .pw-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 };

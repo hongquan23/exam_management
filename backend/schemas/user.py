@@ -29,7 +29,19 @@ class ChangePassword(BaseModel):
 
 class UserOut(UserBase):
     id: int
-    created_at: Optional[datetime] = None 
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class VerifyResetCode(BaseModel):
+    email: str
+    code: str
+
+class ResetPassword(BaseModel):
+    email: str
+    code: str
+    new_password: str

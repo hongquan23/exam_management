@@ -8,6 +8,7 @@ from core.security import (
     verify_password,
     create_access_token
 )
+from services import email_service, reset_code_store
 
 
 def verify_token(token: str):
@@ -88,3 +89,49 @@ def change_password(db: Session, user_id: int, data: ChangePassword):
     user_crud.update_password(db, user_id, new_hash)
 
     return {"message": "Password updated successfully"}
+
+
+def forgot_password(db: Session, email: str):
+    email = email.lower().strip()
+    user = user_crud.get_by_email(db, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Email không tồn tại trong hệ thống"
+        )
+    code = reset_code_store.generate(email)
+    try:
+        email_service.send_reset_code_email(email, code)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Không thể gửi email xác nhận: {exc}"
+        )
+    return {"message": "Mã xác nhận đã được gửi đến email của bạn"}
+
+
+def verify_forgot_code(email: str, code: str):
+    if not reset_code_store.verify(email.lower().strip(), code):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã xác nhận không đúng hoặc đã hết hạn"
+        )
+    return {"message": "Mã xác nhận hợp lệ"}
+
+
+def reset_password_with_code(db: Session, email: str, code: str, new_password: str):
+    email = email.lower().strip()
+    if not reset_code_store.consume(email, code):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã xác nhận không đúng hoặc đã hết hạn"
+        )
+    user = user_crud.get_by_email(db, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    new_hash = hash_password(new_password)
+    user_crud.update_password(db, user.id, new_hash)
+    return {"message": "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại."}

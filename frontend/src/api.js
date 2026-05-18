@@ -33,6 +33,9 @@ export const sendChatMessage = (data) => api.post("api/chatbot/chat", data);
 export const register = (data) => api.post("api/auth/register", data);
 export const login = (data) => api.post("api/auth/login", data);
 export const changePassword = (userId, data) => api.put(`api/auth/change-password/${userId}`, data);
+export const forgotPassword = (data) => api.post("api/auth/forgot-password", data);
+export const verifyResetCode = (data) => api.post("api/auth/verify-reset-code", data);
+export const resetPassword = (data) => api.post("api/auth/reset-password", data);
 
 
 // 👉 Users

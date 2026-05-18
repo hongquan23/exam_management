@@ -233,9 +233,9 @@ const handleSignIn = async (e) => {
             />
 
             {/* 🔒 Chỉ MEMBER */}
-            <select value="MEMBER" disabled>
+            {/* <select value="MEMBER" disabled>
               <option value="MEMBER">MEMBER</option>
-            </select>
+            </select> */}
 
             <button type="submit">Sign Up</button>
           </form>
@@ -273,11 +273,11 @@ const handleSignIn = async (e) => {
                     border: "none",
                     background: "none",
                     color: "blue",
-                    textDecoration: "underline",
+                    textDecoration: "none",
                     cursor: "pointer",
                   }}
                 >
-                  Forgot Password?
+                  Forgot Password
                 </button>
               </p>
             </form>

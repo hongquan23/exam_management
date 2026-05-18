@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from api.deps import get_db
-from schemas.user import UserCreate, UserLogin, Token, ChangePassword
+from schemas.user import UserCreate, UserLogin, Token, ChangePassword, ForgotPasswordRequest, VerifyResetCode, ResetPassword
 from services import auth_service
 
 router = APIRouter()
@@ -30,3 +30,24 @@ def change_password(
     db: Session = Depends(get_db)
 ):
     return auth_service.change_password(db, user_id, data)
+
+
+@router.post("/forgot-password")
+def forgot_password(
+    data: ForgotPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    return auth_service.forgot_password(db, data.email)
+
+
+@router.post("/verify-reset-code")
+def verify_reset_code(data: VerifyResetCode):
+    return auth_service.verify_forgot_code(data.email, data.code)
+
+
+@router.post("/reset-password")
+def reset_password(
+    data: ResetPassword,
+    db: Session = Depends(get_db)
+):
+    return auth_service.reset_password_with_code(db, data.email, data.code, data.new_password)
