@@ -12,6 +12,9 @@ import ContestPage from './ContestPage';
 import Course from './Course';
 import History from './History';
 import ChatBot from './ChatBot';
+import Flashcards from './Flashcards';
+import TextSelectionPopup from '../components/TextSelectionPopup';
+import { useTextSelection } from '../hooks/useTextSelection';
 import {
   getSpeakingTests, getWritingTests, getListeningTests, getReadingTests,
   getWritingBySection, getSpeakingBySection, getListeningBySection, getReadingBySection,
@@ -172,6 +175,7 @@ const mapAPIQuestionToUIFormat = (apiQuestion, skill, part) => {
 };
 
 const ToeicMember = () => {
+  const { selection, clearSelection } = useTextSelection();
   const [audioAnswers, setAudioAnswers] = useState({});
   const [audioBlob, setAudioBlob] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
@@ -251,6 +255,7 @@ useEffect(() => {
   else if (path.endsWith("/contest")) setActiveView("ContestPage");
   else if (path.endsWith("/course")) setActiveView("course");
   else if (path.endsWith("/history")) setActiveView("history");
+  else if (path.endsWith("/flashcards")) setActiveView("flashcards");
 
 }, [location.pathname]);
 
@@ -575,6 +580,11 @@ const handleCourseClick = () => {
 const handleHistoryClick = () => {
   setActiveView("history");
   navigate("/member/history");
+};
+
+const handleFlashcardsClick = () => {
+  setActiveView("flashcards");
+  navigate("/member/flashcards");
 };
 
   const handleTestClick = (test) => {
@@ -2060,6 +2070,7 @@ const renderQuestionResult = () => {
         handleContestClick={handleContestClick}
         handleCourseClick={handleCourseClick}
         handleHistoryClick={handleHistoryClick}
+        handleFlashcardsClick={handleFlashcardsClick}
         weakAreas={weakAreas}
       />
     );
@@ -2130,12 +2141,19 @@ const renderQuestionResult = () => {
     viewContent = <ContestPage currentUser={currentUser} navigate={navigate} />;
   } else if (activeView === 'course') {
     viewContent = <Course navigate={navigate} />;
+  } else if (activeView === 'flashcards') {
+    viewContent = (
+      <Flashcards
+        onBack={() => { setActiveView("dashboard"); navigate("/member/dashboard"); }}
+      />
+    );
   }
 
   return (
     <>
       {viewContent}
       <ChatBot currentUser={currentUser} weakAreas={weakAreas} />
+      <TextSelectionPopup selection={selection} onClose={clearSelection} />
     </>
   );
 };

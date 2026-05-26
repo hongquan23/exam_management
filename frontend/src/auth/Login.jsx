@@ -232,10 +232,7 @@ const handleSignIn = async (e) => {
               }
             />
 
-            {/* 🔒 Chỉ MEMBER */}
-            {/* <select value="MEMBER" disabled>
-              <option value="MEMBER">MEMBER</option>
-            </select> */}
+        
 
             <button type="submit">Sign Up</button>
           </form>

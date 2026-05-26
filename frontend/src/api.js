@@ -83,6 +83,17 @@ export const getReadingBySection = (sectionId) => api.get(`api/reading/section/$
 export const uploadReadingJson = (data) => api.post("api/reading/upload-json", data);
 export const uploadReadingEtsRcJson = (data) => api.post("api/reading/upload-ets-rc-json", data);
 
+// 👉 Translate selection
+export const translateSelection = (data) => api.post("api/translate-selection", data);
+
+// 👉 Flashcards
+export const createFlashcard = (data) => api.post("api/flashcards/", data);
+export const getFlashcards = (params) => api.get("api/flashcards/", { params });
+export const getFlashcard = (id) => api.get(`api/flashcards/${id}`);
+export const updateFlashcard = (id, data) => api.put(`api/flashcards/${id}`, data);
+export const markFlashcard = (id, is_known) => api.patch(`api/flashcards/${id}/mark`, null, { params: { is_known } });
+export const deleteFlashcard = (id) => api.delete(`api/flashcards/${id}`);
+
 // 👉 User Attempts
 export const submitMcqAnswers = (data) => api.post("api/user-attempts/submit-mcq", data);
 export const getAttemptsByUser = (userId) => api.get(`api/user-attempts/user/${userId}`);
